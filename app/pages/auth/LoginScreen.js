@@ -8,6 +8,7 @@ import {
   StyleSheet ,
   StatusBar,
   Dimensions,
+  ActivityIndicator,
   TouchableWithoutFeedback,
   Keyboard, } from 'react-native'
   import * as Animatable from 'react-native-animatable';
@@ -20,17 +21,17 @@ import { OtpInput } from "react-native-otp-entry";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { COLORS } from '../../constants';
 import { addUserAndOTP } from '../../redux/action/userAction';
-import { verifyOTP } from '../../redux/action/otpActions';
-import { useNavigation } from '@react-navigation/native';
+// import { verifyOTP } from '../../redux/action/otpActions';
+import { authenticateUser, verifyOTP } from '../../redux/action/authActions';
 
 
-const LoginScreen = () => {
+const LoginScreen = ({navigation}) => {
     const {t} = useTranslation();
     const dispatch = useDispatch();
-   const navigation = useNavigation()
     const [currentView, setCurrentView] = useState('main'); 
     const [otpCode, setOTPCode] = useState('');
     const [otpError, setOTPError] = useState('');
+    const [loading, setLoading] = useState(false);
     const [userData, setUserData] = useState({
       username: '',
       phone: ''
@@ -71,9 +72,15 @@ const LoginScreen = () => {
       const isValid = validateForm();
 
       if(isValid){
-        dispatch(addUserAndOTP(userData));
-        setCurrentView('otpForm');
-      }
+        setLoading(true);
+        dispatch(authenticateUser(userData))
+         //dispatch(addUserAndOTP(userData))
+         .then(() => setCurrentView('otpForm'))
+                .catch(error => {
+                    console.error('Error during user and OTP dispatch:', error);
+                })
+                .finally(() => setLoading(false));
+        } 
     };
     console.log('userData :', userData)
   //  validation OTP
@@ -98,10 +105,15 @@ const LoginScreen = () => {
       const isValid = validateOTP();
   
       if (isValid) {
-        dispatch(verifyOTP(otpCode));
-        navigation.navigate('Home');
-      }
-    };
+         dispatch(verifyOTP(otpCode))
+         .then(() => navigation.navigate('Home'))
+         .catch(error => {
+             console.error('Error during OTP verification:', error);
+         })
+         .finally(() => setLoading(false));
+        } 
+        }
+
     
     const renderOTPView = () => {
       
@@ -171,18 +183,25 @@ const LoginScreen = () => {
                 <View style={styles.signIn}>
                   <TouchableOpacity
                     style={[styles.signIn, {flexDirection: "row", width: 130, color: COLORS.primary}]}
-                    onPress={() => handleSubmitOTP()}                  
+                    onPress={handleSubmitOTP}                  
                   >
                     <LinearGradient
                       colors={['#08d4c4', '#08d4c4']}
                       style={[styles.signIn, {flexDirection: "row", width: 140,}]}
                     >
+                      {loading ? (
+                        <View style={{flexDirection: "row", justifyContent:"center"}}>
+                          <ActivityIndicator size="small" color="#fff" />
+                          <Text style={{color: "white"}}>Chargement...</Text>
+                        </View>
+                    ) : (
                     <Text style={[styles.textSign, { color: '#fff' }]}> {t("To_check")} <FontAwesome
                       name="angle-right"
                       color={COLORS.white}
                       size={30}
                     /> 
                     </Text>
+                    )}
                     </LinearGradient>
                   </TouchableOpacity>
                 </View>
@@ -256,14 +275,21 @@ const LoginScreen = () => {
         {errors.phone && <Text style={styles.ErrorText}>{errors.phone}</Text>}
         <TouchableOpacity
                 style={{display: 'flex', alignSelf: 'flex-end', justifyContent:'flex-end', margin: 12 }}
-                onPress={handleSubmit}
+                onPress={() => handleSubmit()}
               >
                         
               <LinearGradient
                 colors={['#08d4c4', '#08d4c4']}
                 style={[styles.signIn, {flexDirection: "row", width: 130,}]}
               >
+                {loading ? (
+                        <View style={{flexDirection: "row", justifyContent:"center"}}>
+                          <ActivityIndicator size="small" color="#fff" />
+                          <Text style={{color: "white"}}>Chargement...</Text>
+                        </View>
+                    ) : (
                 <Text style={[styles.textSign, { color: '#fff', marginRight: 8 }]}> Continuer </Text>   
+              )}
                 <FontAwesome
                     name="angle-right"
                     color={COLORS.white}
@@ -285,7 +311,7 @@ const LoginScreen = () => {
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
             <StatusBar backgroundColor='#42C6A5' barStyle="light-content"/>
-        <View style={{}}>
+        {/* <View style={{}}>
           <TouchableOpacity style={{display: 'flex', alignSelf: 'flex-end', justifyContent:'flex-end', margin: 12, paddingHorizontal: 16, backgroundColor: COLORS.white, paddingVertical: 8, borderRadius: 10 }}
             onPress={() => navigation.navigate("Home")}
             >
@@ -303,7 +329,7 @@ const LoginScreen = () => {
             /> 
             </LinearGradient>
           </TouchableOpacity>
-        </View>
+        </View> */}
         {currentView === 'main' && renderMainView()}
         {currentView === 'otpForm' && renderOTPView()}
         {/* {currentView === 'connexion' && renderConnexionView()} */}

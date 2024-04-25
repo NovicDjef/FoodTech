@@ -6,7 +6,8 @@ import { SharedElement } from 'react-navigation-shared-element';
 
 export default function CategoriesCard({sharedElementPrefix, category, containerStyle, onPress}) {
   
-   const navigation = useNavigation()
+   
+   
   return (
     <TouchableOpacity
     style={{
@@ -23,7 +24,7 @@ export default function CategoriesCard({sharedElementPrefix, category, container
         
       >
       <Image 
-      source={category?.thumbnail}
+      source={{uri: `http://172.20.10.4:3000/images/${category.image}`}}
       resizeMode="cover"
       style={{
         width: "100%",
@@ -58,7 +59,7 @@ export default function CategoriesCard({sharedElementPrefix, category, container
         
       }}
     >
-      {category?.title}
+      {category?.name}
     </Text>
     </SharedElement>
   </View>

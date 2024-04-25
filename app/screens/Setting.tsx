@@ -17,7 +17,7 @@ import {
   import i18n from '../utils/locales/i18n';
   import Icon from 'react-native-vector-icons/Ionicons';
   import { useDispatch, useSelector } from 'react-redux';
-  import { logoutUser } from '../redux/action/userAction';
+  import { logoutUser } from '../redux/reducer/authReducer';
 
 
 
@@ -25,7 +25,7 @@ export default function Setting() {
   const { isDarkMode, setIsDarkMode, useDeviceSettings, setUseDeviceSettings } =
     useContext(DarkMode);
     const dispatch = useDispatch();
-    const user = useSelector(state => state.userReducer.user)
+    const user = useSelector((state) => state.auth.user.userData)
     const { t } = useTranslation();
 
   const scheme = useColorScheme();
@@ -183,7 +183,7 @@ export default function Setting() {
 
             <TouchableOpacity onPress={() => {}} style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
-                <Icon name='heart' size={28} color={"red"} />
+                <Icon name='heart-outline' size={28} color={isDarkMode ? "white" : "black"}  />
                 <Text style={[styles.text, {color: isDarkMode ? "white" : "black", marginLeft: 6,}]}>
                   {t("Invite_a_contact")}
                 </Text>
@@ -197,7 +197,7 @@ export default function Setting() {
             <View style={[styles.hr]} />
             <TouchableOpacity onPress={() => handlelogoutUser()} style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
-                <Icon name='heart' size={28} color={"red"} />
+                <Icon name='power' size={28} color={"red"} />
                 <Text style={[styles.text, {color: isDarkMode ? "white" : "black", marginLeft: 6,}]}>
                   {t("Logout")}
                 </Text>

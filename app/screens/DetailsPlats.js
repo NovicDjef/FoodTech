@@ -25,27 +25,21 @@ import { addToCart } from '../redux/action/cartActions';
 export default function DetailsPlats({navigation, item, category, route }) {
     const { plats } = route.params
     const [count, setCount] = useState(0)
-    const user = useSelector(state => state.userReducer.user)
-    const isAuthenticated = useSelector(state => state.userReducer.user !== null);
+    const user = useSelector((state) => state.auth.user)
     const { t } = useTranslation()
     function BackHandler() {
       navigation.goBack();
     }
     const dispatch = useDispatch();
 
-  // const handleAddToCart = (plats) => {
-  //   dispatch(addToCart(plats));
-  //   setCount(count + 1)
-  // }
+  const handleAddToCart = (plat) => {
+    dispatch(addToCart(plat));
+    setCount(count + 1)
+  }
 
-  const handleAddToCart = (plats) => {
-    if(isAuthenticated) {
-      dispatch(addToCart(plats));
-      setCount(count + 1)
+ 
+  const handleAddToCommande = () => { 
       navigation.navigate('panier')
-    } else {
-      navigation.navigate('login')
-    }
    
   }
 
@@ -171,7 +165,7 @@ export default function DetailsPlats({navigation, item, category, route }) {
                 </Text>
               {/* filter button */}
               <View >
-                <TouchableOpacity style={styles.container} onPress={() => setCount(count + 1)} >
+                <TouchableOpacity style={styles.container} onPress={() => handleAddToCart()} >
                     <Icon name="shopping-cart" size={24} color="white" />
                 </TouchableOpacity>
                 <View style={styles.countAdd}>
@@ -204,7 +198,7 @@ export default function DetailsPlats({navigation, item, category, route }) {
                   backgroundColor: COLORS.primary,
                 }}
                 label="Commander"
-                onPress={() => handleAddToCart()}
+                onPress={() => handleAddToCommande()}
                 labelStyle={{fontSize: 22, fontWeight: "bold"}}
               />
             </View>

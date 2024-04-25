@@ -17,8 +17,8 @@ export default function IconLabel({containerStyle, icon, iconStyle, label, label
       <Image
         source={icon}
         style={{
-          width: 20,
-          height: 20,
+          width: 15,
+          height: 15,
           //tintColor: COLORS.gray30,
           ...iconStyle,
         }}

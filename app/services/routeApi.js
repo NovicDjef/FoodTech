@@ -1,21 +1,33 @@
 import apiService from "./Api";
 
 // Requetes GET
-export const fetchSomeRestaurant = () => {
+  export const getchSomeRestaurant = () => {
     return apiService.get('/restaurants')
   }
-  export const fetchSomePlats = () => {
+  export const getchSomeRepas = () => {
     return apiService.get('/plats');
   };
-  export const fetchSomeLots = () => {
-    return apiService.get('/lots');
+  export const getchSomeUser = () => {
+    return apiService.get('/users')
+  }
+  export const getchSomeslide = () => {
+    return apiService.get('/slides');
   };
-  export const fetchSomeNotifications = () => {
-    return apiService.get('/notifications')
+  // export const getchSomePhone = () => {
+  //   return apiService.post('/users')
+  // }
+  export const getchSomecategorie = () => {
+    return apiService.get('/categories')
   };
-  export const getSomeCommande = (userId) => {
-    return apiService.get(`/commandes/${userId}`)
+  // export const getSomeCommande = (userId) => {
+  //   return apiService.get(`/commandes/${userId}`)
   
+  // };
+  export const getSomeCommande = () => {
+    return apiService.get("/commandes")
+  };
+  export const getchSomeLivraisons = () => {
+    return apiService.get("/livraisons")
   };
   
   // resquete POST :
@@ -47,12 +59,11 @@ export const fetchSomeRestaurant = () => {
   }
   
   export const fetchSomePhone = (userData) => {
-    console.debug("info user: ", userData);
     return apiService.post('/phone-otp', { userData: userData })
   }
 
   export const fetchSomeValidateOTP = (otpCode) => {
-    return apiService.post('/verify-otp', {otpCode: otpCode})
+    return apiService.post('/verify-otp', { otpCode: otpCode })
   }
   
   export const fetchSomeGame = ({lotId, userId, selectedNumbers, isWinner}) => {

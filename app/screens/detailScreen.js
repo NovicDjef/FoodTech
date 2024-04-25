@@ -13,7 +13,7 @@
     interpolate,
     // Extrapolate,
   } from 'react-native-reanimated';
-  import { fetchPlats } from '../redux/action/platsActions';
+  import { fetchRepas } from '../redux/action/platsActions';
   import { useSelector, useDispatch } from 'react-redux';
   import { IconsButton, HorizontalCourses, LineDivider, FilterModal } from '../components';
   import { COLORS, FONTS, SIZES, images, icons, dummyData, data } from '../constants';
@@ -29,15 +29,14 @@
     const { restaurant } = route.params;
     
     const dispatch = useDispatch();
-    const platsData = useSelector(state => state.platsReducer);
+    const platsData = useSelector((state) => state.plat.repas);
     useEffect(() => {
-      dispatch(fetchPlats());
+      dispatch(fetchRepas());
     }, []);
-    console.debug("restaurant :", restaurant)
 
     // Fonction pour filtrer les plats en fonction de l'identifiant du restaurant
   const getPlatsForRestaurant = (restaurantId) => {
-    return platsData.platsData.filter(plat => plat.restaurantId === restaurantId);
+    return platsData.filter(plat => plat.restaurantId === restaurantId);
   };
 
   // Récupérez les plats pour le restaurant spécifique
@@ -290,46 +289,46 @@ const resetSearch = () => {
       );
     }
 
-  // function renderModal() {
-  //   return(
-  //     <Animated.View
-  //     style={{
-  //       position: "absolute",
-  //       bottom: 0,
-  //       height: SIZES.height,
-  //       width: COLORS.width
-  //     }}
-  //   >
-  //   {/* bacground */}
-  //   <Animated.View
-  //    style={{
-  //     flex: 1,
-  //     height: SIZES.height,
-  //     width: COLORS.width,
-  //     backgroundColor: COLORS.transparentBlack7
-  //   }}
-  //   >
+  function renderModal() {
+    return(
+      <Animated.View
+      style={{
+        position: "absolute",
+        bottom: 0,
+        height: SIZES.height,
+        width: COLORS.width
+      }}
+    >
+    {/* bacground */}
+    <Animated.View
+     style={{
+      flex: 1,
+      height: SIZES.height,
+      width: COLORS.width,
+      backgroundColor: COLORS.transparentBlack7
+    }}
+    >
 
 
 
-  //   {/* content container */}
-  //   <Animated.View
-  //    style={{
-  //     position: "absolute",
-  //     bottom: 0,
-  //     height: SIZES.height * 0.9,
-  //     width: COLORS.width,
-  //     borderBottomLeftRadius: 30,
-  //     borderBottomRightRadius: 30,
-  //     backgroundColor: COLORS.white
-  //    }}
-  //   >
+    {/* content container */}
+    <Animated.View
+     style={{
+      position: "absolute",
+      bottom: 0,
+      height: SIZES.height * 0.9,
+      width: COLORS.width,
+      borderBottomLeftRadius: 30,
+      borderBottomRightRadius: 30,
+      backgroundColor: COLORS.white
+     }}
+    >
 
-  //   </Animated.View>
-  //   </Animated.View>
-  // </Animated.View>
-  //   )
-  // }
+    </Animated.View>
+    </Animated.View>
+  </Animated.View>
+    )
+  }
 
     return (
       <View

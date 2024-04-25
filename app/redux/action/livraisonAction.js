@@ -1,10 +1,11 @@
-import { fetchSomeAdressLivraison } from "../../services/routeApi"
+import { getchSomeLivraisons } from '../../services/routeApi';
+import { adressLivraisonRequest, adressLivraisonSuccess, adressLivraisonFailure } from "../reducer/livraisonReducer";
 
-export const sendAdressLivraison = (adresse) => {
+export const fetchLivraisons = () => {
   return async (dispatch) => {
+    dispatch(adressLivraisonRequest());
     try {
-      dispatch(adressLivraisonRequest());
-      const response = await fetchSomeAdressLivraison(adresse);
+      const response = await getchSomeLivraisons();
       dispatch(adressLivraisonSuccess(response.data));
     } catch (error) {
       dispatch(adressLivraisonFailure(error.message));
@@ -12,16 +13,3 @@ export const sendAdressLivraison = (adresse) => {
   };
 };
 
-const adressLivraisonRequest = () => ({
-  type: 'ADRESS_LIVRAISON_REQUEST'
-});
-
-const adressLivraisonSuccess = (data) => ({
-  type: 'ADRESS_LIVRAISON_SUCCESS',
-  payload: data,
-});
-
-const adressLivraisonFailure = (error) => ({
-  type: 'ADRESS_LIVRAISON_FAILURE',
-  payload: error,
-});

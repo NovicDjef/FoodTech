@@ -1,33 +1,51 @@
+import { createSlice } from "@reduxjs/toolkit";
+
 const initialState = {
+  commandes: [],
   loading: false,
-  error: null,
-  commande: [],
+  error: null
 };
-  
-const commandeReducer = (state = initialState, action) => {
-  switch (action.type) {
-    case 'ENVOYER_COMMANDE_REQUEST':
-      return {
-        ...state,
-        loading: true,
-        error: null,
-      };
-    case 'ENVOYER_COMMANDE_SUCCESS':
-      return {
-        ...state,
-        loading: false,
-        commande: action.payload,
-      };
-    case 'ENVOYER_COMMANDE_FAILURE':
-      return {
-        ...state,
-        loading: false,
-        error: action.payload,
-        
-      };
-    default:
-      return state;
+
+const commandeslice = createSlice({
+  name: "commandes",
+  initialState,
+  reducers: {
+    fetchCommandesRequest(state) {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchCommandesSucces(state, action) {
+      state.loading = false;
+      state.commandes = action.payload;
+      state.error = null;
+    },
+    fetchCommandesFailure(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
+    addCommandeRequest(state) {
+      state.loading = true;
+      state.error = null;
+    },
+    addCommandeSucces(state, action) {
+      state.loading = false;
+      state.commandes.push(action.payload); // Ajoute la nouvelle commande au tableau des commandes
+      state.error = null;
+    },
+    addCommandeFailure(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    }
   }
-};
-  
-export default commandeReducer;
+});
+
+export const { 
+  fetchCommandesRequest, 
+  fetchCommandesSucces, 
+  fetchCommandesFailure,
+  addCommandeRequest,
+  addCommandeSucces,
+  addCommandeFailure
+} = commandeslice.actions;
+
+export default commandeslice.reducer;

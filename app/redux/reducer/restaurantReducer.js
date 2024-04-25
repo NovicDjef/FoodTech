@@ -1,33 +1,35 @@
-import { FETCH_RESTAURANT_REQUEST, FETCH_RESTAURANT_SUCCESS, FETCH_RESTAURANT_FAILURE } from "../types/RestaurantType";
 
+import { createSlice } from "@reduxjs/toolkit";
 
 const initialState = {
-  isLoading: false,
-  restaurantData: [],
-  error: '',
+  restaurants: [],
+  loading: false,
+  error: null
 };
 
-export default (state = initialState, action) => {
-  switch (action.type) {
-    case FETCH_RESTAURANT_REQUEST:
-      return {
-        ...state,
-        isLoading: true,
-      };
-    case FETCH_RESTAURANT_SUCCESS:
-      return {
-        isLoading: false,
-        restaurantData: action.payload,
-        error: '',
-      };
-    case FETCH_RESTAURANT_FAILURE:
-      return {
-        isLoading: false,
-        restaurantData: [],
-        error: action.error,
-      };
-    default:
-      return state;
+const restaurantSlice = createSlice({
+  name: "restaurants",
+  initialState,
+  reducers: {
+    fetchrestaurantRequest(state) {
+      state.loading = true;
+    },
+    fetchrestaurantSucces(state, action) {
+      state.loading = false;
+      state.restaurants = action.payload;
+      state.error = null;
+    },
+    fetchrestaurantFailure(state, action) {
+      state.loading = false;
+      state.error = action.payload;
+    },
   }
-};
+});
 
+export const {
+  fetchrestaurantRequest,
+  fetchrestaurantSucces, 
+  fetchrestaurantFailure,
+ } = restaurantSlice.actions;
+
+export default restaurantSlice.reducer;

@@ -85,7 +85,7 @@ export default function TabMenu() {
         options={{
           tabBarIcon: ({ focused }) => (
             <Icon
-              name="shopping-cart"
+              name="history"
               size={22}
               color={focused ? '#02b875' : 'gray'}
             />

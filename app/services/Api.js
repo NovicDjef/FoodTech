@@ -8,8 +8,10 @@ const apiService = axios.create({
   // baseURL: 'http://192.168.8.168:3000', //maison 
   // baseURL: 'http://172.20.10.4:3000', // Iphone Xs
   // baseURL: "http://192.168.103.12:3000",   //joyce
-  // baseURL: "http://192.168.43.236:3000", //emulateur
-  
+  // baseURL: "http://192.168.43.236:3000", //emulateur 192.168.1.198
+  // baseURL: "http://192.168.1.198:3000", //espoir model MTN
+
+
   headers: {
     'Content-Type': 'application/json', 
   },

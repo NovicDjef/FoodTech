@@ -38,13 +38,15 @@ import {useNavigation} from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
 // Tab ICons...
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchRestaurant } from '../redux/action/restaurantActions';
-import { checkUserLoggedIn } from '../redux/action/userAction';
+import { fetchRestaurants } from '../redux/action/restaurantActions';
+// import { addUserAndOTP, checkUserLoggedIn, fetchUser } from '../redux/action/userAction';
 // Menu
 import menu from '../../assets/drawer/menu.png';
 import close from '../../assets/drawer/close.png';
 
 import RestaurantHorizontal from '../components/RestaurantHorizontal';
+import { fetchSlides } from '../redux/action/slideAction';
+import { fetchCategories } from '../redux/action/categorieAction';
 // logique de redux
 
 
@@ -58,14 +60,20 @@ function Home() {
   // Animated Properties...
 
   const dispatch = useDispatch();
-  const user = useSelector(state => state.userReducer.user)
-  const { isLoading, restaurantData, error } = useSelector(state => state.restaurantReducer);
-  useEffect(() => {
-    dispatch(fetchRestaurant());
+    const user = useSelector((state) => state.auth.user.userData)
+    const slidee = useSelector((state) => state.slide.slides)
+    const restaurants = useSelector((state) => state.restaurant.restaurants);
+    const categories = useSelector(state => state.categorie.categories)
+
+    useEffect(() => {
+     dispatch(fetchCategories());
+    },[])
+    useEffect(() => {
+     dispatch(fetchRestaurants())
+     dispatch(fetchSlides())
   }, []);
   const RefreshMe = () => {
     setRefresh(true)
-
     setTimeout(() => {
         setRefresh(false)
     }, 3000)
@@ -162,9 +170,6 @@ function Home() {
             }}
           />
         </TouchableOpacity>
-
-
-
         {renderHeader()}
         <ScrollView 
           refreshControl={
@@ -198,7 +203,6 @@ function Home() {
           {restaurant()}
         </ScrollView>
       </Animated.View>
-
       {/* </Animated.View> */}
     </SafeAreaView>
   );
@@ -255,7 +259,7 @@ function Home() {
     return (
       <FlatList
         horizontal
-        data={dummyData.slides}
+        data={slidee}
         // listKey="Courses"
         keyExtractor={item => `Courses-${item.id}`}
         showsHorizontalScrollIndicator={false}
@@ -315,7 +319,7 @@ function Home() {
         }}>
         <FlatList
           horizontal
-          data={dummyData.categoriesPlats}
+          data={categories}
           // listKey="Courses"
           keyExtractor={item => `Courses-${item.id}`}
           showsHorizontalScrollIndicator={false}
@@ -345,10 +349,10 @@ function Home() {
     return (
       <Section  title="Restaurant Favoris">
         <>
-             { restaurantData ? (
+             { restaurants ? (
           <FlatList
           horizontal
-          data={restaurantData}
+          data={restaurants}
           keyExtractor={item => item.id.toString()}
           showsHorizontalScrollIndicator={false}
           contentContainerStyle={{
@@ -356,41 +360,26 @@ function Home() {
             margin: 22,
           }}
           renderItem={({item, index}) => (
-           
-                <>
-                  {isLoading ? (
-                //  <View style={{flex: 1}}>
-                <View style={{justifyContent: 'center', alignItems: 'center'}}>
-                  <LottieView
-                    style={styles.lottie}
-                    source={require('../../assets/json/loadingRestau.json')}
-                    autoPlay
-                    loop
-                  />
-                </View>
-              ) : error ? (
-                <Text>Error: {error}</Text>
-              ) :   (
-                <TouchableOpacity
-                  key={item.id}
-                  // onPress={() => {
-                  //   handleRestaurantClick(item), console.debug('item..: ', item)}}
-                  onPress={() =>
-                    navigation.navigate('restaurantDetail', {
-                      restaurant: item,
-                    })
-                  }>
-                  <RestaurantVertical
-                    containerStyle={{
-                      marginLeft: index === 0 ? SIZES.padding : SIZES.radius,
-                      marginRight:
-                        index === restaurantData.length - 1 ? SIZES.padding : 0,
-                    }}
-                    course={item}
-                  />
-                </TouchableOpacity>
-              )}
-               
+            <>
+             
+            <TouchableOpacity
+              key={item.id}
+              // onPress={() => {
+              //   handleRestaurantClick(item), console.debug('item..: ', item)}}
+              onPress={() =>
+                navigation.navigate('restaurantDetail', {
+                  restaurant: item,
+                })
+              }>
+              <RestaurantVertical
+                containerStyle={{
+                  marginLeft: index === 0 ? SIZES.padding : SIZES.radius,
+                  marginRight:
+                    index === restaurants.length - 1 ? SIZES.padding : 0,
+                }}
+                course={item}
+              />
+            </TouchableOpacity>          
             </>
           )}
         />

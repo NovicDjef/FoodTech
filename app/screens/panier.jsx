@@ -8,7 +8,6 @@ import {
   Image,
   TextInput,
   Alert,
-  SafeAreaView,
   ScrollView,
   RefreshControl,
 } from 'react-native';
@@ -26,7 +25,6 @@ import { useTranslation } from 'react-i18next';
 import { sendAdressLivraison } from '../redux/action/livraisonAction';
 
 
-
 export default function Panier({ navigation }) {
   const { t } = useTranslation()
   const dispatch = useDispatch();
@@ -34,19 +32,16 @@ export default function Panier({ navigation }) {
   const [showModalDetailRecu, setShowModalDetailRecu] = useState(false)
   const [adresse, SetAdresse] = useState("");
   const [refresh, setRefresh] = useState(false)
-  const cart = useSelector(state => state.cartReducer)
-  const user = useSelector(state => state.userReducer.user)
+  const cart = useSelector(state => state.cart.items)
+  const user = useSelector(state => state.auth.user)
   useEffect(() => {
     StatusBar.setBarStyle('light-content', true);
   }, []);
-
+console.warn("feffnfnf vv : ", user)
   const handleRemoveFromCart = (id) => {
     dispatch(removeFromCart(id));
   };
-  const userId = useSelector(state => state.userReducer.user.id);
-
-
-  console.debug("userId: ", userId)
+  const userId = useSelector(state => state.auth.user.userData.phone);
 
   const handleShowCommande = () => {
     // const userToken = await AsyncStorage.getItem("userToken")
@@ -92,7 +87,6 @@ export default function Panier({ navigation }) {
     dispatch(sendCommande(cart, userId))
     setShowModalDetailRecu(false)
     //handleAdress()
-    console.log("ffffffff : ", cart.items )
   }
 
   
@@ -107,128 +101,128 @@ export default function Panier({ navigation }) {
    // Laissez les autres erreurs être gérées normalement
    console.error(error);
  };
-  const ConfirmInfo = () => {
-    const { isDarkMode } = useContext(DarkMode)
+  // const ConfirmInfo = () => {
+  //   const { isDarkMode } = useContext(DarkMode)
 
-    const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
-  const shippingCost = shippingMethod === 'Normal' ? 1000 : 60;
-    return(
-      <Dialog.Container useNativeDriver={true} visible={showModalDetailRecu}>
-        <Dialog.Title isDarkMode={isDarkMode}>Recu</Dialog.Title>
-          <ScrollView >
-          {cart.items.map((product, index) => (
-            <View style={{margin: 18 }} key={index}>
-               <View style={{flexDirection: 'row', marginTop: 10}}>
-                <View style={{flex: 1}}>
-                    <Text isDarkMode={isDarkMode}>Votre nom</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'flex-end'}}>
-                  <Text isDarkMode={isDarkMode}>{user.username}</Text>
-                </View>
-              </View>
-              <View style={{flexDirection: 'row', marginTop: 10}}>
-                <View style={{flex: 1}}>
-                    <Text isDarkMode={isDarkMode}>Votre numero</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text isDarkMode={isDarkMode}>{user.phone}</Text>
-              </View>
+  //   const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
+  // const shippingCost = shippingMethod === 'Normal' ? 1000 : 60;
+  //   return(
+  //     <Dialog.Container useNativeDriver={true} visible={showModalDetailRecu}>
+  //       <Dialog.Title isDarkMode={isDarkMode}>Recu</Dialog.Title>
+  //         <ScrollView >
+  //         {cart.items.map((product, index) => (
+  //           <View style={{margin: 18 }} key={index}>
+  //              <View style={{flexDirection: 'row', marginTop: 10}}>
+  //               <View style={{flex: 1}}>
+  //                   <Text isDarkMode={isDarkMode}>Votre nom</Text>
+  //               </View>
+  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //                 <Text isDarkMode={isDarkMode}>{user.username}</Text>
+  //               </View>
+  //             </View>
+  //             <View style={{flexDirection: 'row', marginTop: 10}}>
+  //               <View style={{flex: 1}}>
+  //                   <Text isDarkMode={isDarkMode}>Votre numero</Text>
+  //               </View>
+  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text isDarkMode={isDarkMode}>{user.phone}</Text>
+  //             </View>
             
-              </View>
-              <View style={{flexDirection: 'row', marginTop: 10}}>
-                <View style={{flex: 1}}>
-                  <Text isDarkMode={isDarkMode}>Adresse de livraison</Text>
-                </View>
-                <View style={{flex: 1, alignItems: 'flex-end'}}>
-                  <Text isDarkMode={isDarkMode}>{adresse}</Text>
-                </View>
-              </View>
+  //             </View>
+  //             <View style={{flexDirection: 'row', marginTop: 10}}>
+  //               <View style={{flex: 1}}>
+  //                 <Text isDarkMode={isDarkMode}>Adresse de livraison</Text>
+  //               </View>
+  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //                 <Text isDarkMode={isDarkMode}>{adresse}</Text>
+  //               </View>
+  //             </View>
               
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Nom du plat</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text isDarkMode={isDarkMode}>{product.nom}</Text>
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Description du plats</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text
-                    isDarkMode={isDarkMode}>{product.description}</Text>
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Image plat</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-            <Image
-              style={{
-                width: 35,
-                height: 35,
-                borderRadius: 10,
-                alignSelf: "flex-end"
-              }}
-              source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
-            />
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Prix du plat</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text
-                    isDarkMode={isDarkMode}>{product.prix}</Text>
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Quantité</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text
-                    isDarkMode={isDarkMode}>{product.quantity}</Text>
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Prix livraison</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text
-                    isDarkMode={isDarkMode}>1 000Frs</Text>
-            </View>
-        </View>
-        <View style={{flexDirection: 'row', marginTop: 10}}>
-            <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Net a payer</Text>
-            </View>
-            <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text>{totalPrice + shippingCost} Frs</Text>
-            </View>
-        </View>
-          </View>
-          ))}
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Nom du plat</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text isDarkMode={isDarkMode}>{product.nom}</Text>
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Description du plats</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text
+  //                   isDarkMode={isDarkMode}>{product.description}</Text>
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Image plat</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //           <Image
+  //             style={{
+  //               width: 35,
+  //               height: 35,
+  //               borderRadius: 10,
+  //               alignSelf: "flex-end"
+  //             }}
+  //             source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
+  //           />
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Prix du plat</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text
+  //                   isDarkMode={isDarkMode}>{product.prix}</Text>
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Quantité</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text
+  //                   isDarkMode={isDarkMode}>{product.quantity}</Text>
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Prix livraison</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text
+  //                   isDarkMode={isDarkMode}>1 000Frs</Text>
+  //           </View>
+  //       </View>
+  //       <View style={{flexDirection: 'row', marginTop: 10}}>
+  //           <View style={{flex: 1}}>
+  //               <Text isDarkMode={isDarkMode}>Net a payer</Text>
+  //           </View>
+  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
+  //               <Text>{totalPrice + shippingCost} Frs</Text>
+  //           </View>
+  //       </View>
+  //         </View>
+  //         ))}
           
 
 
 
-      <View style={{display: "flex", justifyContent: "space-between", alignItems: 'center', flexDirection: "row", marginHorizontal: 12}}>
-        <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
-          <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>Annuler</Text> 
-        </TouchableOpacity>
-        <Dialog.Button bold={true} label={"Valider"} onPress={() => handleCommande()}/>
-      </View>
+  //     <View style={{display: "flex", justifyContent: "space-between", alignItems: 'center', flexDirection: "row", marginHorizontal: 12}}>
+  //       <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
+  //         <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>Annuler</Text> 
+  //       </TouchableOpacity>
+  //       <Dialog.Button bold={true} label={"Valider"} onPress={() => handleCommande()}/>
+  //     </View>
       
-          </ScrollView>
-      </Dialog.Container>
-    ) 
-  }
+  //         </ScrollView>
+  //     </Dialog.Container>
+  //   ) 
+  // }
 
 
   return (
@@ -267,10 +261,10 @@ export default function Panier({ navigation }) {
                 .sort((a, b) => a.nom > b.nom)
                 .map((product, index) => (
                   <View style={styles.productView} key={index}>
-                    <Image
+                    {/* <Image
                       style={styles.productImage}
                       source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
-                    />
+                    /> */}
                     <View style={styles.productMiddleView}>
                       <Text style={styles.productTitle}>{product.nom}</Text>
                       <Text style={styles.productCompanyTitle}>
@@ -429,7 +423,7 @@ export default function Panier({ navigation }) {
           )}
 
           <View style={{ height: 100 }}></View>
-          <ConfirmInfo showModalDetailRecu={showModalDetailRecu} setShowModalDetailRecu={setShowModalDetailRecu} />
+          {/* <ConfirmInfo showModalDetailRecu={showModalDetailRecu} setShowModalDetailRecu={setShowModalDetailRecu} /> */}
         </ScrollView>
       </View>
     </View>

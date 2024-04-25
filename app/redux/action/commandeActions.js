@@ -1,44 +1,33 @@
-import { fetchSomeCommande, getSomeCommande } from "../../services/routeApi"
+import { addSomeCommande, getSomeCommande } from "../../services/routeApi"; // Mettez à jour pour correspondre à votre service d'API
+import { 
+  fetchCommandesRequest, 
+  fetchCommandesSucces, 
+  fetchCommandesFailure,
+  addCommandeRequest,
+  addCommandeSucces,
+  addCommandeFailure
+} from "../reducer/commandeReducer";
 
-
-export const sendCommande = (cart, userId) => {
+export const fetchcommandes = () => {
   return async (dispatch) => {
+    dispatch(fetchCommandesRequest());
     try {
-      dispatch(envoyerCommandeRequest());
-      const response = await fetchSomeCommande(cart.items, userId);
-      console.log("response: " + response)
-      dispatch(envoyerCommandeSuccess(response.data));
+      const response = await getSomeCommande();
+      dispatch(fetchCommandesSucces(response.data));
     } catch (error) {
-      dispatch(envoyerCommandeFailure(error.message));
+      dispatch(fetchCommandesFailure(error.message));
     }
   };
 };
 
-// get
-export const getAllCommande = (userId) => {
+export const addCommande = (commandeData) => { // Ajout du paramètre commandeData
   return async (dispatch) => {
+    dispatch(addCommandeRequest());
     try {
-      dispatch(envoyerCommandeRequest());
-      console.warn("commande: ", commande)
-      const response = await getSomeCommande(userId);
-      console.warn("commande: ", response)
-      dispatch(envoyerCommandeSuccess(response.data));
+      const response = await addSomeCommande(commandeData); // Utilisez la fonction d'API avec les données de la commande
+      dispatch(addCommandeSucces(response.data));
     } catch (error) {
-      dispatch(envoyerCommandeFailure(error.message));
+      dispatch(addCommandeFailure(error.message));
     }
   };
 };
-
-const envoyerCommandeRequest = () => ({
-  type: 'ENVOYER_COMMANDE_REQUEST'
-});
-
-const envoyerCommandeSuccess = (data) => ({
-  type: 'ENVOYER_COMMANDE_SUCCESS',
-  payload: data,
-});
-
-const envoyerCommandeFailure = (error) => ({
-  type: 'ENVOYER_COMMANDE_FAILURE',
-  payload: error,
-});

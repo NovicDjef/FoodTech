@@ -1,32 +1,14 @@
-import { FETCH_PLATS_REQUEST, FETCH_PLATS_SUCCESS, FETCH_PLATS_FAILURE } from "../types/platsType"
+import { getchSomeRepas } from "../../services/routeApi";
+import { fetchRepasRequest, fetchRepassuccess, fetchRepasFailure } from "../reducer/platsReducer"
 
-import { fetchSomePlats } from '../../services/routeApi'; 
-
-
-export const fetchPlatsRequest = () => ({
-  type: FETCH_PLATS_REQUEST,
-});
-
-export const fetchPlatsSuccess = (plats) => ({
-  type: FETCH_PLATS_SUCCESS,
-  payload: plats,
-});
-
-export const fetchPlatsFailure = (error) => ({
-  type: FETCH_PLATS_FAILURE,
-  error: error,
-});
-
-export const fetchPlats = () => {
+export const fetchRepas = () => {
   return async (dispatch) => {
-    dispatch(fetchPlatsRequest());
+    dispatch(fetchRepasRequest());
     try {
-      const response = await fetchSomePlats(); 
-      dispatch(fetchPlatsSuccess(response.data));
+      const response = await getchSomeRepas();
+      dispatch(fetchRepassuccess(response.data));
     } catch (error) {
-      dispatch(fetchPlatsFailure(error.message));
+      dispatch(fetchRepasFailure(error.message));
     }
   };
 };
-
-

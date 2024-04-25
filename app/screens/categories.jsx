@@ -1,14 +1,21 @@
-import React, {useRef} from 'react'
+import React, {useEffect, useRef} from 'react'
 import { useNavigation } from '@react-navigation/native';
 import {View, Text, Image, FlatList, TextInput, ScrollView} from 'react-native';
 
 import {TextButton, CategoriesCard} from '../components';
 import {COLORS, FONTS, SIZES, icons, dummyData} from '../constants';
+import { useDispatch, useSelector } from 'react-redux';
+import { fetchCategories } from '../redux/action/categorieAction';
 
 const Categories = () => {
   const navigation = useNavigation();
-  const scrollViewRef = useRef()
-   
+  dispatch = useDispatch()
+  const scrollViewRef = useRef();
+  const categories = useSelector(state => state.categorie.categories)
+
+   useEffect(() => {
+    dispatch(fetchCategories());
+   },[])
   function renderTopSearches() {
     return (
       <View
@@ -24,7 +31,7 @@ const Categories = () => {
         </Text>
         <FlatList
           horizontal
-          data={dummyData.top_searches}
+          data={categories}
           // listKey="TopSearcher"
           keyExtractor={item => `TopSearches-${item.id}`}
           showsHorizontalScrollIndicator={false}
@@ -33,7 +40,7 @@ const Categories = () => {
           }}
           renderItem={({item, index}) =>(
             <TextButton
-               label={item.label}
+               label={item.name}
                contentContainerStyle={{
                 paddingVertical: SIZES.radius,
                 paddingHorizontal: SIZES.padding,
@@ -75,7 +82,7 @@ const Categories = () => {
                 Browser Categories
              </Text>
             <FlatList
-               data={dummyData.categories}
+               data={categories}
                numColumns={2}
                scrollEnabled={false}
                listKey="BrowserCategorie"
@@ -94,7 +101,7 @@ const Categories = () => {
                         ? SIZES.radius : SIZES.padding,
                        }}
                        onPress={() => navigation.navigate
-                        ("detailRestaurant", { category: item, sharedElementPrefix: "Cours"})}
+                        ("PlatCategorie", { category: item})}
                     />
                 )}
             />
