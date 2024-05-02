@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { NavigationContainer } from '@react-navigation/native';
 import TabMenu from '../screens/menu/tabMenu';
-import FavoriteList from '../screens/favoriteListe';
+import FavoriteList from '../screens/FavoriteListe';
 import RestaurantDetail from '../screens/detailScreen';
 import Categories from '../screens/categories';
 import Payemant from '../screens/payement';
@@ -16,6 +16,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { setUser, logoutUser } from '../redux/reducer/authReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Status from '../components/Status';
+import ListRestaurants from '../screens/ListRestaurants';
 
 const Stack = createStackNavigator();
 
@@ -60,6 +61,8 @@ export default function Navigation() {
                 <Stack.Screen name='Cart' component={Cart} />
                 <Stack.Screen name='Status' component={Status} />
                 <Stack.Screen name='PlatCategorie' component={PlatCategorie} />
+                <Stack.Screen name='ListRestaurants' component={ListRestaurants} />
+                <Stack.Screen name='ListFavorite' component={FavoriteList} />
               </>
              ): (
               <Stack.Screen name="Login" component={LoginScreen} />

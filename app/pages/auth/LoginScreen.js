@@ -73,15 +73,12 @@ const LoginScreen = ({navigation}) => {
 
       if(isValid){
         setLoading(true);
-        dispatch(authenticateUser(userData))
-         //dispatch(addUserAndOTP(userData))
-         .then(() => setCurrentView('otpForm'))
-                .catch(error => {
-                    console.error('Error during user and OTP dispatch:', error);
-                })
-                .finally(() => setLoading(false));
+        dispatch(authenticateUser(userData));
+         setCurrentView('otpForm');
+         setLoading(false);
         } 
     };
+    
     console.log('userData :', userData)
   //  validation OTP
     const handleChangeOTP = (code) => {
@@ -280,12 +277,12 @@ const LoginScreen = ({navigation}) => {
                         
               <LinearGradient
                 colors={['#08d4c4', '#08d4c4']}
-                style={[styles.signIn, {flexDirection: "row", width: 130,}]}
+                style={[styles.signIn, {flexDirection: "row", width: 140,}]}
               >
                 {loading ? (
                         <View style={{flexDirection: "row", justifyContent:"center"}}>
                           <ActivityIndicator size="small" color="#fff" />
-                          <Text style={{color: "white"}}>Chargement...</Text>
+                          <Text style={{color: "white", marginLeft: 12}}>Chargement...</Text>
                         </View>
                     ) : (
                 <Text style={[styles.textSign, { color: '#fff', marginRight: 8 }]}> Continuer </Text>   

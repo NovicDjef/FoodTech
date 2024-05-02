@@ -10,10 +10,9 @@ export const authenticateUser = createAsyncThunk(
   async (userData, { rejectWithValue, dispatch }) => {
     try {
       const response = await fetchSomePhone(userData);
-      const { id } = response.data;
-      const userDataWithId = { ...userData, id };
-      await AsyncStorage.setItem('userData', JSON.stringify(userDataWithId));
+      await AsyncStorage.setItem('userData', JSON.stringify(response.data));
       dispatch(setUser(response.data));
+      console.log("edededededed :", response.data)
       return response.data;
     } catch (error) {
       return rejectWithValue(error.response.data);
@@ -33,14 +32,46 @@ export const verifyOTP = createAsyncThunk(
   }
 );
 
-export const fetchUsers = () => {
-  return async (dispatch) => {
+// export const fetchUsers = () => {
+//   return async (dispatch) => {
+//     dispatch(fetchUsersRequest());
+//     try {
+//       const response = await getchSomeUser();
+//       dispatch(fetchUsersSuccess(response.data));
+//     } catch (error) {
+//       dispatch(fetchUsersFailure(error.message));
+//     }
+//   };
+// };
+export const fetchUsers = createAsyncThunk(
+  'auth/fetchUsers',
+  async (_, { dispatch }) => {
     dispatch(fetchUsersRequest());
     try {
       const response = await getchSomeUser();
-      dispatch(fetchUsersSuccess(response.data));
+      console.debug("userID: ", response)
+      const usersWithIds = response.data.map(user => ({ ...user, id: user.id }));
+      dispatch(fetchUsersSuccess(usersWithIds)); 
+      return usersWithIds;
     } catch (error) {
-      dispatch(fetchUsersFailure(error.message));
+      throw error;
     }
-  };
-};
+  }
+);
+
+// export const fetchUsers = createAsyncThunk(
+//   'auth/fetchUsers',
+//   async (_, { dispatch }) => {
+//     dispatch(fetchUsersRequest());
+//     try {
+//       const response = await getchSomeUser();
+//       // Récupérer les utilisateurs de la réponse et stocker leur ID
+//       const usersWithIds = response.data.map(user => ({ ...user, id: user.id }));
+//       dispatch(fetchUsersSuccess(usersWithIds));
+//       return usersWithIds; // Retourner les utilisateurs avec leurs IDs
+//     } catch (error) {
+//       dispatch(fetchUsersFailure(error.message));
+//       throw error; // Renvoyer l'erreur pour la gestion dans le composant
+//     }
+//   }
+// );

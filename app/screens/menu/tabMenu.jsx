@@ -19,7 +19,7 @@ import Home from '../home';
 // import Historique from '../historique';
 import Panier from '../panier';
 import Categories from '../categories';
-import FavoriteList from '../favoriteListe';
+import FavoriteList from '../FavoriteListe';
 import { regular, semiBold } from '../../utils/fonts';
 import Setting from '../Setting';
 import Historique from '../../pages/menu/Historique';

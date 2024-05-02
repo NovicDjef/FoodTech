@@ -59,11 +59,14 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { authenticateUser, verifyOTP } from '../action/authActions';
 
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 const initialState = {
   user: null,
   isAuthenticated: false,
   loading: false,
   error: null,
+  
 };
 
 const authSlice = createSlice({
@@ -77,18 +80,7 @@ const authSlice = createSlice({
     logoutUser: (state) => {
       state.user = null;
       state.isAuthenticated = false;
-    },
-    fetchUsersRequest(state) {
-      state.loading = true;
-    },
-    fetchUsersSuccess(state, action) {
-      state.loading = false;
-      state.users = action.payload;
-      state.error = null;
-    },
-    fetchUsersFailure(state, action) {
-      state.loading = false;
-      state.error = action.payload;
+      AsyncStorage.removeItem('userData');
     }
   },
   extraReducers: (builder) => {
@@ -98,7 +90,7 @@ const authSlice = createSlice({
       })
       .addCase(authenticateUser.fulfilled, (state, action) => {
         state.loading = false;
-        state.user = action.payload;
+        state.user = action.payload.user;
         state.isAuthenticated = true;
       })
       .addCase(authenticateUser.rejected, (state, action) => {
@@ -119,6 +111,6 @@ const authSlice = createSlice({
   },
 });
 
-export const { setUser, logoutUser, fetchUsersRequest, fetchUsersSuccess, fetchUsersFailure } = authSlice.actions;
+export const { setUser, logoutUser} = authSlice.actions;
 export default authSlice.reducer;
 

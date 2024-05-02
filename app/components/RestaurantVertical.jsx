@@ -1,34 +1,62 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable prettier/prettier */
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { Image, TouchableOpacity, View, Text, StyleSheet, Animated, Alert } from 'react-native';
 
 import { IconLabel } from '.'
 import Icon from 'react-native-vector-icons/Feather';
 import { SIZES, icons, FONTS, COLORS, } from '../constants';
 import LottieView from 'lottie-react-native';
+// import Toast from 'react-native-toast-message'
+import { useDispatch, useSelector } from 'react-redux';
+import { toggleFavorite } from '../redux/action/favoriteAction';
+// import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+// import { fetchRestaurants } from '../redux/action/restaurantActions';
+import { RadioButton } from 'react-native-paper';
 
 
-import Toast from 'react-native-toast-message'
 
-export default function RestaurantVertical({containerStyle, course}) {
+export default function RestaurantVertical({containerStyle, course, restaurant}) {
 
-  const showToast = () => {
-    Toast.show({
-      type: "success",
-      text1: "message",
-      text2: "conteneu de la notifications",
-      autoHide: true,
-      visibilityTime: 2500,
-      position: "top",
-      bottomOffset: 50,
+  const favorites = useSelector(state => state.favorite.restaurants);
+  const isFavorite = favorites.some((r) => r.id === restaurant.id);
+  const dispatch = useDispatch();
+  const handleToggleFavorite = () => {
+    dispatch(toggleFavorite(restaurant));
+  };
+
+  // const showToast = () => {
+  //   Toast.show({
+  //     type: "success",
+  //     text1: "message",
+  //     text2: "conteneu de la notifications",
+  //     autoHide: true,
+  //     visibilityTime: 2500,
+  //     position: "top",
+  //     bottomOffset: 50,
     
-    })
-  }
+  //   })
+  // }
+  // if (loading) {
+  //   return (
+  //     <SkeletonPlaceholder>
+  //       <View style={{ flexDirection: "row", alignItems: "center" }}>
+  //         <View style={{ width: 230, height: 150, borderRadius: 10, marginRight: 15 }} />
+  //         <View style={{ flex: 1 }}>
+  //           <View style={{ width: '100%', height: 18, marginBottom: 6, borderRadius: 4 }} />
+  //           <View style={{ width: '70%', height: 18, marginBottom: 6, borderRadius: 4 }} />
+  //           <View style={{ width: '40%', height: 18, marginBottom: 6, borderRadius: 4 }} />
+  //         </View>
+  //       </View>
+  //     </SkeletonPlaceholder>
+  //   );
+  // }
+
 
   return (
    <>
+   
    <View style={{
     border: 2,
     borderBlockColor: 'red'
@@ -78,17 +106,24 @@ export default function RestaurantVertical({containerStyle, course}) {
                             //     ? handleRemoveFavorite(item)
                             //     : handleAddFavorite(item)
                             // }
-                      onPress={showToast}
+                      onPress={handleToggleFavorite}
                         >
-           
-                <View style={{marginTop: -30, marginLeft: 20}}>
+           {isFavorite ? (
+              <Animated.View style={[styles.heartContainer]}>
+                  <Icon
+                  name='heart'
+                  color='#000' size={35}  />
+              </Animated.View> 
+            ) : (
+            <View style={{marginTop: -30, marginLeft: 20}}>
                     <LottieView
                         style={styles.lottie}
                         source={require("../../assets/json/addToFovotite.json")}
                         autoPlay
                         loop
                     />
-                </View> 
+            </View> )}
+                
                 {/* <Animated.View style={[styles.heartContainer]}>
                   <Icon
                   name='heart'
@@ -99,28 +134,33 @@ export default function RestaurantVertical({containerStyle, course}) {
         </View>
          
           {/* Info section */}
+     
           <View
       style={{
         flexDirection: 'row',
       }}>
-             <View
-            style={{
-              flexShrink: 1,
-              paddingHorizontal: SIZES.radius,
-            }}>
+           
       
               <IconLabel
                  icon={ icons.userplace }
                  //label={course.ville}
                  containerStyle={{
-                  marginTop: SIZES.base,
+                  
                }}
               />
-             
+              <View>
+              <Text
+              style={{
+                fontSize: SIZES.h3,
+              }}
+              >{course.adresse}</Text>
+              </View>
+      </View>
+     
              <View
-      style={{
-        flexDirection: 'row',
-      }}>
+              style={{
+                flexDirection: 'row',
+              }}>
                <IconLabel
                  icon={ icons.star }
                  label={course.mention}
@@ -128,17 +168,38 @@ export default function RestaurantVertical({containerStyle, course}) {
                   marginTop: SIZES.base,
                }}
               />
-              <Text
-              style={{
-                fontSize: SIZES.h3,
-                marginTop: SIZES.base,
-                marginLeft: 60
-              }}
-              >{course.adresse}</Text>
+               <IconLabel
+                 icon={ icons.star }
+                 label={course.mention}
+                 containerStyle={{
+                  marginTop: SIZES.base,
+               }}
+              />
+                <IconLabel
+                 icon={ icons.star }
+                 label={course.mention}
+                 containerStyle={{
+                  marginTop: SIZES.base,
+               }}
+              /> 
+              <IconLabel
+                 icon={ icons.star }
+                 label={course.mention}
+                 containerStyle={{
+                  marginTop: SIZES.base,
+               }}
+              /> 
+             {/* <IconLabel
+              icon={ icons.star }
+              label={course.mention}
+              containerStyle={{
+               marginTop: SIZES.base,
+            }}
+           /> */}
+              
               </View>
 
-            </View>
-      </View>
+            
     </View>
    </View>
    </>

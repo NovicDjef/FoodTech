@@ -39,6 +39,7 @@ export default function PlatCategorie({navigation, route}) {
   const RefreshMe = () => {
     setRefresh(true)
     setTimeout(() => {
+      dispatch(fetchRepas());
         setRefresh(false)
     }, 3000)
   }
@@ -171,9 +172,11 @@ export default function PlatCategorie({navigation, route}) {
                 index === 0 && { borderTopWidth: 0 },
               ]}>
               <TouchableOpacity
-                onPress={() => {
-                  // handle onPress
-                }}>
+               onPress={() => {
+                navigation.navigate("DetailsPlats", {
+                  plats: plat,
+                })}}
+              >
                 <View style={styles.card}>
                   <Image
                     alt=""

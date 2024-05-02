@@ -1,5 +1,5 @@
 {
-    "search": "Rechercher",
+    "search": "Rechercher...",
     "filter": "Filtrer",
     "see_all": "Tous voir",
     "PHONE_NUMBER": "Numero Téléphone",
@@ -42,6 +42,22 @@
     "Dark_Mode": "Mode sombre",
     "Notifications": "Notifications",
     "Invite_a_contact": "Inviter un contact",
-    "Help": "Aide"
+    "Help": "Aide",
+    "Category": "Categorie",
+    "Favorite_Restaurant": "Restaurant Favori",
+    "Nearest_restaurant" : "Restaurant plus proche",
+    "Payment": "Paiement",
+    "My_Cart": "Mon Panier",
+    "Result": "Resultats",
+    "Description_plats": "Description Repas",
+    "Add_card": "Ajout panier",
+    "Order": "Commander",
+    "Your_cart_is_empty": "Votre panier est vide..!",
+    "Validate_order": "Validater Commande",
+    "Position": "Position",
+    "On_spot": "Sur place",
+    "Free": "Gratuite",
+    "Delivery": "Livraison",
+    "Fast_menu": "menu Rapide"
 
 }

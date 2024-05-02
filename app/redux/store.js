@@ -37,6 +37,8 @@ import slideReducer from './reducer/slideReducer';
 import categorieReducer from './reducer/categorieReducer';
 import commandeReducer from './reducer/commandeReducer';
 import livraisonReducer from './reducer/livraisonReducer';
+import favoriteReducer from './reducer/favoriteReducer';
+import locationReducer from './reducer/locationReducer';
 
 const store = configureStore({
   reducer: {
@@ -48,6 +50,8 @@ const store = configureStore({
     categorie: categorieReducer,
     commande: commandeReducer,
     livraison: livraisonReducer,
+    favorite: favoriteReducer,
+    location: locationReducer, 
   },
 });
 

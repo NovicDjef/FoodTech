@@ -13,9 +13,9 @@ import apiService from "./Api";
   export const getchSomeslide = () => {
     return apiService.get('/slides');
   };
-  // export const getchSomePhone = () => {
-  //   return apiService.post('/users')
-  // }
+  export const getchSomeGeolocation = () => {
+    return apiService.get("/geolocalisations")
+  }
   export const getchSomecategorie = () => {
     return apiService.get('/categories')
   };
@@ -33,29 +33,32 @@ import apiService from "./Api";
   // resquete POST :
   
   
-  export const fetchSomeGeolocation = (latitude, longitude) => {
-    return apiService.post('/geolocalisation', { latitude, longitude })
+  export const fetchSomeGeolocation = (geolocationData) => {
+    return apiService.post('/geolocalisation', { geolocationData: geolocationData })
   };
 
-
+  // const commande = cart.map(item => ({
+  //   quantity: item.quantity,
+  //   userId: userId, /* ID de l'utilisateur, à remplacer par la valeur réelle */
+  //   platsId: item.id, 
+    
+  // }));
   
-  export const fetchSomeCommande = (cart, userId) => {
-    const commande = cart.map(item => ({
-      quantity: item.quantity,
-      userId: userId, /* ID de l'utilisateur, à remplacer par la valeur réelle */
-      platsId: item.id, 
-      
-    }));
-        return apiService.post('/commande', { commande : commande})
+  export const addSomeCommande = (commande, userId) => {
+      return apiService.post('/commande', { commande : commande, userId: userId})
   }
+
+  // export const addSomeCommande = (cart) => {
+  //   return apiService.post("/commande", {cart: cart})
+  // }
 
   export const fetchSomeAdressLivraison = (adresse) => {
     console.debug("Adresse de livraion: ", adresse);
     return apiService.post('/livraison', {adresse: adresse})
   }
 
-  export const fetchSomeUser = (userData) => {
-    return apiService.get('/user/signIn', {userData})
+  export const fetchSomeUser = () => {
+    return apiService.get('/users')
   }
   
   export const fetchSomePhone = (userData) => {

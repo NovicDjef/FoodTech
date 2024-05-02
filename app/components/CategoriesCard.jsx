@@ -1,13 +1,38 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { useNavigation } from '@react-navigation/native';
 import {TouchableOpacity, Text, Image, View, StyleSheet} from 'react-native';
 import { COLORS, FONTS, SIZES} from '../constants';
 import { SharedElement } from 'react-navigation-shared-element';
+// import { useSelector, useDispatch } from 'react-redux';
+// import { fetchCategories } from '../redux/action/categorieAction';
+// import SkeletonPlaceholder from "react-native-skeleton-placeholder";
+
+
 
 export default function CategoriesCard({sharedElementPrefix, category, containerStyle, onPress}) {
+  // const dispatch = useDispatch()
+  // const loading  = useSelector(state => state.categorie.loading)
+  // useEffect(() => {
+  //   dispatch(fetchCategories());
+  // },[])
+
+  // if (loading) {
+  //   return (
+  //     <SkeletonPlaceholder>
+  //       <TouchableOpacity
+  //         style={{
+  //           height: 150,
+  //           width: 200,
+  //           ...containerStyle
+  //         }}
+  //         onPress={onPress}
+  //       >
+  //         <View style={{ width: '100%', height: '100%', borderRadius: SIZES.radius }} />
+  //       </TouchableOpacity>
+  //     </SkeletonPlaceholder>
+  //   );
+  // }
   
-   
-   
   return (
     <TouchableOpacity
     style={{

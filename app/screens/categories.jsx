@@ -1,6 +1,6 @@
-import React, {useEffect, useRef} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 import { useNavigation } from '@react-navigation/native';
-import {View, Text, Image, FlatList, TextInput, ScrollView} from 'react-native';
+import {View, Text, Image, FlatList, RefreshControl, ScrollView} from 'react-native';
 
 import {TextButton, CategoriesCard} from '../components';
 import {COLORS, FONTS, SIZES, icons, dummyData} from '../constants';
@@ -9,18 +9,26 @@ import { fetchCategories } from '../redux/action/categorieAction';
 
 const Categories = () => {
   const navigation = useNavigation();
-  dispatch = useDispatch()
+  const [refresh, setRefresh] = useState(false)
+  const dispatch = useDispatch()
   const scrollViewRef = useRef();
   const categories = useSelector(state => state.categorie.categories)
 
    useEffect(() => {
     dispatch(fetchCategories());
    },[])
+   const RefreshMe = () => {
+    setRefresh(true)
+    setTimeout(() => {
+      dispatch(fetchCategories());
+        setRefresh(false)
+    }, 3000)
+  }
   function renderTopSearches() {
     return (
       <View
         style={{
-         // marginTop: SIZES.padding,
+          marginTop: SIZES.padding,
         }}>
         <Text
           style={{
@@ -79,7 +87,7 @@ const Categories = () => {
               }}
 
              >
-                Browser Categories
+                Toutes les Categories
              </Text>
             <FlatList
                data={categories}
@@ -93,6 +101,7 @@ const Categories = () => {
                 renderItem={({item, index}) => (
                     <CategoriesCard
                        category={item}
+                       
                        containerStyle={{
                         height: 130,
                         width: (SIZES.width - (SIZES.padding * 2) - SIZES.radius) / 2,
@@ -110,68 +119,22 @@ const Categories = () => {
         );
     }
 
-    // function renderSearchBar() {
 
-    //     // eslint-disable-next-line no-return-assign
-    //     return (
-    //       <View
-    //            style={{
-    //             position: 'absolute',
-    //             top: 25,
-    //             left: 0,
-    //             right: 0,
-    //             paddingHorizontal: SIZES.padding,
-    //             height: 50,
-    //            }}
-    //         >
-    //             <View
-    //               style={{
-    //                 flex: 1,
-    //                 flexDirection: 'row',
-    //                 alignItems: 'center',
-    //                 width: SIZES.width - (SIZES.padding * 2),
-    //                 paddingHorizontal: SIZES.radius,
-    //                 borderRadius: SIZES.radius,
-    //                 backgroundColor: COLORS.white,
-    //               }}
-    //             >
-    //                 <Image
-    //                   source={icons.search}
-    //                   style={{
-    //                     width: 25,
-    //                     height: 25,
-    //                     tintColor: COLORS.gray40,
-    //                   }}
-
-    //                 />
-
-    //                 <TextInput
-    //                   style={{
-    //                     flex: 1,
-    //                     marginLeft: SIZES.base,
-    //                     ...FONTS.h4,
-    //                   }}
-    //                   value=""
-    //                   placeholder="effectuer votre recherche ICI"
-    //                   placeholderTextColor={COLORS.gray}
-    //                 />
-
-    //             </View>
-            
-    //       </View>
-    //     );
-    // }
   return (
     <View
       style={{
-        flex: 1,
         backgroundColor: COLORS.white,
       }}>
       <ScrollView
+       refreshControl={
+        <RefreshControl 
+          refreshing={refresh}
+          onRefresh={() => RefreshMe()}
+        />
+      }
         ref={scrollViewRef}
         contentContainerStyle={{
-          marginTop: 70,
-          paddingBottom: 300,
+          // paddingBottom: 300,
         }}
         showsVerticalScrollIndicator={false}
         scrollEventThrottle={16}
@@ -187,7 +150,7 @@ const Categories = () => {
 
       </ScrollView>
        {/* searchbar */}
-       {/* {renderSearchBar()} */}
+
     </View>
 
   )

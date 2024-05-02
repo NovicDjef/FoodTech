@@ -16,7 +16,7 @@ const commandeslice = createSlice({
     },
     fetchCommandesSucces(state, action) {
       state.loading = false;
-      state.commandes = action.payload;
+      state.commandes.push(action.payload);
       state.error = null;
     },
     fetchCommandesFailure(state, action) {

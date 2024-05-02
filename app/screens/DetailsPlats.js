@@ -26,17 +26,22 @@ export default function DetailsPlats({navigation, item, category, route }) {
     const { plats } = route.params
     const [count, setCount] = useState(0)
     const user = useSelector((state) => state.auth.user)
+    const cart = useSelector(state => state.cart)
     const { t } = useTranslation()
     function BackHandler() {
       navigation.goBack();
     }
     const dispatch = useDispatch();
 
-  const handleAddToCart = (plat) => {
-    dispatch(addToCart(plat));
+  const handleAddToCart = () => {
+    const isProductInCart = cart.items.some(item => item.id === plats.id);
+
+    if (isProductInCart) {
+      return;
+    }
+    dispatch(addToCart(plats));
     setCount(count + 1)
   }
-
  
   const handleAddToCommande = () => { 
       navigation.navigate('panier')
@@ -160,13 +165,13 @@ export default function DetailsPlats({navigation, item, category, route }) {
                       fontWeight: "bold"
                   }}
                   >
-                    {t("Dark_Mode")}
-                  Description plats
+                    {t("Description_plats")}
                 </Text>
               {/* filter button */}
               <View >
-                <TouchableOpacity style={styles.container} onPress={() => handleAddToCart()} >
+                <TouchableOpacity style={styles.container} onPress={handleAddToCart} >
                     <Icon name="shopping-cart" size={24} color="white" />
+                    <Text style={{color: COLORS.white, fontWeight: "bold", fontSize: 17, marginRight: 8}}>{t("Add_card")}</Text>
                 </TouchableOpacity>
                 <View style={styles.countAdd}>
                     <Text style={{color: COLORS.white, fontSize: 18, fontWeight: "bold"}}>{count}</Text>
@@ -197,7 +202,7 @@ export default function DetailsPlats({navigation, item, category, route }) {
                   marginVertical: 12,
                   backgroundColor: COLORS.primary,
                 }}
-                label="Commander"
+                label={t("Order")}
                 onPress={() => handleAddToCommande()}
                 labelStyle={{fontSize: 22, fontWeight: "bold"}}
               />
@@ -234,12 +239,13 @@ const styles = StyleSheet.create({
     container: {
       position: 'relative',
       flexDirection: "row-reverse",
-      width: 40,
+      width: "auto",
       height: 40,
       alignItems: 'center',
       justifyContent: "center",
       borderRadius: 10,
-      backgroundColor: COLORS.primary,      
+      backgroundColor: COLORS.primary,  
+      paddingHorizontal: 8    
       
     },
     countAdd: {
@@ -249,8 +255,8 @@ const styles = StyleSheet.create({
       borderRadius: 20,
       alignItems: 'center',
       justifyContent: "center",
-      top: -6,
-      left: 26,
+      top: -5,
+      left: 100,
       position: "absolute"
     }
   });

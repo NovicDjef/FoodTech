@@ -12,17 +12,17 @@ import {
   RefreshControl,
 } from 'react-native';
 import { Icon } from 'react-native-elements';
-import { ListItem, Left, Right, Radio, Content } from 'native-base';
 import { COLORS } from '../constants'
+import { RadioButton } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateCartItemQuantity } from '../redux/action/cartActions';
-import { sendLocation } from '../redux/action/locationActions';
-import Geolocation from '@react-native-community/geolocation';
+import { getchGeolocations, sendLocation } from '../redux/action/locationActions';
+// import Geolocation from '@react-native-community/geolocation';
 import DarkMode from '../utils/darkmode.context';
 import Dialog from "react-native-dialog";
-import { sendCommande } from '../redux/action/commandeActions';
+import { addCommande } from '../redux/action/commandeActions';
 import { useTranslation } from 'react-i18next';
-import { sendAdressLivraison } from '../redux/action/livraisonAction';
+import { fetchRestaurants } from '../redux/action/restaurantActions';
 
 
 export default function Panier({ navigation }) {
@@ -32,17 +32,43 @@ export default function Panier({ navigation }) {
   const [showModalDetailRecu, setShowModalDetailRecu] = useState(false)
   const [adresse, SetAdresse] = useState("");
   const [refresh, setRefresh] = useState(false)
-  const cart = useSelector(state => state.cart.items)
-  const user = useSelector(state => state.auth.user)
+  const user = useSelector(state => state.auth.user.user)
+  const cart = useSelector(state => state.cart)
+  const restaurants = useSelector(state => state.restaurant.restaurants)
+  const locations = useSelector(state => state.location.geolocation)
+  const userId = useSelector(state => state.auth.user.user.id)
+
+  
+  const getRestaurantCoordinates = (restaurantId) => {
+    const restaurant = restaurants.find(resto => resto.geolocalisationId === restaurantId);
+    if (restaurant) {
+      const location = locations.find(loc => loc.id === restaurant.geolocalisationId);
+      if (location) {
+        return { latitude: location.latitude, longitude: location.longitude };
+      } else {
+        return 'Position inconnue';
+      }
+    } else {
+      return 'Restaurant non trouvé';
+    }
+  };
+
+  const restaurantId = 1; // ID du restaurant
+const coordinates = getRestaurantCoordinates(restaurantId);
+console.warn("Coordonnées du restaurant :", coordinates);
+
+
   useEffect(() => {
+    // dispatch(fetchRestaurants());
+    // dispatch(getchGeolocations());
     StatusBar.setBarStyle('light-content', true);
   }, []);
-console.warn("feffnfnf vv : ", user)
+
+
   const handleRemoveFromCart = (id) => {
     dispatch(removeFromCart(id));
   };
-  const userId = useSelector(state => state.auth.user.userData.phone);
-
+ 
   const handleShowCommande = () => {
     // const userToken = await AsyncStorage.getItem("userToken")
     // if(userToken) {
@@ -51,9 +77,8 @@ console.warn("feffnfnf vv : ", user)
     // } else {
     //   navigation.navigate("login")
     // }
-    getCurrentLocation()
+    //getCurrentLocation()
   }
-
   const handleUpdateCartItemQuantity = (id, quantity) => {
     dispatch(updateCartItemQuantity(id, quantity));
   };
@@ -68,161 +93,170 @@ console.warn("feffnfnf vv : ", user)
 
   //const { latitude, longitude } = useSelector((state) => state.locationReducer);
 
-  const getCurrentLocation = () => {
-    Geolocation.getCurrentPosition(
-      position => {
-        const { latitude, longitude } = position.coords;
-        console.debug('Latitude:', latitude);
-        console.debug('Longitude:', longitude);
-        dispatch(sendLocation(latitude, longitude));
-      },
-      error => {
-        console.log(error);
-      },
-      { enableHighAccuracy: true, }
-    );
-  };
+  // const getCurrentLocation = () => {
+  //   Geolocation.getCurrentPosition(
+  //     position => {
+  //       const { latitude, longitude } = position.coords;
+  //       console.debug('Latitude:', latitude);
+  //       console.debug('Longitude:', longitude);
+  //     },
+  //     error => {
+  //       console.log(error);
+  //     },
+  //     { enableHighAccuracy: true, }
+  //   );
+  // };
 
+  
+  const calculateTotalPrice = () => {
+    if (shippingMethod === 'Normal') {
+      return totalPrice;
+    } else if (shippingMethod === 'Express') {
+      return totalPrice + 600;
+    }
+  };
   const handleCommande = () => {
-    dispatch(sendCommande(cart, userId))
+    const commander = cart.items.map(item => ({
+      quantity : item.quantity,
+      platsId: item.id,
+      restaurantId: restaurantId,
+      prix: totalCommande,
+      userId: userId,
+    }))
+    dispatch(addCommande(commander))
     setShowModalDetailRecu(false)
-    //handleAdress()
   }
 
   
-  const handleAdress = () => {
-    dispatch(sendAdressLivraison(adresse))
-   }
- // Surcharge de la fonction console.error pour ignorer spécifiquement l'erreur i18next::pluralResolver
  console.error = (error) => {
    if (error.includes("i18next::pluralResolver")) {
      return;
    }
-   // Laissez les autres erreurs être gérées normalement
    console.error(error);
  };
-  // const ConfirmInfo = () => {
-  //   const { isDarkMode } = useContext(DarkMode)
+ const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
+ const shippingCost = shippingMethod === 'Normal' ? 0 : 600;
+ const totalCommande = totalPrice + shippingCost;
 
-  //   const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
-  // const shippingCost = shippingMethod === 'Normal' ? 1000 : 60;
-  //   return(
-  //     <Dialog.Container useNativeDriver={true} visible={showModalDetailRecu}>
-  //       <Dialog.Title isDarkMode={isDarkMode}>Recu</Dialog.Title>
-  //         <ScrollView >
-  //         {cart.items.map((product, index) => (
-  //           <View style={{margin: 18 }} key={index}>
-  //              <View style={{flexDirection: 'row', marginTop: 10}}>
-  //               <View style={{flex: 1}}>
-  //                   <Text isDarkMode={isDarkMode}>Votre nom</Text>
-  //               </View>
-  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //                 <Text isDarkMode={isDarkMode}>{user.username}</Text>
-  //               </View>
-  //             </View>
-  //             <View style={{flexDirection: 'row', marginTop: 10}}>
-  //               <View style={{flex: 1}}>
-  //                   <Text isDarkMode={isDarkMode}>Votre numero</Text>
-  //               </View>
-  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text isDarkMode={isDarkMode}>{user.phone}</Text>
-  //             </View>
+  const ConfirmInfo = ({totalCommande}) => {
+    const { isDarkMode } = useContext(DarkMode)
+    return(
+      <Dialog.Container useNativeDriver={true} visible={showModalDetailRecu}>
+        <Dialog.Title isDarkMode={isDarkMode}>Recu</Dialog.Title>
+          <ScrollView >
+          {cart.items.map((product, index) => (
+            <View style={{margin: 18 }} key={index}>
+               <View style={{flexDirection: 'row', marginTop: 10}}>
+                <View style={{flex: 1}}>
+                    <Text isDarkMode={isDarkMode}>Votre nom</Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'flex-end'}}>
+                  <Text isDarkMode={isDarkMode}>{user.username}</Text>
+                </View>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 10}}>
+                <View style={{flex: 1}}>
+                    <Text isDarkMode={isDarkMode}>Votre numero</Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text isDarkMode={isDarkMode}>{user.phone}</Text>
+              </View>
             
-  //             </View>
-  //             <View style={{flexDirection: 'row', marginTop: 10}}>
-  //               <View style={{flex: 1}}>
-  //                 <Text isDarkMode={isDarkMode}>Adresse de livraison</Text>
-  //               </View>
-  //               <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //                 <Text isDarkMode={isDarkMode}>{adresse}</Text>
-  //               </View>
-  //             </View>
+              </View>
+              <View style={{flexDirection: 'row', marginTop: 10}}>
+                <View style={{flex: 1}}>
+                  <Text isDarkMode={isDarkMode}>Adresse de livraison</Text>
+                </View>
+                <View style={{flex: 1, alignItems: 'flex-end'}}>
+                  <Text isDarkMode={isDarkMode}>{adresse}</Text>
+                </View>
+              </View>
               
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Nom du plat</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text isDarkMode={isDarkMode}>{product.nom}</Text>
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Description du plats</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text
-  //                   isDarkMode={isDarkMode}>{product.description}</Text>
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Image plat</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //           <Image
-  //             style={{
-  //               width: 35,
-  //               height: 35,
-  //               borderRadius: 10,
-  //               alignSelf: "flex-end"
-  //             }}
-  //             source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
-  //           />
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Prix du plat</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text
-  //                   isDarkMode={isDarkMode}>{product.prix}</Text>
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Quantité</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text
-  //                   isDarkMode={isDarkMode}>{product.quantity}</Text>
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Prix livraison</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text
-  //                   isDarkMode={isDarkMode}>1 000Frs</Text>
-  //           </View>
-  //       </View>
-  //       <View style={{flexDirection: 'row', marginTop: 10}}>
-  //           <View style={{flex: 1}}>
-  //               <Text isDarkMode={isDarkMode}>Net a payer</Text>
-  //           </View>
-  //           <View style={{flex: 1, alignItems: 'flex-end'}}>
-  //               <Text>{totalPrice + shippingCost} Frs</Text>
-  //           </View>
-  //       </View>
-  //         </View>
-  //         ))}
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Nom du plat</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text isDarkMode={isDarkMode}>{product.nom}</Text>
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Description du plats</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text
+                    isDarkMode={isDarkMode}>{product.description}</Text>
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Image plat</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+            <Image
+              style={{
+                width: 35,
+                height: 35,
+                borderRadius: 10,
+                alignSelf: "flex-end"
+              }}
+              source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
+            />
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Prix du plat</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text
+                    isDarkMode={isDarkMode}>{product.prix}</Text>
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Quantité</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text
+                    isDarkMode={isDarkMode}>{product.quantity}</Text>
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Prix livraison</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text
+                    isDarkMode={isDarkMode}>600 Frs</Text>
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Net a payer</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text>{totalCommande} Frs</Text>
+            </View>
+        </View>
+          </View>
+          ))}
           
 
 
 
-  //     <View style={{display: "flex", justifyContent: "space-between", alignItems: 'center', flexDirection: "row", marginHorizontal: 12}}>
-  //       <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
-  //         <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>Annuler</Text> 
-  //       </TouchableOpacity>
-  //       <Dialog.Button bold={true} label={"Valider"} onPress={() => handleCommande()}/>
-  //     </View>
+      <View style={{display: "flex", justifyContent: "space-between", alignItems: 'center', flexDirection: "row", marginHorizontal: 12}}>
+        <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
+          <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>Annuler</Text> 
+        </TouchableOpacity>
+        <Dialog.Button bold={true} label={"Valider"} onPress={handleCommande}/>
+      </View>
       
-  //         </ScrollView>
-  //     </Dialog.Container>
-  //   ) 
-  // }
+          </ScrollView>
+      </Dialog.Container>
+    ) 
+  }
 
 
   return (
@@ -239,7 +273,7 @@ console.warn("feffnfnf vv : ", user)
           <Icon name='angle-left' type='font-awesome' size={30} color='#fff' />
         </TouchableOpacity>
       </View>
-      <Text style={styles.paymentTitle}>Payment</Text>
+      <Text style={styles.paymentTitle}>{t("Payment")}</Text>
       <View style={styles.cartContainer}>
         <ScrollView 
         showsVerticalScrollIndicator={false}
@@ -252,7 +286,7 @@ console.warn("feffnfnf vv : ", user)
         >
           <View style={styles.cartTitleView}>
             <Icon name='shopping-cart' color={COLORS.primary} type='font-awesome-5' />
-            <Text style={styles.cartTitle}>My Cart</Text>
+            <Text style={styles.cartTitle}>{t("My_Cart")}  </Text>
           </View>
 
           {cart.items.length > 0 ? (
@@ -261,10 +295,10 @@ console.warn("feffnfnf vv : ", user)
                 .sort((a, b) => a.nom > b.nom)
                 .map((product, index) => (
                   <View style={styles.productView} key={index}>
-                    {/* <Image
+                    <Image
                       style={styles.productImage}
                       source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
-                    /> */}
+                    />
                     <View style={styles.productMiddleView}>
                       <Text style={styles.productTitle}>{product.nom}</Text>
                       <Text style={styles.productCompanyTitle}>
@@ -281,28 +315,18 @@ console.warn("feffnfnf vv : ", user)
                             const newQuantity = product.quantity - 1;
                             if (newQuantity < 1) {
                               return Alert.alert(
-                                `Remove ${product.nom}?`, '', 
+                                `Voulez vous vraiment supprimer ${product.nom} du panier ?`, '', 
                                 [
-                                  { text: 'Cancel', style: 'cancel' },
+                                  { text: 'Annuler', style: 'cancel' },
                                   {
-                                    text: 'Remove',
+                                    text: 'Supprimer',
                                     onPress: () => {
-                                      const newCart = cart.items.filter((p) => p.id !== product.id);
-                                      handleRemoveFromCart(newCart);
+                                      handleRemoveFromCart(product.id);
                                     },
                                 },
                               ]);
                             }
-                            const newProd = {
-                              ...product,
-                              quantity: newQuantity,
-                              prix: product.prix - product.perPrice,
-                            };
-                            const updatedCart = cart.items.map((p) =>
-        p.id === product.id ? newProd : p
-      );
-                            //const restProds = cart.items.filter((p) => p.id !== product.id);
-                            handleUpdateCartItemQuantity(updatedCart);
+                            handleUpdateCartItemQuantity(product.id, newQuantity);
                           }}
                         >
                           <Icon
@@ -321,10 +345,7 @@ console.warn("feffnfnf vv : ", user)
                               quantity: product.quantity + 1,
                               prix: product.prix + product.perPrice,
                             };
-                            const restProds = cart.items.filter(
-                              (p) => p.id !== product.id
-                            );
-                            handleUpdateCartItemQuantity([...restProds, newProd]);
+                            handleUpdateCartItemQuantity(product.id, product.quantity + 1);
                           }}
                         >
                           <Icon
@@ -349,20 +370,21 @@ console.warn("feffnfnf vv : ", user)
               <View style={styles.subtotalView}>
                 <Text style={styles.subtotalText}>{t("Subtotal")} -</Text>
                 <Text style={styles.subtotalPrice}>
-                  {cart.items.reduce((acc, val) => val.prix + acc, 0)} Frs
+                  {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0)} Frs
                 </Text>
               </View>
               <View style={styles.shippingView}>
                 <Text style={styles.shippingText}>{t("Shipping")} -</Text>
                 <View style={styles.shippingItemsView}>
+                <RadioButton.Group onValueChange={newValue => setShippingMethod(newValue)} value={shippingMethod}>
                   <TouchableOpacity
                     style={styles.shippingItem}
                     onPress={() => {
                       setShippingMethod('Normal');
                     }}
-                  >
-                    <Text style={styles.shippingItemText}>Normal (Free)</Text>
-                    {/* <Radio selected={shippingMethod === 'Normal'} /> */}
+                    >
+                    <Text style={styles.shippingItemText}>{t("On_spot")} ({t("Free")})</Text>
+                    <RadioButton value='Normal' />
                   </TouchableOpacity>
                   <TouchableOpacity
                     style={styles.shippingItem}
@@ -370,20 +392,22 @@ console.warn("feffnfnf vv : ", user)
                       setShippingMethod('Express');
                     }}
                   >
-                    <Text style={styles.shippingItemText}>Express (600 Frs)</Text>
-                    {/* <Radio selected={shippingMethod === 'Express'} /> */}
+                    <Text style={styles.shippingItemText}>{t("Delivery")} (600 Frs)</Text>
+                    <RadioButton value='Express' />
+                    
                   </TouchableOpacity>
+                  </RadioButton.Group>
                 </View>
               </View>
               <View style={styles.totalView}>
                 <Text style={styles.totalText}>{t("Total")} -</Text>
                 {shippingMethod === 'Normal' ? (
                   <Text style={styles.totalPrice}>
-                    {cart.items.reduce((acc, val) => val.prix + acc, 0)} Frs
+                    {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0)} Frs
                   </Text>
                 ) : (
                   <Text style={styles.totalPrice}>
-                    {cart.items.reduce((acc, val) => val.prix + acc, 0) + 600} Frs
+                    {calculateTotalPrice} Frs
                   </Text>
                 )}
               </View>
@@ -400,7 +424,7 @@ console.warn("feffnfnf vv : ", user)
                   onChangeText={test => SetAdresse(test)}
                 />
                 <TouchableOpacity style={styles.couponButton} onPress={() => {}}>
-                  <Text style={styles.couponButtonText}>position</Text>
+                  <Text style={styles.couponButtonText}>{t("Position")}</Text>
                   <Icon
                     color={COLORS.white}
                     name='map'
@@ -411,19 +435,19 @@ console.warn("feffnfnf vv : ", user)
 
               <TouchableOpacity style={styles.checkoutButton} onPress={() => handleShowCommande()}>
                 <Text style={styles.checkoutButtonText}>
-                  Valider Commande
+                  {t("Validate_order")}
                 </Text>
               </TouchableOpacity>
               
             </View>
           ) : (
             <View style={styles.emptyCartView}>
-              <Text style={styles.emptyCartViewText}>Your cart is empty.</Text>
+              <Text style={styles.emptyCartViewText}>{t("Your_cart_is_empty")}</Text>
             </View>
           )}
 
           <View style={{ height: 100 }}></View>
-          {/* <ConfirmInfo showModalDetailRecu={showModalDetailRecu} setShowModalDetailRecu={setShowModalDetailRecu} /> */}
+          <ConfirmInfo showModalDetailRecu={showModalDetailRecu} setShowModalDetailRecu={setShowModalDetailRecu} totalCommande={totalCommande} />
         </ScrollView>
       </View>
     </View>

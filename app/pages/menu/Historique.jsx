@@ -12,49 +12,75 @@
   } from 'react-native';
   import FontAwesome from 'react-native-vector-icons/FontAwesome5';
   import { useSelector, useDispatch } from 'react-redux';
-  import { fetchcommandes, getAllCommande } from '../../redux/action/commandeActions';
-  import { fetchRepas } from '../../redux/action/platsActions';
+  import { fetchcommandes } from '../../redux/action/commandeActions';
   import { COLORS } from '../../constants';
-  import { fetchLivraisons } from '../../redux/action/livraisonAction';
+import { fetchRepas } from '../../redux/action/platsActions';
+import { fetchRestaurants } from '../../redux/action/restaurantActions';
   
   export default function Historique() {
     const dispatch = useDispatch();
-    const [refresh, setRefresh] = useState()
+    const [refreshing, setRefreshing] = useState(false)
+    const userId = useSelector((state) => state.auth.user.user.id)
     const commandes = useSelector(state => state.commande.commandes)
-    const plats = useSelector(state => state.plat.repas)
-    const livraisons = useSelector((state) => state.livraison.livraison)
+   const platsData = useSelector((state) => state.plat.repas);
+    const restau = useSelector(state => state.restaurant.restaurants)
+    
+ 
+    const commandeUsers = commandes.flatMap(commande => 
+      commande.filter(item => item.userId === userId)
+    );
+    
+    const restauList = platsData.map(plat => {
+      // Trouvez le restaurant correspondant à l'ID du plat
+      const restaurant = restau.find(rest => rest.id === plat.restaurantId);
+      // Renvoyez le nom du restaurant ou une chaîne vide s'il n'est pas trouvé
+      return restaurant ? restaurant.nom : 'Nom de restaurant inconnu';
+  });
+  
+
     useEffect(() => {
-      dispatch(fetchcommandes())
-      dispatch(fetchRepas())
-      dispatch(fetchLivraisons())
-    }, [])
-    const RefreshMe = () => {
-      setRefresh(true)
-      setTimeout(() => {
-          setRefresh(false)
-      }, 3000)
-    }
+      if (!commandeUsers.length) {
+        fetchData();
+       }
+      dispatch(fetchRepas());
+      dispatch(fetchRestaurants());
+    }, []);
+
+    const fetchData = () => {
+      dispatch(fetchcommandes());
+      
+    };
+    const onRefresh = () => {
+      setRefreshing(true);
+      setTimeout(() => setRefreshing(false), 3000);
+    };
   
     return (
-      <SafeAreaView style={{ backgroundColor: '#fff' }}>
+      <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
         <ScrollView 
         refreshControl={
           <RefreshControl 
-            refreshing={refresh}
-            onRefresh={() => RefreshMe()}
+            refreshing={refreshing}
+            onRefresh={onRefresh}
           />
         }
         contentContainerStyle={styles.container}>
           <Text style={styles.title}>Historiques Commandes</Text>
-  
-          {commandes.map((commande, index) => {
-            const plat = plats.find(plat => plat.id === commande.platsId); 
-            const nomPlat = plat ? plat.nom : 'nom plat inconnu'; 
-            const imagePlat = plat ? plat.image : 'Image inconnu'; 
-            const livraison = livraisons.find(livraison => livraison.id === commande.livraisonId); 
-            const livraisonplat = livraison ? livraison.statut : 'livraison inconnu'; 
-            const prixplat = plat ? plat.prix : 'prix inconnu'; 
-            // const prixTotalplat = plat ? plat.prix * commande.quantity: 'prix inconnu'; 
+
+          {restauList.map((restaurant, index) => {
+       //const restaurantPlats = platsData.filter((plat) => plat.restaurantId === restaurant.id);
+      
+           return(
+            <View key={restaurant.id}>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 10 }}>
+            {restauList[index]}
+            </Text>  
+          {platsData.map((plat, index) => {
+              const commande = commandeUsers.find((cmd) => cmd.platsId === plat.id);
+              const imageplat = plat.image ? plat.image : 'Image plat inconnu';
+              const nomPlat = plat.nom ? plat.nom : 'nom plat inconnu';
+              const prixplat = plat.prix ? plat.prix : 'nom plat inconnu';
+
             return (
               <View
                 key={index}
@@ -70,21 +96,32 @@
                     <Image
                       alt=""
                       resizeMode="cover"
-                      source={{uri: `http://172.20.10.4:3000/images/${imagePlat}`}}
+                      source={{uri: `http://172.20.10.4:3000/images/${imageplat}`}}
                       style={styles.cardImg}
                     />
   
                     <View style={styles.cardBody}>
                       <Text numberOfLines={1} style={styles.cardTitle}>
-                        {nomPlat}
+                      {nomPlat}
+                      </Text>
+                      <Text numberOfLines={1} style={{
+                        fontSize: 17,
+                        lineHeight: 24,
+                        fontWeight: '500',
+                        color: '#222',
+                        backgroundColor: "#ffd9d9", 
+                        paddingHorizontal: 4,
+                        borderRadius: 6,
+                      }}>
+                      {restauList[index]}
                       </Text>
   
                       <View style={styles.cardRow}>
                         <View style={styles.cardRowItem}>
-                          <FontAwesome color="#173153" name="map-marker-alt" size={13} />
+                          <FontAwesome color="#173153" name="wallet" size={13} />
   
                           <Text style={styles.cardRowItemText}>
-                            {livraisonplat} 
+                          Unité: {prixplat}.00Frs
                           </Text>
                         </View>
   
@@ -97,15 +134,14 @@
                           />
   
                           <Text style={styles.cardRowItemText}>
-                          {/* {commande.quantity.toLocaleString('en-US')} sqft */}
-                           Quantité: {commande.quantity}
+                           {/* Quantité: {commande.quantity} */}
                           </Text>
                         </View>
                       </View>
   
                       <View style={{flexDirection: "row"}}>
                         <Text style={styles.cardPrice}>
-                        Unité: {prixplat}.00Frs / 
+                        Total: {commande.prix}.00Frs 
                         </Text>
                         <Text style={styles.cardStatus}>
                           Accepté 
@@ -117,6 +153,8 @@
               </View>
             );
           })}
+          </View>
+        )} )}
         </ScrollView>
       </SafeAreaView>
     );

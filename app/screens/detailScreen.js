@@ -14,11 +14,14 @@
     // Extrapolate,
   } from 'react-native-reanimated';
   import { fetchRepas } from '../redux/action/platsActions';
+  import LottieView from 'lottie-react-native';
   import { useSelector, useDispatch } from 'react-redux';
   import { IconsButton, HorizontalCourses, LineDivider, FilterModal } from '../components';
   import { COLORS, FONTS, SIZES, images, icons, dummyData, data } from '../constants';
   import { SharedElement } from 'react-navigation-shared-element';
   import Icon from "react-native-vector-icons/FontAwesome"
+import { useTranslation } from 'react-i18next';
+import { responsiveFontSize } from 'react-native-responsive-dimensions';
 
 
   const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
@@ -27,13 +30,20 @@
 
   const RestaurantDetail = ({navigation, item, sharedElementPrefix, category, route }) => {
     const { restaurant } = route.params;
-    
+    const { t } = useTranslation();
     const dispatch = useDispatch();
     const platsData = useSelector((state) => state.plat.repas);
+    const [nearestRestaurants, setNearestRestaurants] = useState(false)
+    // const geolocations = useSelector(state => state.location);
+    // const { latitude, longitude } = geolocations;
+
+
+    // const positions = restaurant.find(position => position.id === restaurant.geolocalisationId); 
+    // const nomPosition = positions ? (positions.latitude, positions.longitude ): 'Plat inconnu'; 
+    // const restaurantWithGeolocation = restaurant.find(restaurant => restaurant.geolocalisationId === geolocations.id);
     useEffect(() => {
       dispatch(fetchRepas());
     }, []);
-
     // Fonction pour filtrer les plats en fonction de l'identifiant du restaurant
   const getPlatsForRestaurant = (restaurantId) => {
     return platsData.filter(plat => plat.restaurantId === restaurantId);
@@ -232,7 +242,7 @@ const resetSearch = () => {
                 ...FONTS.body3,
               }}
             >
-              853 Resultats
+             {platsForRestaurant.length} {t("Result")}
 
             </Text>
 
@@ -258,6 +268,20 @@ const resetSearch = () => {
         }
         renderItem={({item, index}) => (
           <>
+          { platsForRestaurant.length < 0 ? (
+            <View style={{ justifyContent: 'center', alignItems: 'center'}}>
+            <LottieView
+              style={{
+                width: 168,
+                height: 168,
+              
+              }}
+              source={require('../../assets/json/noData.json')}
+              autoPlay
+              loop
+            />
+          </View>
+          ) : (
             <TouchableOpacity
               key={item.id}
                onPress={() => {
@@ -275,6 +299,10 @@ const resetSearch = () => {
                   })}}
                  />
             </TouchableOpacity>
+            
+          )}
+            
+
           </>
         )}
         ItemSeparatorComponent={() => (

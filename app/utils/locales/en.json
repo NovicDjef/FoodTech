@@ -1,5 +1,5 @@
 {
-    "search": "Search",
+    "search": "Search...",
     "filter": "Filter",
     "see_all": "See all",
     "PHONE_NUMBER": "Phone Number",
@@ -42,5 +42,25 @@
     "Dark_Mode": "Dark Mode",
     "Notifications": "Notifications",
     "Invite_a_contact": "Invite a contact",
-    "Help": "Help"
+    "Help": "Help",
+    "Category": "Category",
+    "Favorite_Restaurant": "Favorite Restaurant",
+    "Nearest_restaurant": "Nearest restaurant",
+    "Payment": "Payment",
+    "My_Cart": "My Cart",
+    "Result": "Result",
+    "Description_plats": "Description Food",
+    "Add_card": "Add to card",
+    "Order": "Order",
+    "Your_cart_is_empty": "Your cart is empty",
+    "Validate_order": "Validate order",
+    "Position": "Position",
+    "On_spot": "On the spot",
+    "Free": "Free",
+    "Delivery": "Delivery",
+    "Fast_menu": "Fast menu"
+    
+
   }
+
+  

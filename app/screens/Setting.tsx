@@ -17,15 +17,14 @@ import {
   import i18n from '../utils/locales/i18n';
   import Icon from 'react-native-vector-icons/Ionicons';
   import { useDispatch, useSelector } from 'react-redux';
-  import { logoutUser } from '../redux/reducer/authReducer';
+import { logoutUser } from '../redux/reducer/authReducer';
 
 
 
 export default function Setting() {
-  const { isDarkMode, setIsDarkMode, useDeviceSettings, setUseDeviceSettings } =
-    useContext(DarkMode);
+  const { isDarkMode, setIsDarkMode, useDeviceSettings, setUseDeviceSettings } =useContext(DarkMode);
     const dispatch = useDispatch();
-    const user = useSelector((state) => state.auth.user.userData)
+    const user = useSelector((state) => state.auth.user.user)
     const { t } = useTranslation();
 
   const scheme = useColorScheme();

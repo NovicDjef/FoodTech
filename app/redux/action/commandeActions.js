@@ -20,11 +20,11 @@ export const fetchcommandes = () => {
   };
 };
 
-export const addCommande = (commandeData) => { // Ajout du paramètre commandeData
+export const addCommande = (cart) => { 
   return async (dispatch) => {
     dispatch(addCommandeRequest());
     try {
-      const response = await addSomeCommande(commandeData); // Utilisez la fonction d'API avec les données de la commande
+      const response = await addSomeCommande(cart);
       dispatch(addCommandeSucces(response.data));
     } catch (error) {
       dispatch(addCommandeFailure(error.message));

@@ -1,21 +1,29 @@
+import { createSlice } from '@reduxjs/toolkit';
 
 const initialState = {
-    latitude: null,
-    longitude: null,
-  };
-  
-  const locationReducer = (state = initialState, action) => {
-    switch (action.type) {
-      case 'SEND_LOCATION':
-        return {
-          ...state,
-          latitude: action.payload.latitude,
-          longitude: action.payload.longitude,
-        };
-      default:
-        return state;
-    }
-  };
-  
-  export default locationReducer;
-  
+  loading: false,
+  error: null,
+  geolocation: [],
+};
+
+const locationSlice = createSlice({
+  name: 'location',
+  initialState,
+  reducers: {
+    fetchGeolocationRequest: (state) => {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchGeolocationSuccess: (state, action) => {
+      state.loading = false;
+      state.geolocation = action.payload;
+    },
+    fetchGeolocationFailure: (state, action) => {
+      state.loading = false;
+      state.error = action.payload;
+    },
+  },
+});
+
+export const { fetchGeolocationRequest, fetchGeolocationSuccess, fetchGeolocationFailure } = locationSlice.actions;
+export default locationSlice.reducer;
