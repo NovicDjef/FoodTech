@@ -1,245 +1,214 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Dimensions, Animated } from 'react-native';
-import { PanGestureHandler, State } from 'react-native-gesture-handler';
-import Svg, { Path, G, Text as SvgText, TSpan } from 'react-native-svg';
-import * as d3Shape from 'd3-shape';
-import color from 'randomcolor';
-import { snap } from '@popmotion/popcorn';
 
-const { width } = Dimensions.get('screen');
-const numberOfSegments = 16;
-const wheelSize = width * 0.95;
-const fontSize = 26;
-const oneTurn = 360;
-const angleBySegment = oneTurn / numberOfSegments;
-const angleOffset = angleBySegment / 2;
-const knobFill = color({ hue: 'purple' });
+  import React, { useEffect, useId, useState } from 'react';
+  import {
+    StyleSheet,
+    SafeAreaView,
+    ScrollView,
+    Text,
+    View,
+    TouchableOpacity,
+    Image,
+    RefreshControl,
+  } from 'react-native';
+  import LottieView from 'lottie-react-native';
+  import Icon from 'react-native-vector-icons/FontAwesome';
+  import FontAwesome from 'react-native-vector-icons/FontAwesome5';
+  import { COLORS } from '../../constants';
 
-const makeWheel = () => {
-  const data = Array.from({ length: numberOfSegments }).fill(1);
-  const arcs = d3Shape.pie()(data);
-  const colors = color({
-    luminosity: 'dark',
-    count: numberOfSegments,
-  });
-
-  return arcs.map((arc, index) => {
-    const instance = d3Shape
-      .arc()
-      .padAngle(0.01)
-      .outerRadius(width / 2)
-      .innerRadius(20);
-
-    return {
-      path: instance(arc),
-      color: colors[index],
-      value: Math.round(Math.random() * 10 + 1) * 200, //[200, 2200]
-      centroid: instance.centroid(arc),
-    };
-  });
-};
-
-const Notifications = () => {
-  const _wheelPaths = useRef(makeWheel()).current;
-  const _angle = useRef(new Animated.Value(0)).current;
-  const [enabled, setEnabled] = useState(true);
-  const [finished, setFinished] = useState(false);
-  const [winner, setWinner] = useState(null);
-
-  useEffect(() => {
-    const listener = _angle.addListener(({ value }) => {
-      if (enabled) {
-        setEnabled(false);
-        setFinished(false);
+  export default function Notifications({navigation}) {
+    const [refreshing, setRefreshing] = useState(false)
+    const [platsData, setPlatsData] = useState([
+      {
+        id: 1,
+        name: "Bonus sur vos commandes",
+        text: "contenu de la notification qui est un texte Lorem ipsum dolor sit, amet consectetur adipisicing elit. Qui quisquam iusto, repellat consequuntur minus asperiores error enim quis impedit nostrum inventore, odit, repudiandae aliquid debitis? Dignissimos eveniet deleniti quam doloribus!",
+        mention: true,
+      },
+      {
+        id: 2,
+        name: "Commande Validé",
+        text: "contenu de la notification qui est un texte Lorem ipsum dolor sit, amet consectetur adipisicing elit. Qui quisquam iusto, repellat consequuntur minus asperiores error enim quis impedit nostrum inventore, odit, repudiandae aliquid debitis? Dignissimos eveniet deleniti quam doloribus!",
+        mention: false,
+      },
+      {
+        id: 3,
+        name: "Restaurant proche",
+        text: "contenu de la notification qui est un texte Lorem ipsum dolor sit, amet consectetur adipisicing elit. Qui quisquam iusto, repellat consequuntur minus asperiores error enim quis impedit nostrum inventore, odit, repudiandae aliquid debitis? Dignissimos eveniet deleniti quam doloribus!",
+        mention: true,
       }
-      setAngle(value);
-    });
+      
+    ]);
 
-    return () => {
-      _angle.removeListener(listener);
+    const onRefresh = () => {
+      setRefreshing(true);
+      setTimeout(() => setRefreshing(false), 3000);
     };
-  }, [enabled]);
-
-  const setAngle = (value) => {
-    const newAngle = value % oneTurn;
-    if (newAngle !== _angle.value) {
-      _angle.setValue(newAngle);
-    }
-  };
   
-
-  const onPan = ({ nativeEvent }) => {
-    if (nativeEvent.state === State.END && !finished) {
-      const { velocityY } = nativeEvent;
-  
-      Animated.decay(_angle, {
-        velocity: velocityY / 1000,
-        deceleration: 0.999,
-        useNativeDriver: true,
-      }).start(({ finished }) => {
-        if (finished) {
-          const newAngle = _angle.value % oneTurn;
-          setAngle(newAngle);
-  
-          const snapTo = snap(oneTurn / numberOfSegments);
-          Animated.timing(_angle, {
-            toValue: snapTo(newAngle),
-            duration: 300,
-            useNativeDriver: true,
-          }).start(() => {
-            const winnerIndex = getWinnerIndex();
-            setEnabled(true);
-            setFinished(true);
-            setWinner(_wheelPaths[winnerIndex].value);
-          });
-        }
-      });
-    }
-  };
-  
-  const getWinnerIndex = () => {
-    const deg = Math.abs(Math.round(_angle.value % oneTurn));
-
-    if (_angle.value < 0) {
-      return Math.floor(deg / angleBySegment);
-    }
-
-    return (numberOfSegments - Math.floor(deg / angleBySegment)) % numberOfSegments;
-  };
-
-  const renderKnob = () => {
-    const knobSize = 30;
-    const YOLO = Animated.modulo(
-      Animated.divide(
-        Animated.modulo(Animated.subtract(_angle, angleOffset), oneTurn),
-        new Animated.Value(angleBySegment),
-      ),
-      1,
-    );
-
     return (
-      <Animated.View
-        style={{
-          width: knobSize,
-          height: knobSize * 2,
-          justifyContent: 'flex-end',
-          zIndex: 1,
-          transform: [
-            {
-              rotate: YOLO.interpolate({
-                inputRange: [-1, -0.5, -0.0001, 0.0001, 0.5, 1],
-                outputRange: ['0deg', '0deg', '35deg', '-35deg', '0deg', '0deg'],
-              }),
-            },
-          ],
-        }}
-      >
-        <Svg
-          width={knobSize}
-          height={(knobSize * 100) / 57}
-          viewBox={`0 0 57 100`}
-          style={{ transform: [{ translateY: 8 }] }}
-        >
-          <Path
-            d="M28.034,0C12.552,0,0,12.552,0,28.034S28.034,100,28.034,100s28.034-56.483,28.034-71.966S43.517,0,28.034,0z   M28.034,40.477c-6.871,0-12.442-5.572-12.442-12.442c0-6.872,5.571-12.442,12.442-12.442c6.872,0,12.442,5.57,12.442,12.442  C40.477,34.905,34.906,40.477,28.034,40.477z"
-            fill={knobFill}
+      <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
+        <ScrollView 
+        refreshControl={
+          <RefreshControl 
+            refreshing={refreshing}
+            onRefresh={onRefresh}
           />
-        </Svg>
-      </Animated.View>
-    );
-  };
-
-  const renderWinner = () => {
-    return <Text style={styles.winnerText}>Winner is: {winner}</Text>;
-  };
-
-  const renderSvgWheel = () => {
-    return (
-      <View style={styles.container}>
-        {renderKnob()}
-        <Animated.View
+        }
+        contentContainerStyle={styles.container}>
+          <View style={styles.header}>
+        <TouchableOpacity
           style={{
-            alignItems: 'center',
-            justifyContent: 'center',
-            transform: [
-              {
-                rotate: _angle.interpolate({
-                  inputRange: [-oneTurn, 0, oneTurn],
-                  outputRange: [`-${oneTurn}deg`, `0deg`, `${oneTurn}deg`],
-                }),
-              },
-            ],
+            paddingRight: 10,
+          }}
+          onPress={() => {
+            navigation.goBack();
           }}
         >
-          <Svg
-            width={wheelSize}
-            height={wheelSize}
-            viewBox={`0 0 ${width} ${width}`}
-            style={{ transform: [{ rotate: `-${angleOffset}deg` }] }}
-          >
-            <G y={width / 2} x={width / 2}>
-              {_wheelPaths.map((arc, i) => {
-                const [x, y] = arc.centroid;
-                const number = arc.value.toString();
-
-                return (
-                  <G key={`arc-${i}`}>
-                    <Path d={arc.path} fill={arc.color} />
-                    <G
-                      rotation={(i * oneTurn) / numberOfSegments + angleOffset}
-                      origin={`${x}, ${y}`}
-                    >
-                      <SvgText
-                        x={x}
-                        y={y - 70}
-                        fill="white"
-                        textAnchor="middle"
-                        fontSize={fontSize}
-                      >
-                        {Array.from({ length: number.length }).map((_, j) => (
-                          <TSpan
-                            x={x}
-                            dy={fontSize}
-                            key={`arc-${i}-slice-${j}`}
-                          >
-                            {number.charAt(j)}
-                          </TSpan>
-                        ))}
-                      </SvgText>
-                    </G>
-                  </G>
-                );
-              })}
-            </G>
-          </Svg>
-        </Animated.View>
+          <Icon name='angle-left' type='font-awesome' size={30} color={COLORS.black} />
+        </TouchableOpacity>
       </View>
+          <Text style={styles.title}>Notifications</Text>
+
+          {platsData.length > 0 ? (
+            platsData.map((item, index) =>  (
+
+              <View
+              key={index}
+                style={[
+                  styles.cardWrapper,
+                  // index === 0 && { borderTopWidth: 0 },
+                ]}>
+                <TouchableOpacity
+                  onPress={() => {
+                    // handle onPress
+                  }}>
+                    
+                  <View style={styles.card}>
+                    <Image
+                      alt=""
+                      resizeMode="cover"
+                      source={require('../../../assets/icons/notification.png')}
+                      style={styles.cardImg}
+                    />
+  
+                    <View style={styles.cardBody}>
+                     <View style={{flexDirection: "row", justifyContent: "space-between"}}> 
+                       <Text numberOfLines={1} style={styles.cardTitle}>
+                        {item.name}
+                        </Text>
+                        <Text numberOfLines={1} 
+                          style={{
+                            fontSize: 17,
+                            lineHeight: 24,
+                            color: COLORS.gray40
+                          }}>
+                        Maintenant
+                      </Text>
+                     </View>
+                      <Text numberOfLines={2} style={{
+                        lineHeight: 24,
+                        fontWeight: '500',
+                        color: '#222',
+                      }}>
+                      {item.text}
+                      </Text>
+  
+                      <View style={{flexDirection: "row", justifyContent: "flex-end"}}>
+                        <Text style={styles.cardStatus}>
+                        {item.mention ? "lue" : "Non lu"}
+                        </Text>
+                      </View>
+                    </View>
+                  </View>
+                </TouchableOpacity>
+              </View>))
+          ) : (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+              <LottieView
+                style={{
+                  width: 268,
+                  height: 268,
+                  top: 42
+                }}
+                source={require('../../../assets/json/781-no-notifications.json')}
+                autoPlay
+                loop
+              />
+            </View>
+          
+        )}
+     
+        </ScrollView>
+      </SafeAreaView>
     );
-  };
-
-  return (
-    <PanGestureHandler onHandlerStateChange={onPan} enabled={enabled}>
-      <View style={styles.container}>
-        {renderSvgWheel()}
-        {finished && enabled && renderWinner()}
-      </View>
-    </PanGestureHandler>
-  );
-};
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  winnerText: {
-    fontSize: 32,
-    fontFamily: 'Menlo',
-    position: 'absolute',
-    bottom: 10,
-  },
-});
-
-export default Notifications;
+  }
+  
+  const styles = StyleSheet.create({
+    container: {
+      padding: 24,
+    },
+    title: {
+      fontSize: 28,
+      fontWeight: '700',
+      color: '#1d1d1d',
+      marginBottom: 12,
+    },
+    card: {
+      flexDirection: 'row',
+      alignItems: 'stretch',
+    },
+    cardWrapper: {
+      paddingVertical: 16,
+      borderTopWidth: 2,
+      borderColor: '#e6e7e8',
+    },
+    cardImg: {
+      width: 33,
+      height: 36,
+      marginRight: 16,
+      top: 20
+    },
+    cardBody: {
+      flexGrow: 1,
+      flexShrink: 1,
+      flexBasis: 0,
+      paddingVertical: 4,
+      justifyContent: 'space-between',
+    },
+    cardTitle: {
+      fontSize: 17,
+      lineHeight: 24,
+      fontWeight: '700',
+      color: '#222',
+    },
+    cardRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'flex-start',
+      marginHorizontal: -6,
+    },
+    cardRowItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingHorizontal: 6,
+    },
+    cardRowItemText: {
+      fontSize: 15,
+      fontWeight: '500',
+      color: '#173153',
+      marginLeft: 4,
+    },
+    cardPrice: {
+      fontSize: 19,
+      fontWeight: '700',
+      color: '#173153',
+    },
+    cardStatus: {
+      fontSize: 15,
+      fontWeight: '700',
+      color: '#fff',
+      backgroundColor: COLORS.primary,
+      padding: 4,
+      borderRadius: 8,
+      marginLeft: 12
+    },
+  });

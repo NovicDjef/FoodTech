@@ -12,7 +12,9 @@ import {
   TouchableOpacity,
   Image,
   ScrollView,
-  RefreshControl
+  RefreshControl,
+  ActivityIndicator,
+  ProgressBarAndroid
 } from 'react-native';
 // import { useNavigation } from '@react-navigation/native';
 
@@ -33,18 +35,13 @@ import {
   dummyData,
   data,
 } from '../constants';
-
-const {width} = Dimensions.get('screen');
+const width = Dimensions.get('window').width;
+// const {width} = Dimensions.get('screen');
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
 import LottieView from 'lottie-react-native';
-// Tab ICons...
 import { useSelector, useDispatch } from 'react-redux';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
-// import { addUserAndOTP, checkUserLoggedIn, fetchUser } from '../redux/action/userAction';
-// Menu
-import menu from '../../assets/drawer/menu.png';
-import close from '../../assets/drawer/close.png';
 import Geolocation from '@react-native-community/geolocation';
 import RestaurantHorizontal from '../components/RestaurantHorizontal';
 import { fetchSlides } from '../redux/action/slideAction';
@@ -55,7 +52,6 @@ import DarkMode from '../utils/darkmode.context';
 import { getchGeolocations } from '../redux/action/locationActions';
 import { fetchcommandes } from '../redux/action/commandeActions';
 import Carousel from 'react-native-banner-carousel';
-// logique de redux
 
 
 const BannerWidth = Dimensions.get('window').width;
@@ -65,18 +61,20 @@ function Home() {
   const navigation = useNavigation();
   const { t } = useTranslation();
   const { isDarkMode } = useContext(DarkMode)
-  const [showMenu, setShowMenu] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [refresh, setRefresh] = useState(false)
-  // Animated Properties...
   const [nearestRestaurants, setNearestRestaurants] = useState([]);
+  const [farthestRestaurants, setFarthestRestaurants] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user.user)
     const slidee = useSelector((state) => state.slide.slides)
+    const loadingSlide = useSelector((state) => state.slide.loading)
     const restaurants = useSelector((state) => state.restaurant.restaurants);
+    const loadingRestaurant = useSelector((state) => state.restaurant.loading);
     const categories = useSelector(state => state.categorie.categories)
-    const commandes = useSelector(state => state.commande.commandes.flat())
+    const loadingCategories = useSelector(state => state.categorie.loading)
     const location = useSelector(state => state.location.geolocation)
     
     
@@ -88,25 +86,24 @@ function Home() {
       };
     });
 
-    
-    // const userCommandes = commandes.filter(commande => commande.userId === userId);
-    // const nombreCommandesUtilisateur = userCommandes.length;
-    // const InfoLocation = locationId.filter(location => location.id === restaurantId);
-    
-console.warn("restaurant position :", locationsrestaurant)
-    
-     const fetchData = () => {
-      dispatch(fetchRestaurants())
-      dispatch(fetchSlides())
-      dispatch(fetchCategories());
-      dispatch(getchGeolocations())
-      // dispatch(fetchcommandes())
-      
-     }
-    useEffect(() => {
-        fetchData();
-        getCurrentLocation()
-   }, []);
+   useEffect(() => {
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 3000);
+    const fetchData = async () => {
+      await Promise.all([
+        dispatch(fetchRestaurants()),
+        dispatch(fetchSlides()),
+        dispatch(fetchCategories()),
+        dispatch(getchGeolocations()),
+        dispatch(fetchcommandes())
+      ]);
+      getCurrentLocation()
+      return () => clearTimeout(timer);
+    };
+
+    fetchData();
+  }, [dispatch]);
  
   const RefreshMe = () => {
     setRefresh(true)
@@ -124,8 +121,8 @@ console.warn("restaurant position :", locationsrestaurant)
     Geolocation.getCurrentPosition(
       position => {
         const { latitude, longitude } = position.coords;
-        console.debug('position user Latitude:', latitude);
-        console.debug('position user Longitude:', longitude);
+        console.log('position user Latitude:', latitude);
+        console.log('position user Longitude:', longitude);
         calculateAndDisplayDistance(latitude, longitude);
       },
       error => {
@@ -158,66 +155,36 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
 
   const restaurantDistances = [];
   locationsrestaurant.forEach((restaurant, index) => {
-    const distance = calculateDistance(userLatitude, userLongitude, restaurant.latitude, restaurant.longitude);
+    const distance = calculateDistance(
+      userLatitude, 
+      userLongitude, 
+      restaurant.latitude, 
+      restaurant.longitude
+    );
     restaurantDistances.push({ index, distance });
   });
   
   // Trier les restaurants par distance croissante
   restaurantDistances.sort((a, b) => a.distance - b.distance);
-  const sortedRestaurants = restaurantDistances.map(restaurant => restaurants[restaurant.index]);
+  const sortedRestaurants = restaurantDistances.map(
+    restaurant => restaurants[restaurant.index]
+  );
 
-  setNearestRestaurants(sortedRestaurants);
-  restaurantDistances.forEach(({ index, distance }) => {
+  const nearest = sortedRestaurants
+    .filter(({ distance }) => distance <= 3)
+    .map(({ index }) => restaurants[index]);
+
+  const farthest = sortedRestaurants
+    .filter(({ distance }) => distance > 5)
+    .map(({ index }) => restaurants[index]);
+
+  setNearestRestaurants(nearest);
+  setFarthestRestaurants(farthest);
+  console.warn("restaurant position :", farthest, nearest)
+  sortedRestaurants.forEach(({ index, distance }) => {
     console.log(`La distance entre l'utilisateur et le restaurant ${index + 1} est de ${distance.toFixed(2)} km`);
   });
 }
-
-
-
-// // Fonction pour calculer la distance en kilomètres entre deux coordonnées GPS en utilisant la formule de Haversine
-// function calculateDistance(lat1, lon1, lat2, lon2) {
-//   const R = 6371; // Rayon de la Terre en kilomètres
-//   const dLat = toRadians(lat2 - lat1);
-//   const dLon = toRadians(lon2 - lon1);
-//   const a =
-//     Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-//     Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-//     Math.sin(dLon / 2) * Math.sin(dLon / 2);
-//   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-//   const distance = R * c; // Distance en kilomètres
-//   return distance;
-// }
-
-// // Fonction pour convertir les degrés en radians
-// function toRadians(degrees) {
-//   return degrees * Math.PI / 180;
-// }
-
-// // Coordonnées géographiques de Douala, Cameroun (limites approximatives)
-// const doualaLatitudeMin = 4.005;
-// const doualaLatitudeMax = 4.125;
-// const doualaLongitudeMin = 9.655;
-// const doualaLongitudeMax = 9.750;
-
-
-
-
-
-// // Les coordonnées de l'utilisateur
-// const userLatitude = 4.038125610308921;
-// const userLongitude = 9.6977014537147;
-
-// // Les coordonnées des restaurants à l'intérieur de la ville de Douala
-// const restaurantPositions = [
-//   { latitude: 4.050, longitude: 9.680 }, // Restaurant 1
-//   { latitude: 4.070, longitude: 9.700 }, // Restaurant 2
-// ];
-
-// // Calculer et afficher la distance entre l'utilisateur et chaque restaurant
-// restaurantPositions.forEach((restaurant, index) => {
-//   const distance = calculateDistance(userLatitude, userLongitude, restaurant.latitude, restaurant.longitude);
-//   console.log(`La distance entre l'utilisateur et le restaurant ${index + 1} est de ${distance.toFixed(2)} km`);
-// });
 
   const offsetValue = useRef(new Animated.Value(0)).current;
   // Scale Intially must be One...
@@ -225,6 +192,29 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
   const closeButtonOffset = useRef(new Animated.Value(0)).current;
 
 
+  const renderLoader = () => {
+    return(
+      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
+                {Platform.OS === 'android'
+                    ?
+                    (
+                        <>
+                            <ProgressBarAndroid size="large" color={COLORS.primary}/>
+                            <Text style={{fontSize: 17}}>Chargement</Text>
+                        </>
+                    ) :
+                    <>
+                        <ActivityIndicator size="large" color={COLORS.primary}/>
+                        <Text style={{fontSize: 17}}>Chargement</Text>
+                    </>
+                }
+            </View>
+    )
+  }
+
+  // if (loadingRestaurant) {
+  //   return renderLoader(); // Render loader until data is loaded
+  // }
 
   const Section = ({containerStyle, title, onPress, children}) => {
     return (
@@ -248,8 +238,8 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
           </Text>
           <TextButton
             contentContainerStyle={{
-              width: 80,
-              borderRadius: 30,
+              paddingHorizontal: 8,
+              borderRadius: 13,
               left: 24,
               backgroundColor: COLORS.primary,
             }}
@@ -258,7 +248,9 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
               ("ListRestaurants", { restaurants: restaurants} )}
             disabled={undefined}
             labelStyle={undefined}
+            
           />
+         
         </View>
         {children}
       </View>
@@ -274,8 +266,12 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
             },
           ],
         }}>
-      
-        {renderHeader()}
+       {renderHeader()}
+        {loading ? (
+        <View style={{ left: 62, bottom: 42 }}>
+          {renderLoader()}
+          </View>
+          ) : (
         <ScrollView 
           refreshControl={
             <RefreshControl 
@@ -284,31 +280,16 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
             />
           }
           >
-          {/* header */}
-
-          {/* slide */}
           {slide()}
 
-          {/* search */}
           {search()}
-
-          {/* Categories */}
 
           {renderCategories()}
 
-          {/* cours populaire */}
-
-          {/* {renderPopularCours()} */}
-
-          {/* restaurant */}
           {restaurantFavoris()}
-
-          {/* {restaurantProche()}
-
-          {restaurant()} */}
         </ScrollView>
+        )}
       </Animated.View>
-      {/* </Animated.View> */}
     </SafeAreaView>
   );
 
@@ -324,7 +305,8 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
 
         }}>
         {/* greeting */}
-        <View
+        <TouchableOpacity
+        onPress={() => navigation.navigate("settings")}
           style={{
             flexDirection: 'row',
            
@@ -338,25 +320,30 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
               +237 {user.phone}
             </Text>
           </View>
-        </View>
+        </TouchableOpacity>
 
         <View
           style={{
             flexDirection: 'row',
           }}>
+           
           <Icon
             name="shopping-cart"
             color="#000"
             size={25}
             style={{marginRight: 8}}
+            onPress={() => navigation.navigate("panier")}
           />
+           <View style={{backgroundColor: "red", borderRadius: 10, width: 14, height: 14, left: -10, top: -2}}>
+          <Text style={{color: COLORS.white, textAlign: "center"}} >0</Text>
+          </View>
           <IconsButton
             icon={icons.notification}
             iconStyle={{
               tintColor: COLORS.black,
             }}
             containerStyle={{marginRight: 0}}
-            onPress={undefined}
+            onPress={() => navigation.navigate("Notification")}
           />
           <View style={{backgroundColor: "red", borderRadius: 10, width: 14, height: 14, left: -10, top: -2}}>
             <Text style={{color: COLORS.white, textAlign: "center"}} >0</Text>
@@ -368,28 +355,41 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
 
   function slide() {
     return (
-      <Carousel
-        autoplay
-        autoplayTimeout={10000}
-        loop
-        index={0}
-        useNativeDriver={true}
-        pageSize={BannerWidth}
-      >
-        {slidee.map((item, index) => (
-          <View key={index}>
-            <SlideFoods
-              containerStyle={{
-                width: BannerWidth - 26,
-                marginLeft: index === 0 ? 2 : 0, 
-                marginRight: index === slidee.length - 1 ? 22 : 0,
-                  marginTop: 12
-              }}
-              course={item}
-            />
-          </View>
-        ))}
-      </Carousel>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+       {loadingSlide ? (
+        <>
+          {renderLoader()}
+        </>
+      ) : (
+       <>
+          <Carousel
+          height={width / 2}
+          autoPlay={true}
+          autoplayTimeout={10000}
+          loop
+          index={0}
+          useNativeDriver={true}
+          pageSize={BannerWidth}
+        >
+          {slidee.map((item, index) => (
+            <View key={index}>
+              <SlideFoods
+                containerStyle={{
+                  width: BannerWidth - 26,
+                  marginLeft: index === 0 ? 2 : 0, 
+                  marginRight: index === slidee.length - 1 ? 22 : 0,
+                    marginTop: 12
+                }}
+                course={item}
+              />
+            </View>
+          ))}
+        </Carousel>
+       </>
+        
+       )} 
+    </View>
+     
     );
   }
 
@@ -423,13 +423,15 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
 
   function renderCategories() {
     return (
-      <Section
-        title={t("Fast_menu")}
-        containerStyle={{
-          marginTop:15,
-          marginHorizontal: 6
-        }}>
-        <FlatList
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+       {loadingCategories ? (
+        <>
+          {renderLoader()}
+        </>
+      ) : (
+        <Section title={t("Fast_menu")}>
+          { categories.length > 0 ? (
+            <FlatList
           horizontal
           data={categories}
           // listKey="Courses"
@@ -452,14 +454,38 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
             />
           )}
         />
+          ) : (
+            <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+            <LottieView
+              style={{
+                width: 168,
+                height: 168,
+              
+              }}
+              source={require('../../assets/json/noData.json')}
+              autoPlay
+              loop
+            />
+          </View>
+          )}
+        
       </Section>
+      )}
+     </View>
     );
   }
 
   function restaurantFavoris() {
 
     return (
-      <Section  title={t("Nearest_restaurant")}>
+      <View>
+        {loadingRestaurant ? (
+        <>
+          {renderLoader()}
+        </>
+      ) : (
+      <>
+        <Section  title={t("Nearest_restaurant")}>
         <>
         { nearestRestaurants.length > 0 ? (
           <FlatList
@@ -513,6 +539,57 @@ function calculateAndDisplayDistance(userLatitude, userLongitude) {
               )}
         </>
       </Section>
+      <Section title={t("List_restaurant")}>
+        {farthestRestaurants.length > 0 ? (
+          <FlatList
+            horizontal
+            data={farthestRestaurants}
+            keyExtractor={item => item.id.toString()}
+            showsHorizontalScrollIndicator={false}
+            contentContainerStyle={{
+              marginTop: SIZES.padding,
+              margin: 22
+            }}
+            renderItem={({ item, index }) => (
+              <TouchableOpacity
+                key={item.id}
+                onPress={() =>
+                  navigation.navigate("restaurantDetail", {
+                    restaurant: item
+                  })
+                }
+              >
+                <RestaurantVertical
+                  containerStyle={{
+                    marginLeft: index === 0 ? SIZES.padding : SIZES.radius,
+                    marginRight:
+                      index === farthestRestaurants.length - 1
+                        ? SIZES.padding
+                        : 0
+                  }}
+                  course={item}
+                  restaurant={restaurant}
+                />
+              </TouchableOpacity>
+            )}
+          />
+        ) : (
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            <LottieView
+              style={{
+                width: 168,
+                height: 168
+              }}
+              source={require("../../assets/json/noData.json")}
+              autoPlay
+              loop
+            />
+          </View>
+        )}
+      </Section>
+      </>
+      )}
+    </View>
     );
   }
 

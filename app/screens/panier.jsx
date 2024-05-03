@@ -32,6 +32,10 @@ export default function Panier({ navigation }) {
   const [showModalDetailRecu, setShowModalDetailRecu] = useState(false)
   const [adresse, SetAdresse] = useState("");
   const [refresh, setRefresh] = useState(false)
+  const [recommendationText, setRecommendationText] = useState('');
+  const [showRecommendation, setShowRecommendation] = useState(false);
+
+ 
   const user = useSelector(state => state.auth.user.user)
   const cart = useSelector(state => state.cart)
   const restaurants = useSelector(state => state.restaurant.restaurants)
@@ -52,7 +56,7 @@ export default function Panier({ navigation }) {
       return 'Restaurant non trouvé';
     }
   };
-
+  
   const restaurantId = 1; // ID du restaurant
 const coordinates = getRestaurantCoordinates(restaurantId);
 console.warn("Coordonnées du restaurant :", coordinates);
@@ -91,23 +95,6 @@ console.warn("Coordonnées du restaurant :", coordinates);
     }, 3000)
   }
 
-  //const { latitude, longitude } = useSelector((state) => state.locationReducer);
-
-  // const getCurrentLocation = () => {
-  //   Geolocation.getCurrentPosition(
-  //     position => {
-  //       const { latitude, longitude } = position.coords;
-  //       console.debug('Latitude:', latitude);
-  //       console.debug('Longitude:', longitude);
-  //     },
-  //     error => {
-  //       console.log(error);
-  //     },
-  //     { enableHighAccuracy: true, }
-  //   );
-  // };
-
-  
   const calculateTotalPrice = () => {
     if (shippingMethod === 'Normal') {
       return totalPrice;
@@ -127,6 +114,15 @@ console.warn("Coordonnées du restaurant :", coordinates);
     setShowModalDetailRecu(false)
   }
 
+  const handleSubmit = () => {
+    // Enregistrer le texte de la recommandation dans votre application
+    console.log('Recommandation soumise :', recommendationText);
+    setShowRecommendation(true);
+  };
+  const handlePressOutside = () => {
+    // Masquer l'input lorsqu'on clique en dehors
+    setShowRecommendation(true);
+  };
   
  console.error = (error) => {
    if (error.includes("i18next::pluralResolver")) {
@@ -203,6 +199,15 @@ console.warn("Coordonnées du restaurant :", coordinates);
               }}
               source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
             />
+            </View>
+        </View>
+        <View style={{flexDirection: 'row', marginTop: 10}}>
+            <View style={{flex: 1}}>
+                <Text isDarkMode={isDarkMode}>Ma recommandation</Text>
+            </View>
+            <View style={{flex: 1, alignItems: 'flex-end'}}>
+                <Text
+                    isDarkMode={isDarkMode}>{recommendationText}</Text>
             </View>
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
@@ -358,15 +363,31 @@ console.warn("Coordonnées du restaurant :", coordinates);
                     </View>
                   </View>
                 ))}
+                <Text  style={{top: 12, fontSize: 17}}>{t("Add_Recommendation")} </Text> 
               <View style={styles.couponInputView}>
-                <TextInput
-                  placeholder={t('Coupon_Code')}
-                  style={styles.couponInput}
-                />
-                <TouchableOpacity style={styles.couponButton}>
-                  <Text style={styles.couponButtonText}>{t('Apply_Coupon')}</Text>
-                </TouchableOpacity>
-              </View>
+              {!showRecommendation && (
+                <><TextInput
+                    value={recommendationText}
+                    onChangeText={setRecommendationText}
+                    onSubmitEditing={handleSubmit}
+                    multiline
+                    placeholder={t('Recommendation')}
+                    style={styles.couponInput} />
+                    <TouchableOpacity style={styles.couponButton} onPress={handlePressOutside}>
+                      <Text style={styles.couponButtonText}>{t("Validate")}</Text>
+                    </TouchableOpacity></>
+              )}
+                
+             </View>
+             {showRecommendation && (
+              <><View>
+                  <Text style={{top: 12, textAlign: "center"}}>{t("Text_Recommandation")}</Text>
+                </View><TouchableOpacity onPress={() => setShowRecommendation(false)}>
+                    <Text style={{ fontSize: 16, top: 16, color: COLORS.primary, textAlign: "center", }}>
+                      {recommendationText}
+                    </Text>
+                  </TouchableOpacity></>
+                )}
               <View style={styles.subtotalView}>
                 <Text style={styles.subtotalText}>{t("Subtotal")} -</Text>
                 <Text style={styles.subtotalPrice}>

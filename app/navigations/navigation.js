@@ -17,6 +17,8 @@ import { setUser, logoutUser } from '../redux/reducer/authReducer';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Status from '../components/Status';
 import ListRestaurants from '../screens/ListRestaurants';
+import Notifications from '../pages/menu/Notifications';
+import Setting from '../screens/Setting';
 
 const Stack = createStackNavigator();
 
@@ -59,10 +61,12 @@ export default function Navigation() {
                 <Stack.Screen name="DetailsPlats" component={DetailsPlats} />
                 <Stack.Screen name="DetailCours" component={DetailCours} />
                 <Stack.Screen name='Cart' component={Cart} />
+                <Stack.Screen name="settings" component={Setting} />
                 <Stack.Screen name='Status' component={Status} />
                 <Stack.Screen name='PlatCategorie' component={PlatCategorie} />
                 <Stack.Screen name='ListRestaurants' component={ListRestaurants} />
                 <Stack.Screen name='ListFavorite' component={FavoriteList} />
+                <Stack.Screen name='Notification' component={Notifications} />
               </>
              ): (
               <Stack.Screen name="Login" component={LoginScreen} />
