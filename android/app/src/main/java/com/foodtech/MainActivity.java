@@ -1,9 +1,10 @@
 package com.foodtech;
-
+import android.os.Bundle;
 import com.facebook.react.ReactActivity;
 import com.facebook.react.ReactActivityDelegate;
 import com.facebook.react.defaults.DefaultNewArchitectureEntryPoint;
 import com.facebook.react.defaults.DefaultReactActivityDelegate;
+import org.devio.rn.splashscreen.SplashScreen;
 // import android.os.Bundle; // here
 // import org.devio.rn.splashscreen.SplashScreen; // here
 
@@ -14,7 +15,11 @@ public class MainActivity extends ReactActivity {
     //     SplashScreen.show(this);  // here
     //     super.onCreate(savedInstanceState);
     // }
-
+@Override
+    protected void onCreate(Bundle savedInstanceState) {
+        SplashScreen.show(this);  // here
+        super.onCreate(savedInstanceState);
+    }
 
   /**
    * Returns the name of the main component registered from JavaScript. This is used to schedule

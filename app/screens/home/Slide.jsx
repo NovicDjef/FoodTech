@@ -1,6 +1,6 @@
-import { View, Text, Dimensions, ProgressBarAndroid, ActivityIndicator } from 'react-native'
+import { View, Text, Dimensions, ActivityIndicator } from 'react-native'
 import React, { useEffect } from 'react'
-import Carousel from 'react-native-banner-carousel';
+import { SwiperFlatList } from 'react-native-swiper-flatlist';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchSlides } from '../../redux/action/slideAction';
 import { SlideFoods } from '../../components';
@@ -15,25 +15,14 @@ export default function Slide() {
 
     useEffect(() => {
         dispatch(fetchSlides());
-    },[dispatch])
+    },[])
 
     const renderLoader = () => {
         return(
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-                    {Platform.OS === 'android'
-                        ?
-                        (
-                            <>
-                                <ProgressBarAndroid size="large" color={COLORS.primary}/>
-                                <Text style={{fontSize: 17}}>Chargement</Text>
-                            </>
-                        ) :
-                        <>
-                            <ActivityIndicator size="large" color={COLORS.primary}/>
-                            <Text style={{fontSize: 17}}>Chargement</Text>
-                        </>
-                    }
-                </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={{ fontSize: 17 }}>Chargement</Text>
+          </View>
         )
       }
         return (
@@ -44,29 +33,32 @@ export default function Slide() {
             </>
           ) : (
            <>
-              <Carousel
-              height={width / 2}
-              autoPlay={true}
-              autoplayTimeout={10000}
-              loop
-              index={0}
-              useNativeDriver={true}
-              pageSize={BannerWidth}
-            >
-              {slide.map((item, index) => (
+              <SwiperFlatList
+                autoplay
+                autoplayDelay={4}
+                autoplayLoop
+                index={0}
+                showPagination
+                data={slide}
+                useNativeDriver={true}
+                renderItem={({ item, index }) => (
                 <View key={index}>
                   <SlideFoods
                     containerStyle={{
-                      width: BannerWidth - 26,
-                      marginLeft: index === 0 ? 2 : 0, 
-                      marginRight: index === slide.length - 1 ? 22 : 0,
+                      width: BannerWidth - 70,
+                      marginLeft: index === 20 ? 12 : 6, 
+                      //marginRight: index === slide.length - 1 ? 2 : 0,
                         marginTop: 12
                     }}
                     course={item}
                   />
                 </View>
+      )}
+    />
+              {/* {slide.map((item, index) => (
+                
               ))}
-            </Carousel>
+            </Carousel> */}
            </>
             
            )} 

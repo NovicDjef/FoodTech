@@ -19,29 +19,31 @@ import Status from '../components/Status';
 import ListRestaurants from '../screens/ListRestaurants';
 import Notifications from '../pages/menu/Notifications';
 import Setting from '../screens/Setting';
+import { IntroductionAnimationScreen } from '../screens/introduction_animation';
+import Login from '../screens/introduction_animation/scenes/login';
 
 const Stack = createStackNavigator();
 
 export default function Navigation() {
-  const dispatch = useDispatch();
-  const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
+  // const dispatch = useDispatch();
+  // const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
 
-  useEffect(() => {
-    checkAuthStatus();
-  }, []);
+  // useEffect(() => {
+  //   checkAuthStatus();
+  // }, []);
 
-  const checkAuthStatus = async () => {
-    try {
-      const userData = await AsyncStorage.getItem('userData');
-      if (userData) {
-        dispatch(setUser(JSON.parse(userData)));
-      } else {
-        dispatch(logoutUser());
-      }
-    } catch (error) {
-      console.error('Error checking authentication status:', error);
-    }
-  };
+  // const checkAuthStatus = async () => {
+  //   try {
+  //     const userData = await AsyncStorage.getItem('userData');
+  //     if (userData) {
+  //       dispatch(setUser(JSON.parse(userData)));
+  //     } else {
+  //       dispatch(logoutUser());
+  //     }
+  //   } catch (error) {
+  //     console.error('Error checking authentication status:', error);
+  //   }
+  // };
     return (
         <NavigationContainer>
           <Stack.Navigator
@@ -50,8 +52,9 @@ export default function Navigation() {
             }}
           >
           <>
-             {isAuthenticated ? (
-              <>
+             {/* {isAuthenticated ? (
+              <> */}
+                <Stack.Screen name='OnBoading' component={IntroductionAnimationScreen} />
                 <Stack.Screen name="Home" component={TabMenu} />
                 <Stack.Screen name="FavoriteList" component={FavoriteList} />
                 <Stack.Screen name="restaurantDetail" component={RestaurantDetail} />
@@ -67,10 +70,10 @@ export default function Navigation() {
                 <Stack.Screen name='ListRestaurants' component={ListRestaurants} />
                 <Stack.Screen name='ListFavorite' component={FavoriteList} />
                 <Stack.Screen name='Notification' component={Notifications} />
-              </>
+              {/* </>
              ): (
               <Stack.Screen name="Login" component={LoginScreen} />
-             )}
+             )} */}
           </>     
           </Stack.Navigator>
         </NavigationContainer>

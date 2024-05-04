@@ -14,40 +14,25 @@ import {
   ScrollView,
   RefreshControl,
   ActivityIndicator,
-  ProgressBarAndroid
 } from 'react-native';
 // import { useNavigation } from '@react-navigation/native';
 
 
 import {
   IconsButton,
-  TextButton,
-  CategoriesPlats,
-  SlideFoods,
-  RestaurantVertical,
 } from '../components';
 import {
   COLORS,
   FONTS,
   icons,
-  SIZES,
-  images,
-  dummyData,
-  data,
 } from '../constants';
 const width = Dimensions.get('window').width;
 
 import Icon from 'react-native-vector-icons/Feather';
 import {useNavigation} from '@react-navigation/native';
-import LottieView from 'lottie-react-native';
 import { useSelector, useDispatch } from 'react-redux';
-import { fetchRestaurants } from '../redux/action/restaurantActions';
-
-import RestaurantHorizontal from '../components/RestaurantHorizontal';
 import { useTranslation } from 'react-i18next';
 import DarkMode from '../utils/darkmode.context';
-import { getchGeolocations } from '../redux/action/locationActions';
-import { fetchcommandes } from '../redux/action/commandeActions';
 import Slide from './home/Slide';
 import FastMenu from './home/FastMenu';
 import Restaurants from './home/Restaurants';
@@ -64,30 +49,10 @@ function Home() {
 
   const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user.user)
-    
- 
-  
 
-   useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 3000);
-
-    const fetchData = async () => {
-      await Promise.all([
-        dispatch(getchGeolocations()),
-      ]);
-      getCurrentLocation()
-      return () => clearTimeout(timer);
-    };
-
-    fetchData();
-  }, []);
- 
   const RefreshMe = () => {
     setRefresh(true)
     setTimeout(() => {
-      getCurrentLocation()
         setRefresh(false)
     }, 3000)
   }
@@ -96,21 +61,10 @@ function Home() {
   
   const renderLoader = () => {
     return(
-      <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-                {Platform.OS === 'android'
-                    ?
-                    (
-                        <>
-                            <ProgressBarAndroid size="large" color={COLORS.primary}/>
-                            <Text style={{fontSize: 17}}>Chargement</Text>
-                        </>
-                    ) :
-                    <>
-                        <ActivityIndicator size="large" color={COLORS.primary}/>
-                        <Text style={{fontSize: 17}}>Chargement</Text>
-                    </>
-                }
-            </View>
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ fontSize: 17 }}>Chargement</Text>
+      </View>
     )
   }
  
@@ -125,11 +79,11 @@ function Home() {
           ],
         }}>
        {renderHeader()}
-        {loading ? (
+        {/* {loading ? (
         <View style={{ left: 62, bottom: 42 }}>
           {renderLoader()}
           </View>
-          ) : (
+          ) : ( */}
         <ScrollView 
           refreshControl={
             <RefreshControl 
@@ -145,8 +99,10 @@ function Home() {
           <FastMenu />
 
           <Restaurants />
+
+
         </ScrollView>
-        )}
+        {/* )} */}
       </Animated.View>
     </SafeAreaView>
   );

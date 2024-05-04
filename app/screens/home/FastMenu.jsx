@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ProgressBarAndroid, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, ActivityIndicator } from 'react-native'
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import LottieView from 'lottie-react-native';
@@ -17,7 +17,7 @@ export default function FastMenu() {
 
     useEffect(() => {
         dispatch(fetchCategories());
-    },[dispatch])
+    },[])
 
     const renderLoader = () => {
         return(
@@ -26,7 +26,7 @@ export default function FastMenu() {
                         ?
                         (
                             <>
-                                <ProgressBarAndroid size="large" color={COLORS.primary}/>
+                                <ActivityIndicator size="large" color={COLORS.primary}/>
                                 <Text style={{fontSize: 17}}>Chargement</Text>
                             </>
                         ) :

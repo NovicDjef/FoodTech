@@ -7,6 +7,7 @@ export const getchGeolocations = () => {
     dispatch(fetchGeolocationRequest());
     try {
       const response = await getchSomeGeolocation();
+      console.log("response :", response.data)
       dispatch(fetchGeolocationSuccess(response.data));
     } catch (error) {
       dispatch(fetchGeolocationFailure(error.message));

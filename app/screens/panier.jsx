@@ -106,6 +106,7 @@ console.warn("Coordonnées du restaurant :", coordinates);
     const commander = cart.items.map(item => ({
       quantity : item.quantity,
       platsId: item.id,
+      recommandation: item.recommendationText,
       restaurantId: restaurantId,
       prix: totalCommande,
       userId: userId,

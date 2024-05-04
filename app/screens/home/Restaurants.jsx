@@ -1,4 +1,4 @@
-import { View, Text, ProgressBarAndroid, ActivityIndicator, TouchableOpacity } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, Scro, ScrollViewllView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Section from './Section';
 import { COLORS, SIZES } from '../../constants';
@@ -27,25 +27,14 @@ export default function Restaurants() {
         dispatch(fetchRestaurants());
         dispatch(getchGeolocations());
         getCurrentLocation()
-    },[dispatch])
+    },[])
     
     const renderLoader = () => {
         return(
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-                    {Platform.OS === 'android'
-                        ?
-                        (
-                            <>
-                                <ProgressBarAndroid size="large" color={COLORS.primary}/>
-                                <Text style={{fontSize: 17}}>Chargement</Text>
-                            </>
-                        ) :
-                        <>
-                            <ActivityIndicator size="large" color={COLORS.primary}/>
-                            <Text style={{fontSize: 17}}>Chargement</Text>
-                        </>
-                    }
-                </View>
+          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+            <ActivityIndicator size="large" color={COLORS.primary} />
+            <Text style={{ fontSize: 17 }}>Chargement</Text>
+          </View>
         )
       }
       const locationsrestaurant = restaurants.map(restaurant => {
@@ -69,6 +58,7 @@ export default function Restaurants() {
           { enableHighAccuracy: true, }
         );
       };
+      
 
       function calculateDistance(lat1, lon1, lat2, lon2) {
       const R = 6371; 
@@ -137,7 +127,7 @@ export default function Restaurants() {
             <Section  title={t("Nearest_restaurant")}>
             <>
             { nearestRestaurants.length > 0 ? (
-              <FlatList
+              <ScrollView
               horizontal
               data={nearestRestaurants}
               keyExtractor={item => item.id.toString()}
@@ -190,7 +180,7 @@ export default function Restaurants() {
           </Section>
           <Section title={t("List_restaurant")}>
             {farthestRestaurants.length > 0 ? (
-              <FlatList
+              <ScrollView
                 horizontal
                 data={farthestRestaurants}
                 keyExtractor={item => item.id.toString()}
