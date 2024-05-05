@@ -23,6 +23,8 @@ import Dialog from "react-native-dialog";
 import { addCommande } from '../redux/action/commandeActions';
 import { useTranslation } from 'react-i18next';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
+// import PushNotification from 'react-native-push-notification';
+
 
 
 export default function Panier({ navigation }) {
@@ -112,8 +114,14 @@ console.warn("Coordonnées du restaurant :", coordinates);
       userId: userId,
     }))
     dispatch(addCommande(commander))
+  //   PushNotification.localNotification({
+  //     channelId: "Succes Commande",
+  //     title: "Commande succes",
+  //     message: "Message de la notification",
+  // });
     setShowModalDetailRecu(false)
   }
+
 
   const handleSubmit = () => {
     // Enregistrer le texte de la recommandation dans votre application

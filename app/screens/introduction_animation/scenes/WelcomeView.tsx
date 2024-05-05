@@ -1,7 +1,6 @@
 import React, { useRef } from 'react';
 import { StyleSheet, Text, Animated, useWindowDimensions } from 'react-native';
 import { AppImages } from '../../../../assets';
-import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -34,7 +33,7 @@ const WelcomeView: React.FC<Props> = ({ animationController }) => {
   });
 
   const { t } = useTranslation();
-
+ 
   return (
     <Animated.View
       style={[styles.container, { transform: [{ translateX: slideAnim }] }]}

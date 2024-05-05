@@ -17,20 +17,13 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
-import { OtpInput } from "react-native-otp-entry";
-import Icon from "react-native-vector-icons/FontAwesome5";
 import { COLORS } from '../../constants';
-import { addUserAndOTP } from '../../redux/action/userAction';
-// import { verifyOTP } from '../../redux/action/otpActions';
 import { authenticateUser, verifyOTP } from '../../redux/action/authActions';
 
 
 const LoginScreen = ({navigation}) => {
     const {t} = useTranslation();
-    const dispatch = useDispatch();
-    const [currentView, setCurrentView] = useState('main'); 
-    const [otpCode, setOTPCode] = useState('');
-    const [otpError, setOTPError] = useState('');
+    const dispatch = useDispatch();    
     const [loading, setLoading] = useState(false);
     const [userData, setUserData] = useState({
       username: '',
@@ -74,144 +67,12 @@ const LoginScreen = ({navigation}) => {
       if(isValid){
         setLoading(true);
         dispatch(authenticateUser(userData));
-         setCurrentView('otpForm');
+         navigation.navigate('otp');
          setLoading(false);
         } 
     };
     
     console.log('userData :', userData)
-  //  validation OTP
-    const handleChangeOTP = (code) => {
-      setOTPCode(code);
-    };
-    const validateOTP = () => {
-      let isValid = true;
-  
-      // Validation du code OTP
-      if (!/^\d{5}$/.test(otpCode)) {
-        setOTPError('Le code OTP doit contenir exactement 5 chiffres.');
-        isValid = false;
-      } else {
-        setOTPError('');
-      }
-  
-      return isValid;
-    };
-  
-    const handleSubmitOTP = () => {
-      const isValid = validateOTP();
-  
-      if (isValid) {
-         dispatch(verifyOTP(otpCode))
-         .then(() => navigation.navigate('Home'))
-         .catch(error => {
-             console.error('Error during OTP verification:', error);
-         })
-         .finally(() => setLoading(false));
-        } 
-        }
-
-    
-    const renderOTPView = () => {
-      
-      return(
-        <>
-          <View style={styles.header}>
-            <Icon
-              name="angle-left"
-              size={28}
-              color={COLORS.white}
-              onPress={() => setCurrentView('main')}
-            />
-            <Icon 
-              name="bookmark" 
-              size={28} 
-              color={COLORS.white}
-            />
-          </View>
-          <View
-            style={{
-              width: '100%',
-              height: '10%',
-              alignItems: 'center',
-              paddingTop: 80,
-            }}>
-              <LottieView
-                style={styles.lottie}
-                source={require("../../../assets/json/addToFovotite")}
-                autoPlay
-                loop />
-          </View>
-          <Animatable.Text 
-            style={
-              [styles.titleText, 
-              {top: 35}]} 
-              animation='fadeInUp' 
-              delay={1200} 
-          >
-              {t("SIMPLE")} 
-          </Animatable.Text> 
-          <Animatable.View
-            animation="fadeInUpBig"
-            style={styles.bottomView}>
-            <Text style={styles.loginText}>{t("OTP_CODE")}</Text> 
-            <View style={{position: 'relative', margin: 6}}>        
-              <OtpInput
-                numberOfDigits={5}
-                focusColor={COLORS.accentColor}
-                focusStickBlinkingDuration={500}
-                handleChangeotp={(code) => handleChangeOTP(code)}
-                onTextChange={(code) => handleChangeOTP(code)}
-                onFilled={(text) => console.log(`OTP is ${text}`)}
-              />
-                {otpError && <Text style={styles.ErrorText}>{otpError}</Text>}
-              <View style={{
-                flexDirection: 'row',
-                display: 'flex',
-                justifyContent: 'space-between'
-              }}> 
-              <View style={{flex: 1,}}>
-                <View>
-                  <Text style={{color: COLORS.gray50, marginTop: 4}}>{t("Note_send")}</Text>
-                  <TouchableOpacity>
-                    <Text style={{ color: '#42C6A5', margin:8}}>{t("Resend_again")} </Text>
-                  </TouchableOpacity>
-                </View>
-                <View style={styles.signIn}>
-                  <TouchableOpacity
-                    style={[styles.signIn, {flexDirection: "row", width: 130, color: COLORS.primary}]}
-                    onPress={handleSubmitOTP}                  
-                  >
-                    <LinearGradient
-                      colors={['#08d4c4', '#08d4c4']}
-                      style={[styles.signIn, {flexDirection: "row", width: 140,}]}
-                    >
-                      {loading ? (
-                        <View style={{flexDirection: "row", justifyContent:"center"}}>
-                          <ActivityIndicator size="small" color="#fff" />
-                          <Text style={{color: "white"}}>Chargement...</Text>
-                        </View>
-                    ) : (
-                    <Text style={[styles.textSign, { color: '#fff' }]}> {t("To_check")} <FontAwesome
-                      name="angle-right"
-                      color={COLORS.white}
-                      size={30}
-                    /> 
-                    </Text>
-                    )}
-                    </LinearGradient>
-                  </TouchableOpacity>
-                </View>
-              </View>
-
-              </View>
-            </View>  
-          
-          </Animatable.View>
-
-        </>
-      )
-    }
 
     const renderMainView = () => {
       return(
@@ -225,7 +86,7 @@ const LoginScreen = ({navigation}) => {
                   }}>
                     <LottieView
                       style={styles.lottie}
-                      source={require("../../../assets/json/addToFovotite")}
+                      source={require("../../../assets/json/animation_lljmrq2l.json")}
                       autoPlay
                       loop />
           </View>
@@ -302,35 +163,11 @@ const LoginScreen = ({navigation}) => {
       )
     }
 
-
-
   return (
     <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
       <View style={styles.container}>
-            <StatusBar backgroundColor='#42C6A5' barStyle="light-content"/>
-        {/* <View style={{}}>
-          <TouchableOpacity style={{display: 'flex', alignSelf: 'flex-end', justifyContent:'flex-end', margin: 12, paddingHorizontal: 16, backgroundColor: COLORS.white, paddingVertical: 8, borderRadius: 10 }}
-            onPress={() => navigation.navigate("Home")}
-            >
-              <LinearGradient
-                colors={['#fff', '#fff']}
-                style={{flexDirection: "row",}}
-              >
-            <Text style={{color: '#42C6A5', justifyContent: "space-between", margin: 4}}>
-              Ignorer
-            </Text>
-            <FontAwesome
-              name="angle-right"
-              color={COLORS.primary}
-              size={24}
-            /> 
-            </LinearGradient>
-          </TouchableOpacity>
-        </View> */}
-        {currentView === 'main' && renderMainView()}
-        {currentView === 'otpForm' && renderOTPView()}
-        {/* {currentView === 'connexion' && renderConnexionView()} */}
-          
+          <StatusBar backgroundColor='#42C6A5' barStyle="light-content"/>
+          {renderMainView()}
       </View>
     </TouchableWithoutFeedback>
 

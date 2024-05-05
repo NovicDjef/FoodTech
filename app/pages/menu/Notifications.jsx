@@ -14,6 +14,8 @@
   import Icon from 'react-native-vector-icons/FontAwesome';
   import FontAwesome from 'react-native-vector-icons/FontAwesome5';
   import { COLORS } from '../../constants';
+  // import PushNotification from 'react-native-push-notification';
+
 
   export default function Notifications({navigation}) {
     const [refreshing, setRefreshing] = useState(false)
@@ -38,6 +40,23 @@
       }
       
     ]);
+
+  //   useEffect(() => {
+  //     PushNotification.configure({
+  //         onNotification: function(notification) {
+  //             console.log('NOTIFICATION:', notification);
+
+  //             // Traitez la notification comme nécessaire, par exemple :
+  //             // Afficher une alerte ou une modal
+  //             // Naviguer vers une autre vue
+  //         },
+  //     });
+
+  //     return () => {
+  //         PushNotification.unregister();
+  //     };
+  // }, []);
+
 
     const onRefresh = () => {
       setRefreshing(true);

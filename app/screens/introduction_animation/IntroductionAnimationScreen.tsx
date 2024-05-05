@@ -16,13 +16,18 @@ import {
   WelcomeView,
   TopBackSkipView,
   CenterNextButton,
+  LoginArrow,
 } from './scenes';
+
 
 const IntroductionAnimationScreen: React.FC = () => {
   const navigation = useNavigation();
   const window = useWindowDimensions();
 
   const [currentPage, setCurrentPage] = useState(0);
+  const [introCompleted, setIntroCompleted] = useState(false);
+
+
 
   const animationController = useRef<Animated.Value>(new Animated.Value(0));
   const animValue = useRef<number>(0);
@@ -84,7 +89,6 @@ const IntroductionAnimationScreen: React.FC = () => {
 
     toValue !== undefined && playAnimation(toValue);
   }, [playAnimation]);
-
   const onSkipClick = useCallback(() => {
     playAnimation(0.8, 1200);
   }, [playAnimation]);
@@ -106,12 +110,13 @@ const IntroductionAnimationScreen: React.FC = () => {
 
         <MoodDiaryView {...{ animationController }} />
 
-        <WelcomeView {...{ animationController }} />
+        <WelcomeView animationController={animationController} />
       </Animated.View>
 
       <TopBackSkipView {...{ onBackClick, onSkipClick, animationController }} />
 
       <CenterNextButton {...{ onNextClick, animationController }} />
+
     </View>
   );
 };

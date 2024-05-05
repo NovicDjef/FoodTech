@@ -1,10 +1,11 @@
-import { View, Text, ActivityIndicator, TouchableOpacity, Scro, ScrollViewllView } from 'react-native'
+import { View, Text, ActivityIndicator, TouchableOpacity, ScrollViewllView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Section from './Section';
 import { COLORS, SIZES } from '../../constants';
 import { useTranslation } from 'react-i18next';
 import { useDispatch, useSelector } from 'react-redux';
-import Geolocation from '@react-native-community/geolocation';
+// import Geolocation from '@react-native-community/geolocation';
+import Geolocation from 'react-native-geolocation-service';
 import { fetchRestaurants } from '../../redux/action/restaurantActions';
 import { RestaurantVertical } from '../../components';
 import LottieView from 'lottie-react-native';
@@ -26,7 +27,7 @@ export default function Restaurants() {
     useEffect(() => {
         dispatch(fetchRestaurants());
         dispatch(getchGeolocations());
-        getCurrentLocation()
+        // getCurrentLocation()
     },[])
     
     const renderLoader = () => {
@@ -44,20 +45,20 @@ export default function Restaurants() {
           longitude: geoLocation.longitude,
         };
       });
-      const getCurrentLocation = () => {
-        Geolocation.getCurrentPosition(
-          position => {
-            const { latitude, longitude } = position.coords;
-            console.log('position user Latitude:', latitude);
-            console.log('position user Longitude:', longitude);
-            calculateAndDisplayDistance(latitude, longitude, restaurants);
-          },
-          error => {
-            console.log(error);
-          },
-          { enableHighAccuracy: true, }
-        );
-      };
+      // const getCurrentLocation = () => {
+      //   Geolocation.getCurrentPosition(
+      //     position => {
+      //       const { latitude, longitude } = position.coords;
+      //       console.log('position user Latitude:', latitude);
+      //       console.log('position user Longitude:', longitude);
+      //       calculateAndDisplayDistance(latitude, longitude, restaurants);
+      //     },
+      //     error => {
+      //       console.log(error);
+      //     },
+      //     { enableHighAccuracy: true, }
+      //   );
+      // };
       
 
       function calculateDistance(lat1, lon1, lat2, lon2) {

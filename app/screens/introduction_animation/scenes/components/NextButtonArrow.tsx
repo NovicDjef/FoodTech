@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { StyleSheet, Text, Animated } from 'react-native';
+import { StyleSheet, Text, Animated, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MyPressable from '../../../../components/MyPressable';
 import { COLORS } from '../../../../constants';
@@ -64,9 +64,10 @@ const NextButtonArrow: React.FC<Props> = ({
     outputRange: [40, 8],
   });
 
-  const [showBottom, setShowBottom] = useState(false)
   const { t } = useTranslation();
-
+  const onLoginButtonClick = () => {
+    navigation.navigate('Login'); 
+  };
   return (
     <Animated.View
       style={[
@@ -77,13 +78,13 @@ const NextButtonArrow: React.FC<Props> = ({
           marginBottom: marginBottomAnim,
         },
       ]}
-    >
-      {onBtnPress !== 4  ? (
+    >   
         <MyPressable
         style={{ flex: 1, justifyContent: 'center' }}
         android_ripple={{ color: 'darkgrey' }}
         onPress={() => onBtnPress()}
       >
+        <TouchableOpacity onPress={onLoginButtonClick}>
         <Animated.View
           style={[
             styles.signupContainer,
@@ -96,6 +97,7 @@ const NextButtonArrow: React.FC<Props> = ({
           <Text style={styles.signupText}>{t("Connexion")}</Text>
           <Icon name="arrow-forward" size={24} color="white" />
         </Animated.View>
+        </TouchableOpacity>
 
         <IconPressable
           style={[
@@ -110,42 +112,6 @@ const NextButtonArrow: React.FC<Props> = ({
           color="white"
         />
       </MyPressable>
-      ) : (
-        <MyPressable
-        style={{ flex: 1, justifyContent: 'center' }}
-        android_ripple={{ color: 'darkgrey' }}
-        // onPress={() => onBtnPress()}
-        onPress={() => navigation.navigate("Notification")}
-      >
-        <Animated.View
-          style={[
-            styles.signupContainer,
-            {
-              opacity: opacityAnim,
-              transform: [{ translateY: transitionAnim }],
-            },
-          ]}
-        >
-          <Text style={styles.signupText}>ffffffffff</Text>
-          <Icon name="arrow-forward" size={24} color="white" />
-        </Animated.View>
-
-        <IconPressable
-          style={[
-            styles.icon,
-            {
-              opacity: iconOpacityAnim,
-              transform: [{ translateY: iconTransitionAnim }],
-            },
-          ]}
-          name="arrow-forward-ios"
-          size={24}
-          color="white"
-        />
-      </MyPressable>
-      )}
-      
-     
     </Animated.View>
   );
 };

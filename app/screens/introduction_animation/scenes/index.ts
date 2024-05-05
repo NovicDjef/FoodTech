@@ -5,3 +5,4 @@ export { default as MoodDiaryView } from './MoodDiaryView';
 export { default as WelcomeView } from './WelcomeView';
 export { default as TopBackSkipView } from './TopBackSkipView';
 export { default as CenterNextButton } from './CenterNextButton';
+export { default as LoginArrow } from "./components/LoginArrow"
