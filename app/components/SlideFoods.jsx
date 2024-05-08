@@ -10,7 +10,7 @@ export default function SlideFoods({containerStyle, course}) {
   return (
     <TouchableOpacity
       style={{
-        width: 170,
+        width: 270,
         right: 22,
         ...containerStyle,
         marginBottom: 20

@@ -14,8 +14,10 @@ export const fetchcommandes = () => {
     try {
       const response = await getSomeCommande();
       dispatch(fetchCommandesSucces(response.data));
+      return response; 
     } catch (error) {
       dispatch(fetchCommandesFailure(error.message));
+      throw error;
     }
   };
 };
@@ -26,8 +28,10 @@ export const addCommande = (cart) => {
     try {
       const response = await addSomeCommande(cart);
       dispatch(addCommandeSucces(response.data));
+      return response; 
     } catch (error) {
       dispatch(addCommandeFailure(error.message));
+      throw error;
     }
   };
 };

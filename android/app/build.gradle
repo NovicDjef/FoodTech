@@ -119,15 +119,12 @@ dependencies {
 
     implementation project(':react-native-vector-icons') 
     // implementation project(':react-native-i18n')
-     //implementation project(':lottie-react-native')
-     
-     
+    //implementation project(':lottie-react-native')
+
     implementation project(':react-native-splash-screen')
+    implementation project(':react-native-push-notification')
 
     implementation "androidx.swiperefreshlayout:swiperefreshlayout:1.0.0"
-
-        implementation 'com.onesignal:OneSignal:[5.0.0, 5.99.99]'
-
 
     
     debugImplementation("com.facebook.flipper:flipper:${FLIPPER_VERSION}")

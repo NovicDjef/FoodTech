@@ -23,7 +23,7 @@ import Dialog from "react-native-dialog";
 import { addCommande } from '../redux/action/commandeActions';
 import { useTranslation } from 'react-i18next';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
-// import PushNotification from 'react-native-push-notification';
+import PushNotification from 'react-native-push-notification';
 
 
 
@@ -36,15 +36,15 @@ export default function Panier({ navigation }) {
   const [refresh, setRefresh] = useState(false)
   const [recommendationText, setRecommendationText] = useState('');
   const [showRecommendation, setShowRecommendation] = useState(false);
-
+  const [serverResponse, setServerResponse] = useState(null); 
  
   const user = useSelector(state => state.auth.user.user)
   const cart = useSelector(state => state.cart)
   const restaurants = useSelector(state => state.restaurant.restaurants)
   const locations = useSelector(state => state.location.geolocation)
   const userId = useSelector(state => state.auth.user.user.id)
-
   
+
   const getRestaurantCoordinates = (restaurantId) => {
     const restaurant = restaurants.find(resto => resto.geolocalisationId === restaurantId);
     if (restaurant) {
@@ -61,12 +61,10 @@ export default function Panier({ navigation }) {
   
   const restaurantId = 1; // ID du restaurant
 const coordinates = getRestaurantCoordinates(restaurantId);
-console.warn("Coordonnées du restaurant :", coordinates);
+// console.warn("Coordonnées du restaurant :", coordinates);
 
 
   useEffect(() => {
-    // dispatch(fetchRestaurants());
-    // dispatch(getchGeolocations());
     StatusBar.setBarStyle('light-content', true);
   }, []);
 
@@ -76,14 +74,7 @@ console.warn("Coordonnées du restaurant :", coordinates);
   };
  
   const handleShowCommande = () => {
-    // const userToken = await AsyncStorage.getItem("userToken")
-    // if(userToken) {
       setShowModalDetailRecu(true)
-      
-    // } else {
-    //   navigation.navigate("login")
-    // }
-    //getCurrentLocation()
   }
   const handleUpdateCartItemQuantity = (id, quantity) => {
     dispatch(updateCartItemQuantity(id, quantity));
@@ -104,28 +95,40 @@ console.warn("Coordonnées du restaurant :", coordinates);
       return totalPrice + 600;
     }
   };
-  const handleCommande = () => {
-    const commander = cart.items.map(item => ({
-      quantity : item.quantity,
-      platsId: item.id,
-      recommandation: item.recommendationText,
-      restaurantId: restaurantId,
-      prix: totalCommande,
-      userId: userId,
-    }))
-    dispatch(addCommande(commander))
-  //   PushNotification.localNotification({
-  //     channelId: "Succes Commande",
-  //     title: "Commande succes",
-  //     message: "Message de la notification",
-  // });
-    setShowModalDetailRecu(false)
-  }
 
+  const handleCommande = async () => {
+    try {
+      const commander = cart.items.map(item => ({
+        quantity: item.quantity,
+        platsId: item.id,
+        recommandation: recommendationText,
+        restaurantId: restaurantId,
+        prix: totalCommande,
+        userId: userId,
+      }));
+      const response = await dispatch(addCommande(commander));
+    
+    if (response && response.data && response.data.message) {
+      showAlert("Succès", response.data.message);
+    } else {
+      showAlert("Erreur", "Désolé, votre commande a échoué. Veuillez réessayer plus tard.");
+    }
+  } catch (error) {
+    showAlert("Erreur", "Une erreur s'est produite lors du traitement de votre commande.");
+  } finally {
+      setShowModalDetailRecu(false);
+    }
+  };
+  
+  const showAlert = (title, message) => {
+    Alert.alert(title, message, [{ text: 'OK', onPress: () => handleOKPress() }]);
+  };
+
+  const handleOKPress = () => {
+    navigation.goBack();
+  };
 
   const handleSubmit = () => {
-    // Enregistrer le texte de la recommandation dans votre application
-    console.log('Recommandation soumise :', recommendationText);
     setShowRecommendation(true);
   };
   const handlePressOutside = () => {
@@ -484,6 +487,7 @@ console.warn("Coordonnées du restaurant :", coordinates);
   );
 }
 
+
 const styles = StyleSheet.create({
     container: {
       flex: 1,
@@ -695,4 +699,4 @@ const styles = StyleSheet.create({
       fontWeight: '300',
       alignSelf: 'center',
     },
-  });
+  })

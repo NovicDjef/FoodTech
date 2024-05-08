@@ -27,6 +27,7 @@ export default function App() {
     const token = await messaging().getToken()
     console.log("Token :", token)
   }
+ 
   useEffect(() => {
     setTimeout(() => {
       SplashScreen.hide()

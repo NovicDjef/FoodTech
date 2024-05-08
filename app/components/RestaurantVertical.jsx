@@ -68,7 +68,7 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
         ...containerStyle,
         }}>
       <Image
-         source={{uri: `http://172.20.10.4:3000/images/${course.image}`}}
+         source={{uri: `http://192.168.1.136:3000/images/${course.image}`}}
         resizeMode="cover"
         style={{
           width: '100%',

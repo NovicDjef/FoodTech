@@ -45,9 +45,9 @@ export default function Slide() {
                 <View key={index}>
                   <SlideFoods
                     containerStyle={{
-                      width: BannerWidth - 70,
+                      width: BannerWidth - 30,
                       marginLeft: index === 20 ? 12 : 6, 
-                      //marginRight: index === slide.length - 1 ? 2 : 0,
+                      marginRight: index === slide.length - 1 ? 2 : 0,
                         marginTop: 12
                     }}
                     course={item}
