@@ -9,8 +9,10 @@ export const fetchRestaurants = () => {
     try {
       const response = await getchSomeRestaurant();
       dispatch(fetchrestaurantSucces(response.data));
+      return response;
     } catch (error) {
       dispatch(fetchrestaurantFailure(error.message));
+      throw error
     }
   };
 };

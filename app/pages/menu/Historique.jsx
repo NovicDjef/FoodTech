@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, SafeAreaView, ScrollView, Text, View, TouchableOpacity, Image, RefreshControl, Alert } from 'react-native';
 import { useSelector, useDispatch } from 'react-redux';
+import LottieView from 'lottie-react-native';
 import { fetchcommandes } from '../../redux/action/commandeActions';
 import { fetchRepas } from '../../redux/action/platsActions';
 import { fetchRestaurants } from '../../redux/action/restaurantActions';
@@ -34,6 +35,10 @@ export default function Historique() {
     Alert.alert(title, message, [{ text: 'OK' }]);
   };
 
+  // Filtrer les commandes de l'utilisateur connecté
+  const userCommandes = commandes.filter((cmd) => cmd.userId === userId);
+  const hasCommandes = userCommandes.length > 0;
+
   return (
     <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
       <ScrollView
@@ -42,86 +47,88 @@ export default function Historique() {
       >
         <Text style={styles.title}>Historiques Commandes</Text>
 
-        {restaurants.map((restaurant) => {
-          const restaurantPlats = platsData.filter((plat) => plat.restaurantId === restaurant.id);
+        {hasCommandes ? (
+          userCommandes.map((commande) => {
+            const plat = platsData.find((plat) => plat.id === commande.platsId);
+            const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
+            const imageplat = plat.image || 'Image plat inconnu';
+            const nomPlat = plat.nom || 'nom plat inconnu';
+            const prixplat = plat.prix || 'nom plat inconnu';
 
-          return (
-            <View key={restaurant.id}>
-              <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 10 }}>
-                {restaurant.nom}
-              </Text>
-              {restaurantPlats.map((plat, index) => {
-                const commande = commandes.find((cmd) => cmd.platsId === plat.id && cmd.userId === userId);
-                const imageplat = plat.image || 'Image plat inconnu';
-                const nomPlat = plat.nom || 'nom plat inconnu';
-                const prixplat = plat.prix || 'nom plat inconnu';
+            return (
+              <View key={commande.id} style={styles.cardWrapper}>
+                <TouchableOpacity
+                  onPress={() => {
+                    // handle onPress
+                  }}
+                >
+                  <View style={styles.card}>
+                    <Image
+                      alt=""
+                      resizeMode="cover"
+                      source={{ uri: `http://172.20.10.4:3000/images/${imageplat}` }}
+                      style={styles.cardImg}
+                    />
 
-                return (
-                  <View
-                    key={index}
-                    style={[
-                      styles.cardWrapper,
-                      index === 0 && { borderTopWidth: 0 },
-                    ]}
-                  >
-                    <TouchableOpacity
-                      onPress={() => {
-                        // handle onPress
-                      }}
-                    >
-                      <View style={styles.card}>
-                        <Image
-                          alt=""
-                          resizeMode="cover"
-                          source={{ uri: `http://172.20.10.4:3000/images/${imageplat}` }}
-                          style={styles.cardImg}
-                        />
+                    <View style={styles.cardBody}>
+                      <Text numberOfLines={1} style={styles.cardTitle}>
+                        {nomPlat}
+                      </Text>
+                      <Text numberOfLines={1} style={styles.cardRowItemText}>
+                        {restaurant.nom}
+                      </Text>
 
-                        <View style={styles.cardBody}>
-                          <Text numberOfLines={1} style={styles.cardTitle}>
-                            {nomPlat}
+                      <View style={styles.cardRow}>
+                        <View style={styles.cardRowItem}>
+                          <FontAwesome color="#173153" name="wallet" size={13} />
+                          <Text style={styles.cardRowItemText}>
+                            Unité: {prixplat}.00Frs
                           </Text>
-                          <Text numberOfLines={1} style={styles.cardRowItemText}>
-                            {restaurant.nom}
+                        </View>
+
+                        <View style={styles.cardRowItem}>
+                          <FontAwesome color="#173153" name="cart-arrow-down" solid={true} size={13} />
+                          <Text style={styles.cardRowItemText}>
+                            Quantité: {commande.quantity}
                           </Text>
-
-                          <View style={styles.cardRow}>
-                            <View style={styles.cardRowItem}>
-                              <FontAwesome color="#173153" name="wallet" size={13} />
-                              <Text style={styles.cardRowItemText}>
-                                Unité: {prixplat}.00Frs
-                              </Text>
-                            </View>
-
-                            <View style={styles.cardRowItem}>
-                              <FontAwesome color="#173153" name="cart-arrow-down" solid={true} size={13} />
-                              <Text style={styles.cardRowItemText}>
-                                Quantité: {commande ? commande.quantity : 0}
-                              </Text>
-                            </View>
-                          </View>
-
-                          <View style={{ flexDirection: "row" }}>
-                            <Text style={styles.cardPrice}>
-                              Total: {commande ? commande.prix : 0}.00Frs
-                            </Text>
-                            <Text style={styles.cardStatus}>
-                              {commande ? "Accepté" : "Non accepté"}
-                            </Text>
-                          </View>
                         </View>
                       </View>
-                    </TouchableOpacity>
+
+                      <View style={{ flexDirection: "row" }}>
+                        <Text style={styles.cardPrice}>
+                          Total: {commande.prix}.00Frs
+                        </Text>
+                        <Text style={styles.cardStatus}>
+                          Accepté
+                        </Text>
+                      </View>
+                    </View>
                   </View>
-                );
-              })}
+                </TouchableOpacity>
+              </View>
+            );
+          })
+        ) : (
+          <View style={styles.emptyMessageContainer}>
+            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                    <LottieView
+                        style={{
+                          width: 368,
+                          height: 368
+                        }}
+                        source={require("../../../assets/json/25237-receipt.json")}
+                        autoPlay
+                        loop
+                    />
+                    <Text style={{fontSize: 18}}>Aucune commande passée pour le moment.</Text>
             </View>
-          );
-        })}
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
 }
+
 
 const styles = StyleSheet.create({
   container: {

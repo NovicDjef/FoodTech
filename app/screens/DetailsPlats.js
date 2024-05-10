@@ -179,16 +179,41 @@ export default function DetailsPlats({navigation, item, category, route }) {
               </View>   
             </View>
             <View>
-              <View style={{marginHorizontal: 12}}>
-                <Text>
+              <View style={{marginHorizontal: 12,}}>
+                <Text style={{margin: 12, fontWeight: "bold", fontSize: 22}}>
                   {plats.nom}
                 </Text>
-                <Text>
-                  {plats.description}
-                </Text>
-                <Text>
-                  {plats.prix}
-                </Text>
+                <View style={{}}>
+                  <Text style={{fontSize: 20, fontWeight: "bold"}}>
+                    {t("Description_food")}
+                  </Text>
+                  <Text style={{}}>
+                    {plats.description} 
+                  </Text>
+                </View>
+                <View style={{
+                    flexDirection: 'row',
+                    alignItems:'center',
+                    marginTop: 12,
+                    marginHorizontal: 12,  
+                    justifyContent: "space-between"
+                }}>
+                  <View style={{flexDirection: "column", margin: 2,}}>
+                   <View style={{flexDirection: 'row'}}>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}} />
+                      <Icon name="star" size={20} color={COLORS.gray30} style={{marginRight: 4}} />
+                   </View>
+                    <Text style={{margin: 4, color: COLORS.primary}}>4 Star Ratings</Text>
+                  </View>
+                  <View style={{}}>
+                  <Text style={{color: COLORS.black, fontWeight: "bold", fontSize: 24, marginRight: 8, marginTop: -12}}>
+                    {plats.prix} Frs
+                  </Text>
+                  </View>
+                </View>
                 <Text>
                   {/* {plats.mentionPLat} */}
                 </Text>

@@ -20,19 +20,23 @@ useAnimatedScrollHandler,
 interpolate,
 // Extrapolate,
 } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import { IconsButton, IconLabel  } from '../components';
 import { COLORS, FONTS, images, icons, SIZES} from '../constants';
 import { SharedElement } from 'react-navigation-shared-element';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRepas } from '../redux/action/platsActions';
+import { useTranslation } from 'react-i18next';
 
 export default function PlatCategorie({navigation, route}) {
+  const { t } = useTranslation();
   const dispatch = useDispatch();
   const [refresh, setRefresh] = useState()
   const {category} = route.params;
-  // const plats = useSelector(state => state.plat.repas)
+  const categories = useSelector(state => state.categorie.categories)
   const platsData = useSelector((state) => state.plat.repas);
+
   useEffect(() => {
     dispatch(fetchRepas());
   }, [])
@@ -46,6 +50,15 @@ export default function PlatCategorie({navigation, route}) {
   function BackHandler() {
     navigation.goBack();
   }
+
+  const filterPlatsByCategory = (categoryId) => {
+    return platsData.filter((plat) => plat.categorieId === categoryId);
+  }; 
+
+  const platsForCategories = filterPlatsByCategory(category.id);
+
+  const platsForRestaurant = filterPlatsByCategory(category.id);
+  
   function renderHeader() {
 
     return (
@@ -148,7 +161,6 @@ export default function PlatCategorie({navigation, route}) {
     );
   }
 
-
   return (
     <SafeAreaView style={{ backgroundColor: '#fff' }}>
       <ScrollView 
@@ -161,15 +173,13 @@ export default function PlatCategorie({navigation, route}) {
       contentContainerStyle={styles.container} >
           {/* header */}
           {renderHeader()}
-
-        {platsData.map((plat, index) => {
-    
-          return (
+          {platsForRestaurant.length > 0 ? (
+          platsForCategories.map((plat, index) => (
             <View
               key={index}
               style={[
                 styles.cardWrapper,
-                index === 0 && { borderTopWidth: 0 },
+                index === 0 && { borderTopWidth: 0, flex: 1 },
               ]}>
               <TouchableOpacity
                onPress={() => {
@@ -256,8 +266,22 @@ export default function PlatCategorie({navigation, route}) {
                 </View>
               </TouchableOpacity>
             </View>
-           ); 
-         })} 
+          ))
+        ) : (
+          <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+            
+            <LottieView
+              style={{
+                width: 368,
+                height: 368
+              }}
+              source={require("../../assets/json/629-empty-box.json")}
+              autoPlay
+              loop
+            />
+            <Text style={{top: -100}}>{t("No_data")}</Text>
+          </View>
+        )}
       </ScrollView>
     </SafeAreaView>
   );

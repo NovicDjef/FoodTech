@@ -9,7 +9,6 @@ import { fetchRestaurants } from '../../redux/action/restaurantActions';
 import { RestaurantVertical } from '../../components';
 import LottieView from 'lottie-react-native';
 import { useNavigation } from '@react-navigation/native';
-import { getchGeolocations } from '../../redux/action/locationActions';
 
 
 export default function Restaurants() {
@@ -19,43 +18,24 @@ export default function Restaurants() {
     const dispatch = useDispatch();
     const restaurants = useSelector((state) => state.restaurant.restaurants);
     const loadingRestaurant = useSelector((state) => state.restaurant.loading);
-    const locations = useSelector(state => state.location.geolocation);
     const [nearestRestaurants, setNearestRestaurants] = useState([]);
     const [farthestRestaurants, setFarthestRestaurants] = useState([]);
     const [locationsRestaurant, setLocationsRestaurant] = useState([]);
+    const [loading, setLoading] = useState(false)
 
+    // console.debug("restaurant :", restaurants)
     useEffect(() => {
         dispatch(fetchRestaurants());
-        dispatch(getchGeolocations());
         getCurrentLocation()
     },[])
 
     useEffect(() => {
-      const fetchLocations = async () => {
-        const updatedLocationsRestaurant = restaurants.map(restaurant => {
-          const geoLocation = locations.find(geo => geo.id === restaurant.geolocalisationId);
-          if (geoLocation) {
-            return {
-              latitude: geoLocation.latitude,
-              longitude: geoLocation.longitude,
-            };
-          } else {
-            return {
-              latitude: 0,
-              longitude: 0,
-            };
-          }
-        });
-
         setLoading(true);
         setTimeout(() => {
-          setLocationsRestaurant(updatedLocationsRestaurant);
           setLoading(false);
         }, 3000); 
-      };
   
-      fetchLocations();
-    }, [restaurants, locations]);
+    }, []);
     
     const renderLoader = () => {
         return(
@@ -65,88 +45,74 @@ export default function Restaurants() {
           </View>
         )
       }
-      // const locationsrestaurant = restaurants.map(restaurant => {
-      //   const geoLocation = locations.find(geo => geo.id === restaurant.geolocalisationId);
-      //   if(locations) {
-      //     return {
-      //       latitude: geoLocation.latitude,
-      //       longitude: geoLocation.longitude,
-      //     };
-      //   } else {
-      //     return {
-      //       latitude: 0,
-      //       longitude: 0,
-      //   };
-      //   }
-        
-      // });
+
+      const doualaLatitude = 4.0511;
+      const doualaLongitude = 9.7679;
+      
       const getCurrentLocation = () => {
-        Geolocation.getCurrentPosition(
-          position => {
-            const { latitude, longitude } = position.coords;
-            console.log('position user Latitude:', latitude);
-            console.log('position user Longitude:', longitude);
-            calculateAndDisplayDistance(latitude, longitude);
-          },
-          error => {
-            console.log(error);
-          },
-          { enableHighAccuracy: true, }
-        );
+          Geolocation.getCurrentPosition(
+              position => {
+                  const { latitude, longitude } = position.coords;
+                  console.log('position user Latitude:', latitude);
+                  console.log('position user Longitude:', longitude);
+      
+                  // Appeler la fonction pour calculer la distance en utilisant les coordonnées de Douala
+                  calculateAndDisplayDistance(latitude, longitude, doualaLatitude, doualaLongitude);
+              },
+              error => {
+                  console.log(error);
+              },
+              { enableHighAccuracy: true }
+          );
       };
-    
-      function calculateDistance(lat1, lon1, lat2, lon2) {
-        const R = 6371; 
-        const dLat = toRadians(lat2 - lat1);
-        const dLon = toRadians(lon2 - lon1);
-        const a =
-          Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-          Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) *
-          Math.sin(dLon / 2) * Math.sin(dLon / 2);
-        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-        const distance = R * c; 
-        return distance;
+      
+      const calculateDistance = (lat1, lon1, lat2, lon2) => {
+          const R = 6371; // Rayon de la Terre en km
+          const dLat = toRadians(lat2 - lat1);
+          const dLon = toRadians(lon2 - lon1);
+          const a =
+              Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+              Math.cos(toRadians(lat1)) * Math.cos(toRadians(lat2)) * Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const distance = R * c; // Distance en km
+          return distance;
       }
-    
-      function toRadians(degrees) {
-        return degrees * Math.PI / 180;
+      
+      const toRadians = (degrees) => {
+          return degrees * (Math.PI / 180);
       }
-    
-      function calculateAndDisplayDistance(userLatitude, userLongitude) {
-        const restaurantDistances = [];
-        restaurants.forEach((restaurant, index) => {
-          const geoLocation = locations.find(geo => geo.id === restaurant.geolocalisationId);
-          if (geoLocation) {
-            const distance = calculateDistance(
-              userLatitude, 
-              userLongitude, 
-              geoLocation.latitude, 
-              geoLocation.longitude
-            );
-            restaurantDistances.push({ index, distance });
-          }
-        });
-        
-        restaurantDistances.sort((a, b) => a.distance - b.distance);
-        const sortedRestaurants = restaurantDistances.map(
-          restaurant => restaurants[restaurant.index]
-        );
-    
-        const nearest = restaurantDistances
-          .filter(({ distance }) => distance <= 3)
-          .map(({ index }) => restaurants[index]);
-    
-        const farthest = restaurantDistances
-          .filter(({ distance }) => distance > 5)
-          .map(({ index }) => restaurants[index]);
-    
-        setNearestRestaurants(nearest);
-        setFarthestRestaurants(farthest);
-        console.warn("eeeee :", sortedRestaurants)
-        restaurantDistances.forEach(({ index, distance }) => {
-          console.log(`La distance entre l'utilisateur et le restaurant ${index + 1} est de ${distance.toFixed(2)} km`);
-        });
+      
+      function calculateAndDisplayDistance(userLatitude, userLongitude, doualaLatitude, doualaLongitude) {
+          const restaurantDistances = [];
+          restaurants.forEach((restaurant, index) => {
+              const { latitude, longitude } = restaurant; // Coordonnées géographiques du restaurant
+              const distanceFromDouala = calculateDistance(doualaLatitude, doualaLongitude, latitude, longitude);
+              const distanceFromUser = calculateDistance(userLatitude, userLongitude, latitude, longitude);
+              restaurantDistances.push({ index, distanceFromDouala, distanceFromUser });
+          });
+      
+          restaurantDistances.sort((a, b) => a.distanceFromDouala - b.distanceFromDouala);
+          const sortedRestaurants = restaurantDistances.map(restaurant => restaurants[restaurant.index]);
+      
+          const nearest = restaurantDistances
+              .filter(({ distanceFromDouala }) => distanceFromDouala <= 4)
+              .map(({ index }) => restaurants[index]);
+      
+          const farthest = restaurantDistances
+              .filter(({ distanceFromDouala }) => distanceFromDouala > 5)
+              .map(({ index }) => restaurants[index]);
+      
+          setNearestRestaurants(nearest);
+          setFarthestRestaurants(farthest);
+      
+          restaurantDistances.forEach(({ index, distanceFromDouala, distanceFromUser }) => {
+            // console.log(`La distance entre l'utilisateur et le restaurant ${index + 1} est de ${distanceFromUser.toFixed(2)} km (à ${distanceFromDouala.toFixed(2)} km de Douala)`);
+              console.log(`La distance entre l'utilisateur et le restaurant ${index + 1} est de ${distanceFromDouala.toFixed(2)} km )`);
+          });
       }
+      
+
+    
     
  // if (loadingRestaurant) {
   //   return renderLoader(); // Render loader until data is loaded

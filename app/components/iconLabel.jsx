@@ -27,6 +27,7 @@ export default function IconLabel({containerStyle, icon, iconStyle, label, label
             name='map-pin'
             color='#000' size={25} /> */}
       <Text
+      numberOfLines={2}
         style={{
             marginLeft: SIZES.base,
             color: COLORS.gray30,

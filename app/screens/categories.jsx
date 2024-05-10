@@ -6,6 +6,7 @@ import {TextButton, CategoriesCard} from '../components';
 import {COLORS, FONTS, SIZES, icons, dummyData} from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchCategories } from '../redux/action/categorieAction';
+import { fetchVilles } from '../redux/action/villesAction';
 
 const Categories = () => {
   const navigation = useNavigation();
@@ -16,6 +17,7 @@ const Categories = () => {
 
    useEffect(() => {
     dispatch(fetchCategories());
+    dispatch(fetchVilles())
    },[])
    const RefreshMe = () => {
     setRefresh(true)
@@ -76,6 +78,7 @@ const Categories = () => {
         return (
            <View
              style={{
+                flex: 1,
                 marginTop: SIZES.padding,
                 
              }}
@@ -85,7 +88,6 @@ const Categories = () => {
                 marginHorizontal: SIZES.padding,
                 ...FONTS.h2,
               }}
-
              >
                 Toutes les Categories
              </Text>

@@ -194,7 +194,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
-                    isDarkMode={isDarkMode}>{product.description}</Text>
+                  numberOfLines={2}  isDarkMode={isDarkMode}>{product.description}</Text>
             </View>
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
@@ -318,9 +318,16 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                     />
                     <View style={styles.productMiddleView}>
                       <Text style={styles.productTitle}>{product.nom}</Text>
-                      <Text style={styles.productCompanyTitle}>
+                      <Text numberOfLines={2} style={styles.productCompanyTitle}>
                         {product.description}
                       </Text>
+                      <View style={{flexDirection: 'row'}}>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
+                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}} />
+                      <Icon name="star" size={20} color={COLORS.gray30} style={{marginRight: 4}} />
+                   </View>
                     </View>
                     <View style={styles.productRightView}>
                       <Text

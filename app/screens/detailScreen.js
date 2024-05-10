@@ -34,13 +34,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     const dispatch = useDispatch();
     const platsData = useSelector((state) => state.plat.repas);
     const [nearestRestaurants, setNearestRestaurants] = useState(false)
-    // const geolocations = useSelector(state => state.location);
-    // const { latitude, longitude } = geolocations;
 
-
-    // const positions = restaurant.find(position => position.id === restaurant.geolocalisationId); 
-    // const nomPosition = positions ? (positions.latitude, positions.longitude ): 'Plat inconnu'; 
-    // const restaurantWithGeolocation = restaurant.find(restaurant => restaurant.geolocalisationId === geolocations.id);
     useEffect(() => {
       dispatch(fetchRepas());
     }, []);
@@ -49,7 +43,6 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     return platsData.filter(plat => plat.restaurantId === restaurantId);
   };
 
-  // Récupérez les plats pour le restaurant spécifique
   const platsForRestaurant = getPlatsForRestaurant(restaurant.id);
 
   const headerShareValue = useSharedValue(80);
@@ -67,13 +60,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     scrollY.value = event.contentOffset.y;
   });
 
-
     function renderHeader({item,}) {
-
-      // headerSharedValue.value = withDelay(500,
-      //   withTiming(0, {
-      //     duration: 500
-      //   }))
 
         const headerFadeAnimatedStyle = useAnimatedStyle(() =>{
           return {
@@ -81,20 +68,6 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
               [80, 0], [0, 1])
           }
         })
-
-
-      // const headerTranslateAnimatedStyle = useAnimatedStyle(
-      //   () => {
-      //     return {
-      //       transform: [
-      //        {
-      //         translateY: headerSharedValue.value
-      //        }
-      //       ]
-      //     }
-      //   }
-      // )
-
       
       return (
         <Animated.View
@@ -302,13 +275,13 @@ const resetSearch = () => {
             
           )}
             
-
           </>
         )}
         ItemSeparatorComponent={() => (
           <LineDivider
              lineStyle={{
-              backgroundColor: COLORS.gray20,
+              backgroundColor: COLORS.gray10,
+              marginTop: -35
              }}
 
           />

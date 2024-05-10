@@ -29,6 +29,9 @@ import apiService from "./Api";
   export const getchSomeLivraisons = () => {
     return apiService.get("/livraisons")
   };
+  export const getchSomeVille = () => {
+    return apiService.get("/villes")
+  }
   
   // resquete POST :
   

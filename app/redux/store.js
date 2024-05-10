@@ -39,6 +39,7 @@ import commandeReducer from './reducer/commandeReducer';
 import livraisonReducer from './reducer/livraisonReducer';
 import favoriteReducer from './reducer/favoriteReducer';
 import locationReducer from './reducer/locationReducer';
+import villesReducer from './reducer/villesReducer';
 
 const store = configureStore({
   reducer: {
@@ -52,6 +53,7 @@ const store = configureStore({
     livraison: livraisonReducer,
     favorite: favoriteReducer,
     location: locationReducer, 
+    ville: villesReducer
   },
 });
 

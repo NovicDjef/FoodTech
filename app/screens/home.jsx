@@ -36,6 +36,7 @@ import DarkMode from '../utils/darkmode.context';
 import Slide from './home/Slide';
 import FastMenu from './home/FastMenu';
 import Restaurants from './home/Restaurants';
+import { fetchRestaurants } from '../redux/action/restaurantActions';
 
 
 
@@ -53,6 +54,7 @@ function Home() {
   const RefreshMe = () => {
     setRefresh(true)
     setTimeout(() => {
+     // dispatch(fetchRestaurants())
         setRefresh(false)
     }, 3000)
   }
@@ -91,6 +93,7 @@ function Home() {
               onRefresh={() => RefreshMe()}
             />
           }
+          style={{ marginBottom: 100 }} // Ajoutez cette ligne
           >
           <Slide />
 
