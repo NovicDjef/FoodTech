@@ -122,14 +122,15 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
                     marginTop: 8
                 }}>
                   <View style={{flexDirection: "column", margin: 2,}}>
-                   <View style={{flexDirection: 'row'}}>
-                      <Icon name="star" size={11} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={11} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={11} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={11} color={COLORS.yellow} style={{marginRight: 4}} />
-                      <Icon name="star" size={11} color={COLORS.gray30} style={{marginRight: 4}} />
-                   </View>
-                    <Text style={{color: COLORS.primary}}>4 Star Ratings</Text>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(course.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={12} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - course.ratings)].map((_, index) => (
+                      <Icon key={course.ratings + index} name="star" size={12} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.primary}}>{course.ratings} {("Star_ratings")}</Text>
                   </View>
                   <View>
                     <Text

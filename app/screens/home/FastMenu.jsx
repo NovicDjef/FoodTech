@@ -12,8 +12,8 @@ export default function FastMenu() {
 
     const { t } = useTranslation()
     const dispatch = useDispatch()
-    const categories = useSelector(state => state.categorie.categories)
-    const loadingCategories = useSelector(state => state.categorie.loading)
+    const plats = useSelector(state => state.plat.repas)
+    const loadingPLats = useSelector(state => state.plat.loading)
 
     useEffect(() => {
         dispatch(fetchCategories());
@@ -41,16 +41,16 @@ export default function FastMenu() {
 
         return (
           <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-           {loadingCategories ? (
+           {loadingPLats ? (
             <>
               {renderLoader()}
             </>
           ) : (
             <Section title={t("Fast_menu")}>
-              { categories.length > 0 ? (
+              { plats.length > 0 ? (
                 <FlatList
               horizontal
-              data={categories}
+              data={plats}
               // listKey="Courses"
               keyExtractor={item => `Courses-${item.id}`}
               showsHorizontalScrollIndicator={false}
@@ -63,7 +63,7 @@ export default function FastMenu() {
                   containerStyle={{
                     marginLeft: index === 0 ? SIZES.padding : SIZES.radius,
                     marginRight:
-                      index === categories.length - 1
+                      index === plats.length - 1
                         ? SIZES.padding
                         : 0,
                   }}

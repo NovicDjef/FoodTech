@@ -4,11 +4,11 @@ import { sendPhoneNumber, verifyOTP } from '../redux/action/authActions';
 
 import axios from 'axios';
 
-export const sendPhoneNumberRequest = (numero_telephone) => {
+export const sendPhoneNumberRequest = (phone) => {
   return async (dispatch) => {
     try {
 
-      const authURL = setSomeAuthentification(numero_telephone);
+      const authURL = setSomeAuthentification(phone);
       // Faire l'appel API pour envoyer le numéro de téléphone
       const response = await axios.post(authURL, {
         numero_telephone,
@@ -18,10 +18,10 @@ export const sendPhoneNumberRequest = (numero_telephone) => {
       const otpCode = response.data.otpCode;
 
       // Dispatch l'action pour mettre à jour le store avec le numéro de téléphone
-      dispatch(sendPhoneNumber(numero_telephone));
+      dispatch(sendPhoneNumber(phone));
 
       // Dispatch l'action pour mettre à jour le store avec le code OTP
-      dispatch(verifyOTP(numero_telephone, otpCode));
+      dispatch(verifyOTP(phone, otpCode));
     } catch (error) {
       console.error('Erreur lors de l\'envoi du numéro de téléphone', error);
     }

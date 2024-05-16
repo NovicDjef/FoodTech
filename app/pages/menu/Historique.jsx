@@ -28,17 +28,28 @@ export default function Historique() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    setTimeout(() => setRefreshing(false), 3000);
+    setTimeout(() => {
+      dispatch(filterCommandesUtilisateur(commandes))
+         setRefresh(false)
+     }, 3000)
+    
   };
 
-  const showAlert = (title, message) => {
-    Alert.alert(title, message, [{ text: 'OK' }]);
+  const filterCommandesUtilisateur = (commandes) => {
+    let commandesUtilisateur = [];
+    // Parcourir chaque liste de commandes
+    commandes.forEach(listeCommandes => {
+      // Filtrer les commandes de cette liste par l'ID de l'utilisateur
+      const commandesFiltrees = listeCommandes.filter(commande => commande.userId === userId);
+      // Ajouter les commandes filtrées à la liste finale
+      commandesUtilisateur = commandesUtilisateur.concat(commandesFiltrees);
+    });
+    return commandesUtilisateur;
   };
-
-  // Filtrer les commandes de l'utilisateur connecté
-  const userCommandes = commandes.filter((cmd) => cmd.userId === userId);
-  const hasCommandes = userCommandes.length > 0;
-
+  
+  // Filtrer les commandes de l'utilisateur
+  const commandesUtilisateur = filterCommandesUtilisateur(commandes);
+  
   return (
     <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
       <ScrollView
@@ -47,8 +58,8 @@ export default function Historique() {
       >
         <Text style={styles.title}>Historiques Commandes</Text>
 
-        {hasCommandes ? (
-          userCommandes.map((commande) => {
+        {commandesUtilisateur ? (
+          commandesUtilisateur.map((commande) => {
             const plat = platsData.find((plat) => plat.id === commande.platsId);
             const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
             const imageplat = plat.image || 'Image plat inconnu';
@@ -66,7 +77,7 @@ export default function Historique() {
                     <Image
                       alt=""
                       resizeMode="cover"
-                      source={{ uri: `http://172.20.10.4:3000/images/${imageplat}` }}
+                      source={{ uri: `http://192.168.1.136:3000/images/${imageplat}` }}
                       style={styles.cardImg}
                     />
 
@@ -75,7 +86,7 @@ export default function Historique() {
                         {nomPlat}
                       </Text>
                       <Text numberOfLines={1} style={styles.cardRowItemText}>
-                        {restaurant.nom}
+                        {/* {restaurant.nom} */}
                       </Text>
 
                       <View style={styles.cardRow}>

@@ -22,13 +22,16 @@
     // Extrapolate,
     } from 'react-native-reanimated';
     import FontAwesome from 'react-native-vector-icons/FontAwesome5';
+    import Icon from "react-native-vector-icons/FontAwesome"
     import { IconsButton, IconLabel  } from '../components';
     import { COLORS, FONTS, images, icons, SIZES} from '../constants';
     import { SharedElement } from 'react-navigation-shared-element';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
+import { useTranslation } from 'react-i18next';
     
     export default function ListRestaurants({navigation, title,}) {
+      const { t } = useTranslation();
       const [refresh, setRefresh] = useState(false)
       const dispatch = useDispatch();
       const restaurants = useSelector(state => state.restaurant.restaurants)
@@ -39,6 +42,7 @@ import { fetchRestaurants } from '../redux/action/restaurantActions';
       const RefreshMe = () => {
         setRefresh(true)
         setTimeout(() => {
+          dispatch(fetchRestaurants)
             setRefresh(false)
         }, 3000)
       }
@@ -174,7 +178,7 @@ import { fetchRestaurants } from '../redux/action/restaurantActions';
                   <TouchableOpacity
                    onPress={() => {
                     navigation.navigate("restaurantDetail", {
-                      // plats: restaurant,
+                      restaurant: restaurant
                     })}}
                   >
                     <View style={styles.card}>
@@ -192,63 +196,26 @@ import { fetchRestaurants } from '../redux/action/restaurantActions';
     
                         <View style={styles.cardRow}>
                           <View style={styles.cardRowItem}>
-                            {/* <FontAwesome color="#173153" name="map-marker-alt" size={13} /> */}
-                            <Text style={styles.cardRowItemText}>
-                              {restaurant.phone}
+                            <Text numberOfLines={2} style={styles.cardRowItemText}>
+                              {restaurant.description}
                             </Text>
                           </View>
-                          <View
-                        style={{
-                          flexDirection: 'row',
-                          marginLeft: 12,
-                          marginTop: -8
-                        }}>
-                                <IconLabel
-                                  icon={ icons.star }
-                                containerStyle={{
-                                  marginTop: SIZES.base,
-                                  fontSize: 12
-                              }}
-                              />
-                              <IconLabel
-                                  icon={ icons.star }
-                                containerStyle={{
-                                  marginTop: SIZES.base,
-                              }}
-                              />
-                              <IconLabel
-                                  icon={ icons.star }
-                                containerStyle={{
-                                  marginTop: SIZES.base,
-                              }}
-                              />
-                             
-                              <IconLabel
-                                  icon={ icons.star }
-                                containerStyle={{
-                                  marginTop: SIZES.base,
-                              }}
-                              />
-                          {/* <FontAwesome color="#173153" name="ratting" size={13} /> */}
-                          </View>
-                          {/* <View style={styles.cardRowItem}>
-                            <FontAwesome
-                              color="#173153"
-                              name="cart-arrow-down"
-                              solid={true}
-                              size={13}
-                            />
-    
-                            <Text style={styles.cardRowItemText}>
-                            
-                             Quantité: 
-                            </Text>
-                          </View> */}
                         </View>
-    
+                        <View style={{flexDirection: "column", margin: 2,}}>
+                          <View style={{ flexDirection: 'row' }}>
+                            {[...Array(restaurant.ratings)].map((_, index) => (
+                              <Icon key={index} name="star" size={16} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                            ))}
+                            {[...Array(5 - restaurant.ratings)].map((_, index) => (
+                              <Icon key={restaurant.ratings + index} name="star" size={16} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                            ))}
+                          </View>
+                          <Text style={{margin: 2, color: COLORS.primary}}>{restaurant.ratings} {t("Star_ratings")}</Text>
+                          </View>
                         <View style={{flexDirection: "row"}}>
+                          <Text>Adresse: </Text>
                           <Text style={styles.cardPrice}>
-                         Adresse: {restaurant.adresse}
+                         {restaurant.adresse}
                           </Text>
                           
                         </View>
@@ -314,15 +281,9 @@ import { fetchRestaurants } from '../redux/action/restaurantActions';
         alignItems: 'center',
         paddingHorizontal: 6,
       },
-      cardRowItemText: {
-        fontSize: 15,
-        fontWeight: '500',
-        color: '#173153',
-        marginLeft: 4,
-      },
       cardPrice: {
-        fontSize: 19,
-        fontWeight: '700',
+    
+        fontWeight: '400',
         color: '#173153',
       },
       cardStatus: {

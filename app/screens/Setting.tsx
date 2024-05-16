@@ -18,10 +18,13 @@ import {
   import Icon from 'react-native-vector-icons/Ionicons';
   import { useDispatch, useSelector } from 'react-redux';
 import { logoutUser } from '../redux/reducer/authReducer';
+import { useNavigation } from '@react-navigation/native';
+import { COLORS } from '../constants';
 
 
 
 export default function Setting() {
+  const navigation = useNavigation();
   const { isDarkMode, setIsDarkMode, useDeviceSettings, setUseDeviceSettings } =useContext(DarkMode);
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user.user)
@@ -77,11 +80,17 @@ export default function Setting() {
             onRefresh={() => RefreshMe()}
           />
         }>
-            <View style={{display: "flex", alignItems: "center", justifyContent: "center", margin: 22}}>
-              <Image style={{width: 70, height: 70}} source={require("../../assets/images/novic.png")} />
-              <View  style={{flexDirection: "column", alignItems: "center"}}>
-                <Text style={{color: isDarkMode ? "white" : "black", marginTop: 6}}>@{user.username}</Text>
+            <View style={[styles.card, {display: "flex", alignItems: "center", justifyContent: "space-around", margin: 22, flexDirection: 'row', backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
+              <Image style={{width: 70, height: 70, borderRadius: 12}} source={require("../../assets/images/novic.png")} />
+              <View  style={{flexDirection: "column", justifyContent: "center"}}>
+                <Text style={{color: isDarkMode ? "white" : "black", marginTop: 6}}>@_{user.username}</Text>
                 <Text style={{color: isDarkMode ? "white" : "black", margin: 2}}>+237 {user.phone}</Text>
+              </View>
+              <View  style={{flexDirection: "column", alignItems: "center"}}>
+              <View style={{width: 30, height: 30, borderRadius: 10, backgroundColor: "#3880ff" }}>
+                <Icon name='create-outline' size={24} style={{ color: COLORS.white, textAlign: "center"}}  />
+              </View>
+              <Text style={{color: isDarkMode ? "white" : "black", margin: 2}}>Modifier</Text>
               </View>
             </View>
             <View style={[styles.card, { backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
@@ -185,6 +194,21 @@ export default function Setting() {
                 <Icon name='heart-outline' size={28} color={isDarkMode ? "white" : "black"}  />
                 <Text style={[styles.text, {color: isDarkMode ? "white" : "black", marginLeft: 6,}]}>
                   {t("Invite_a_contact")}
+                </Text>
+              </View>
+            <View style={{flexDirection: "row" }}>
+              <Icon name='chevron-forward' size={24} color={isDarkMode ? "white" : "black"} />
+            </View>
+            </TouchableOpacity>
+
+
+            <View style={[styles.hr]} />
+
+            <TouchableOpacity onPress={() => navigation.navigate("favorite")} style={styles.option}>
+              <View style={{flexDirection: "row", alignItems: "center"}}>
+                <Icon name='heart-outline' size={28} color={isDarkMode ? "white" : "black"}  />
+                <Text style={[styles.text, {color: isDarkMode ? "white" : "black", marginLeft: 6,}]}>
+                  {t("Favorite")}
                 </Text>
               </View>
             <View style={{flexDirection: "row" }}>

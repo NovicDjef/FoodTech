@@ -64,12 +64,12 @@ import apiService from "./Api";
     return apiService.get('/users')
   }
   
-  export const fetchSomePhone = (userData) => {
-    return apiService.post('/phone-otp', { userData: userData })
+  export const fetchSomePhone = ({username, phone}) => {
+    return apiService.post('/phone-otp',{ username, phone })
   }
 
   export const fetchSomeValidateOTP = (otpCode) => {
-    return apiService.post('/verify-otp', { otpCode: otpCode })
+    return apiService.post('/verify-otp', { code: otpCode })
   }
   
   export const fetchSomeGame = ({lotId, userId, selectedNumbers, isWinner}) => {

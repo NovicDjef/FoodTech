@@ -86,7 +86,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
            style={[StyleSheet.absoluteFillObject]}
          >
            <Image
-           source={{uri: `192.168.1.136:3000/images/${restaurant.image}`}}
+           source={{uri: `http://172.20.10.4:3000/images/${restaurant.image}`}}
             resizeMode="cover"
              style={{
                height: '100%',

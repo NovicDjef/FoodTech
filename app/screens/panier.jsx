@@ -43,8 +43,6 @@ export default function Panier({ navigation }) {
   const restaurants = useSelector(state => state.restaurant.restaurants)
   const locations = useSelector(state => state.location.geolocation)
   const userId = useSelector(state => state.auth.user.user.id)
-  
-
   const getRestaurantCoordinates = (restaurantId) => {
     const restaurant = restaurants.find(resto => resto.geolocalisationId === restaurantId);
     if (restaurant) {
@@ -321,13 +319,17 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                       <Text numberOfLines={2} style={styles.productCompanyTitle}>
                         {product.description}
                       </Text>
-                      <View style={{flexDirection: 'row'}}>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}} />
-                      <Icon name="star" size={20} color={COLORS.gray30} style={{marginRight: 4}} />
-                   </View>
+                      <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(product.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={12} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - product.ratings)].map((_, index) => (
+                      <Icon key={product.ratings + index} name="star" size={12} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    {/* <Text style={{color: COLORS.primary}}>{product.ratings} {("Star_ratings")}</Text> */}
+                  </View>
                     </View>
                     <View style={styles.productRightView}>
                       <Text
@@ -571,7 +573,7 @@ const styles = StyleSheet.create({
     },
     productTitle: {
       fontSize: 20,
-      fontWeight: '500',
+      fontWeight: '700',
     },
     productCompanyTitle: {
       fontSize: 16,

@@ -156,50 +156,17 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
               >{course.adresse}</Text>
               </View>
       </View>
-     
-             <View
-              style={{
-                flexDirection: 'row',
-              }}>
-               <IconLabel
-                 icon={ icons.star }
-                 label={course.mention}
-                 containerStyle={{
-                  marginTop: SIZES.base,
-               }}
-              />
-               <IconLabel
-                 icon={ icons.star }
-                 label={course.mention}
-                 containerStyle={{
-                  marginTop: SIZES.base,
-               }}
-              />
-                <IconLabel
-                 icon={ icons.star }
-                 label={course.mention}
-                 containerStyle={{
-                  marginTop: SIZES.base,
-               }}
-              /> 
-              <IconLabel
-                 icon={ icons.star }
-                 label={course.mention}
-                 containerStyle={{
-                  marginTop: SIZES.base,
-               }}
-              /> 
-             {/* <IconLabel
-              icon={ icons.star }
-              label={course.mention}
-              containerStyle={{
-               marginTop: SIZES.base,
-            }}
-           /> */}
-              
-              </View>
-
-            
+      <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(course.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - course.ratings)].map((_, index) => (
+                      <Icon key={course.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.primary}}>{course.ratings} {("Star_ratings")}</Text>
+                  </View>
     </View>
    </View>
    </>

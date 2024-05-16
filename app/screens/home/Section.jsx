@@ -3,9 +3,13 @@ import React from 'react'
 import { TextButton } from '../../components';
 import { COLORS, SIZES, FONTS } from '../../constants';
 import { useTranslation } from 'react-i18next';
+import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 
 export default function Section({containerStyle, title, onPress, children}) {
     const { t } = useTranslation()
+    const restaurants = useSelector(state => state.restaurant.restaurants)
+    const navigation = useNavigation();
         return (
           <View
             style={{
@@ -33,8 +37,9 @@ export default function Section({containerStyle, title, onPress, children}) {
                   backgroundColor: COLORS.primary,
                 }}
                 label={t('see_all')}
-                onPress={() => navigation.navigate
-                  ("ListRestaurants", { restaurants: restaurants} )}
+                onPress={() => navigation.navigate("ListRestaurants",
+                  //  { restaurant: restaurants}
+                   )}
                 disabled={undefined}
                 labelStyle={undefined}
                 

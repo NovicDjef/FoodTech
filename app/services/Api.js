@@ -15,6 +15,8 @@ const apiService = axios.create({
   headers: {
     'Content-Type': 'application/json', 
   },
+  Accept: 'application/json',
+  'Content-Type': 'application/json',
   responseType: 'json',
   withCredentials: true,
 });

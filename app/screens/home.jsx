@@ -37,6 +37,7 @@ import Slide from './home/Slide';
 import FastMenu from './home/FastMenu';
 import Restaurants from './home/Restaurants';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
+import { fetchRepas } from '../redux/action/platsActions';
 
 
 
@@ -50,11 +51,12 @@ function Home() {
 
   const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user.user)
-
+    console.log("utilisateur", user)
   const RefreshMe = () => {
     setRefresh(true)
     setTimeout(() => {
-     // dispatch(fetchRestaurants())
+     dispatch(fetchRestaurants())
+     dispatch(fetchRepas())
         setRefresh(false)
     }, 3000)
   }

@@ -11,7 +11,7 @@ export default function SlideFoods({containerStyle, course}) {
     <TouchableOpacity
       style={{
         width: 270,
-        right: 22,
+        right: 12,
         ...containerStyle,
         marginBottom: 20
       }}>
@@ -23,7 +23,6 @@ export default function SlideFoods({containerStyle, course}) {
           height: 120,
           justifyContent: "center",
           alignItems: "center",
-          marginHorizontal : 36,
           marginBottom: SIZES.radius,
           borderRadius: SIZES.radius,
 

@@ -77,8 +77,9 @@
     "On_spot": "Sur place",
     "Free": "Gratuite",
     "Delivery": "Livraison",
-    "Fast_menu": "menu Rapide",
+    "Fast_menu": "Menu Rapide",
     "Description_food": "Description Repas",
-    "No_data": "Données nos disponible"
+    "No_data": "Données nos disponible",
+    "Star_ratings": "Notes par étoiles"
 
 }

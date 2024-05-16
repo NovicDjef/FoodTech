@@ -22,7 +22,7 @@ import { addToCart } from '../redux/action/cartActions';
 
 
 
-export default function DetailsPlats({navigation, item, category, route }) {
+export default function DetailsPlats({navigation, item, route }) {
     const { plats } = route.params
     const [count, setCount] = useState(0)
     const user = useSelector((state) => state.auth.user)
@@ -41,11 +41,11 @@ export default function DetailsPlats({navigation, item, category, route }) {
     }
     dispatch(addToCart(plats));
     setCount(count + 1)
+    console.log("erere :", isProductInCart)
   }
  
   const handleAddToCommande = () => { 
       navigation.navigate('panier')
-   
   }
 
     function renderHeader({item,}) {
@@ -155,7 +155,6 @@ export default function DetailsPlats({navigation, item, category, route }) {
                 marginTop: 12,
                 marginHorizontal: 12
                 }}
-
               >
                 {/* result */}
                 <Text
@@ -199,14 +198,15 @@ export default function DetailsPlats({navigation, item, category, route }) {
                     justifyContent: "space-between"
                 }}>
                   <View style={{flexDirection: "column", margin: 2,}}>
-                   <View style={{flexDirection: 'row'}}>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}}/>
-                      <Icon name="star" size={20} color={COLORS.yellow} style={{marginRight: 4}} />
-                      <Icon name="star" size={20} color={COLORS.gray30} style={{marginRight: 4}} />
-                   </View>
-                    <Text style={{margin: 4, color: COLORS.primary}}>4 Star Ratings</Text>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(plats.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={16} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - plats.ratings)].map((_, index) => (
+                      <Icon key={plats.ratings + index} name="star" size={16} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{margin: 4, color: COLORS.primary}}>{plats.ratings} {t("Star_ratings")}</Text>
                   </View>
                   <View style={{}}>
                   <Text style={{color: COLORS.black, fontWeight: "bold", fontSize: 24, marginRight: 8, marginTop: -12}}>

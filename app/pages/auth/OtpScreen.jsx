@@ -1,9 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { 
   View, 
   Text, 
   TouchableOpacity, 
   Platform,
+  Alert,
   StyleSheet ,
   StatusBar,
   Dimensions,
@@ -13,19 +14,21 @@ import {
   import * as Animatable from 'react-native-animatable';
 import LinearGradient from 'react-native-linear-gradient';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
 import { OtpInput } from "react-native-otp-entry";
 import Icon from "react-native-vector-icons/FontAwesome5";
 import { COLORS } from '../../constants';
 import { verifyOTP } from '../../redux/action/authActions';
+import { useNavigation } from '@react-navigation/native';
 
 
 
 export default function OtpScreen({navigation}) {
     const dispatch = useDispatch();
     const {t} = useTranslation();
+    const isAuthenticated = useSelector((state) => state.auth.isAuthenticated);
     const [loading, setLoading] = useState(false);
     const [otpCode, setOTPCode] = useState('');
     const [otpError, setOTPError] = useState('');
@@ -45,17 +48,30 @@ export default function OtpScreen({navigation}) {
         return isValid;
       };
     
-      const handleSubmitOTP = () => {
-        const isValid = validateOTP();
-    
-        if (isValid) {
-            setLoading(true);
-           dispatch(verifyOTP(otpCode))
-            navigation.navigate('Home')
+      const handleSubmitOTP = async () => {
+        if (validateOTP()) {
+          setLoading(true);
+          try {
+            const response  = await dispatch(verifyOTP(otpCode));
+            if (response && response.data && response.data.message) {
+              showAlert("Succès", response.data.message);
+            } else {
+              showAlert("Erreur", "Désolé, mais le code que vous avez entré est incorrect. veillez entrer le code recu par SMS.");
+            }
+          } catch (error) {
+              showAlert("Erreur", error);
+          } finally {
             setLoading(false);
-          } 
           }
-  
+        }
+      };
+        const showAlert = (title, message) => {
+          Alert.alert(title, message, [{ text: 'OK', onPress: () => handleOKPress()}]);
+        };
+        const handleOKPress = () => {
+          //navigation.navigate('TabMenu')
+        };
+      
         return(
           <>
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>

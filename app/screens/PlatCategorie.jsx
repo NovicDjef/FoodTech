@@ -21,7 +21,7 @@ interpolate,
 // Extrapolate,
 } from 'react-native-reanimated';
 import LottieView from 'lottie-react-native';
-import FontAwesome from 'react-native-vector-icons/FontAwesome5';
+import Icon from "react-native-vector-icons/FontAwesome"
 import { IconsButton, IconLabel  } from '../components';
 import { COLORS, FONTS, images, icons, SIZES} from '../constants';
 import { SharedElement } from 'react-navigation-shared-element';
@@ -203,66 +203,27 @@ export default function PlatCategorie({navigation, route}) {
                     <View style={styles.cardRow}>
                       <View style={styles.cardRowItem}>
                         {/* <FontAwesome color="#173153" name="map-marker-alt" size={13} /> */}
-                        <Text style={styles.cardRowItemText}>
+                        <Text style={styles.cardRowItemText} numberOfLines={2}>
                           {plat.description}
                         </Text>
                       </View>
-
-                      {/* <View style={styles.cardRowItem}>
-                        <FontAwesome
-                          color="#173153"
-                          name="cart-arrow-down"
-                          solid={true}
-                          size={13}
-                        />
-
-                        <Text style={styles.cardRowItemText}>
-                        
-                         Quantité: 
-                        </Text>
-                      </View> */}
                     </View>
-
-                    <View style={{flexDirection: "row"}}>
+                    <View style={{ flex: 1, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                      <View style={{ flexDirection: 'row' }}>
+                        {[...Array(plat.ratings)].map((_, index) => (
+                          <Icon key={index} name="star" size={12} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                        ))}
+                        {[...Array(5 - plat.ratings)].map((_, index) => (
+                          <Icon key={plat.ratings + index} name="star" size={12} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                        ))}
+                      </View> 
+                     <View style={{justifyContent: "flex-end", marginLeft: 68}}>
                       <Text style={styles.cardPrice}>
-                      {plat.prix}.00Frs / 
-                      </Text>
-                      <View
-                    style={{
-                      flexDirection: 'row',
-                      marginLeft: 12,
-                      marginTop: -8
-                    }}>
-                            <IconLabel
-                              icon={ icons.star }
-                            containerStyle={{
-                              marginTop: SIZES.base,
-                              fontSize: 12
-                          }}
-                          />
-                          <IconLabel
-                              icon={ icons.star }
-                            containerStyle={{
-                              marginTop: SIZES.base,
-                          }}
-                          />
-                          <IconLabel
-                              icon={ icons.star }
-                            containerStyle={{
-                              marginTop: SIZES.base,
-                          }}
-                          />
-                         
-                          <IconLabel
-                              icon={ icons.star }
-                            containerStyle={{
-                              marginTop: SIZES.base,
-                          }}
-                          />
-                      {/* <FontAwesome color="#173153" name="ratting" size={13} /> */}
-                      </View>
-                    </View>
-                  </View>
+                       {plat.prix} Frs 
+                        </Text>
+                     </View>
+                </View>
+                </View>
                 </View>
               </TouchableOpacity>
             </View>

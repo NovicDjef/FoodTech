@@ -18,31 +18,27 @@ import { useDispatch } from 'react-redux';
 import { useTranslation } from 'react-i18next';
 import LottieView from 'lottie-react-native';
 import { COLORS } from '../../constants';
-import { authenticateUser, verifyOTP } from '../../redux/action/authActions';
+import { authenticateUser } from '../../redux/action/authActions';
 
 
 const LoginScreen = ({navigation}) => {
     const {t} = useTranslation();
+    
     const dispatch = useDispatch();    
     const [loading, setLoading] = useState(false);
-    const [userData, setUserData] = useState({
-      username: '',
-      phone: ''
-    });
+    const [username, setUsername] = useState("");
+    const [phone, setPhone] = useState("");
     const [errors, setErrors] = useState({
       username: '',
       phone: '',
     });
   
-    const handleChange = (name, value) => {
-      setUserData({ ...userData, [name]: value });
-    };
     const validateForm = () => {
       let isValid = true;
       const newErrors = {};
   
       // Validation du nom d'utilisateur
-      if (userData.username.length < 4) {
+      if (username.length < 4) {
         newErrors.username = 'Le nom d\'utilisateur doit contenir au moins 4 caractères.';
         isValid = false;
       } else {
@@ -50,7 +46,7 @@ const LoginScreen = ({navigation}) => {
       }
   
       // Validation du numéro de téléphone
-      if (!/^\d{9}$/.test(userData.phone)) {
+      if (!/^\d{9}$/.test(phone)) {
         newErrors.phone = 'Le numéro de téléphone doit contenir exactement 9 chiffres.';
         isValid = false;
       } else {
@@ -61,18 +57,23 @@ const LoginScreen = ({navigation}) => {
   
       return isValid;
     };
-    const handleSubmit = () => {
+    const handleSubmit = async () => {
       const isValid = validateForm();
-
-      if(isValid){
+  
+      if (isValid) {
         setLoading(true);
-        dispatch(authenticateUser(userData));
-         navigation.navigate('otp');
-         setLoading(false);
-        } 
+        try {
+          await dispatch(authenticateUser({ username, phone }));
+          navigation.navigate('otpScreen'); 
+        } catch (error) {
+          console.error(error);
+        } finally {
+          setLoading(false);
+        }
+      }
     };
     
-    console.log('userData :', userData)
+    console.log('données User :', username, phone)
 
     const renderMainView = () => {
       return(
@@ -105,8 +106,8 @@ const LoginScreen = ({navigation}) => {
         />
         <TextInput 
         style={styles.input} 
-        value={userData.username} 
-        onChangeText={(value) => handleChange('username', value)}
+        value={username} 
+        onChangeText={setUsername}
         placeholder='Username' 
         autoCapitalize='none' 
         textContentType='username'
@@ -126,8 +127,8 @@ const LoginScreen = ({navigation}) => {
           placeholder='Téléphone' 
           autoCapitalize='none' 
           keyboardType='numeric' 
-          value={userData.phone} 
-          onChangeText={(value) => handleChange('phone', value)}
+          value={phone} 
+          onChangeText={setPhone}
         />
         </View> 
         {errors.phone && <Text style={styles.ErrorText}>{errors.phone}</Text>}
