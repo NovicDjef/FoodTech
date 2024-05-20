@@ -20,16 +20,14 @@ const CareView: React.FC<Props> = ({ animationController }) => {
     outputRange: [window.width, window.width, 0, -window.width, -window.width],
   });
 
-  const careEndVal = 26 * 2; // 26 being text's height (font size)
   const careAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
-    outputRange: [careEndVal, careEndVal, 0, -careEndVal, -careEndVal],
+    outputRange: [26 * 2, 26 * 2, 0, -26 * 2, -26 * 2],
   });
 
-  const imageEndVal = IMAGE_WIDTH * 4;
   const imageAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
-    outputRange: [imageEndVal, imageEndVal, 0, -imageEndVal, -imageEndVal],
+    outputRange: [IMAGE_WIDTH * 4, IMAGE_WIDTH * 4, 0, -IMAGE_WIDTH * 4, -IMAGE_WIDTH * 4],
   });
 
   return (

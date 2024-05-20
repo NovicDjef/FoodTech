@@ -12,47 +12,41 @@ const IMAGE_HEIGHT = 250;
 
 const RelaxView: React.FC<Props> = ({ animationController }) => {
   const window = useWindowDimensions();
-
-  const relaxRef = useRef<Text | null>(null);
+  const { t } = useTranslation();
 
   const relaxAnimation = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.8],
     outputRange: [-(26 * 2), 0, 0],
+    extrapolate: 'clamp',
   });
+
   const textAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
     outputRange: [0, 0, -window.width * 2, 0, 0],
+    extrapolate: 'clamp',
   });
+
   const imageAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
     outputRange: [0, 0, -350 * 4, 0, 0],
+    extrapolate: 'clamp',
   });
+
   const slideAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.8],
     outputRange: [0, 0, -window.width, -window.width],
+    extrapolate: 'clamp',
   });
 
-  const { t } = useTranslation();
-
   return (
-    <Animated.View
-      style={[styles.container, { transform: [{ translateX: slideAnim }] }]}
-    >
-      <Animated.Text
-        style={[styles.title, { transform: [{ translateY: relaxAnimation }] }]}
-        ref={relaxRef}
-      >
+    <Animated.View style={[styles.container, { transform: [{ translateX: slideAnim }] }]}>
+      <Animated.Text style={[styles.title, { transform: [{ translateY: relaxAnimation }] }]}>
         {t("Relax")}
       </Animated.Text>
-      <Animated.Text
-        style={[styles.subtitle, { transform: [{ translateX: textAnim }] }]}
-      >
+      <Animated.Text style={[styles.subtitle, { transform: [{ translateX: textAnim }] }]}>
         {t("We_follow")}
       </Animated.Text>
-      <Animated.Image
-        style={[styles.image, { transform: [{ translateX: imageAnim }] }]}
-        source={AppImages.relax_image}
-      />
+      <Animated.Image style={[styles.image, { transform: [{ translateX: imageAnim }] }]} source={AppImages.relax_image} />
     </Animated.View>
   );
 };

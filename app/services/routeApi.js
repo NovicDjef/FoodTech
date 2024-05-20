@@ -4,6 +4,9 @@ import apiService from "./Api";
   export const getchSomeRestaurant = () => {
     return apiService.get('/restaurants')
   }
+  export const getchSomeMenu = () => {
+    return apiService.get('/menus')
+  };
   export const getchSomeRepas = () => {
     return apiService.get('/plats');
   };
@@ -75,3 +78,11 @@ import apiService from "./Api";
   export const fetchSomeGame = ({lotId, userId, selectedNumbers, isWinner}) => {
     return apiService.post('./games', {lotId, userId, selectedNumbers, isWinner})
   }
+
+  // Request UPDATE
+
+  export const updateSomePhone = (id, { username, phone }) => {
+    return apiService.patch(`/update-user/${id}`, { username, phone });
+  };
+  
+

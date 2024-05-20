@@ -5,9 +5,12 @@ import {
     TouchableOpacity,
     View,
     Image,
+    Share,
     useColorScheme,
     ScrollView,
     RefreshControl,
+    Modal,
+    TextInput
   } from 'react-native';
   import React, { useCallback, useContext, useEffect, useState } from 'react';
   import { regular } from '../utils/fonts';
@@ -20,18 +23,23 @@ import {
 import { logoutUser } from '../redux/reducer/authReducer';
 import { useNavigation } from '@react-navigation/native';
 import { COLORS } from '../constants';
-
+import { updateUser } from '../redux/action/authActions';
 
 
 export default function Setting() {
   const navigation = useNavigation();
   const { isDarkMode, setIsDarkMode, useDeviceSettings, setUseDeviceSettings } =useContext(DarkMode);
+  const scheme = useColorScheme();
     const dispatch = useDispatch();
     const user = useSelector((state) => state.auth.user.user)
     const { t } = useTranslation();
 
-  const scheme = useColorScheme();
   const [refresh, setRefresh] = useState(false)
+  const [modalVisible, setModalVisible] = useState(false);
+  const [username, setUsername] = useState(user?.username || '');
+  const [phone, setPhone] = useState(user?.phone || '');
+
+
   const currentActivatedTheme: ColorSchemeName = isDarkMode ? 'dark' : 'light';
   function handleUseDeviceTheme() {
     setUseDeviceSettings(!useDeviceSettings);
@@ -71,6 +79,25 @@ export default function Setting() {
     }, 2000)
     
   }
+  const handleContactSelect = async () => {
+    try {
+      await Share.share({
+        message : "Téléchargez notre application via ce lien : https://example.com/download",
+        title: 'Partager l\'application',
+      });
+    } catch (error) {
+      console.error(error.message);
+    }
+  };
+  const handleEdit = () => {
+    dispatch(updateUser({ username, phone }))
+    setModalVisible(false);
+    console.log("user :", phone)
+  };
+
+
+  
+  
   return (
       <Card isDarkMode={isDarkMode} style={{flex: 1,}} >
         <ScrollView 
@@ -80,20 +107,20 @@ export default function Setting() {
             onRefresh={() => RefreshMe()}
           />
         }>
-            <View style={[styles.card, {display: "flex", alignItems: "center", justifyContent: "space-around", margin: 22, flexDirection: 'row', backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
-              <Image style={{width: 70, height: 70, borderRadius: 12}} source={require("../../assets/images/novic.png")} />
-              <View  style={{flexDirection: "column", justifyContent: "center"}}>
-                <Text style={{color: isDarkMode ? "white" : "black", marginTop: 6}}>@_{user.username}</Text>
-                <Text style={{color: isDarkMode ? "white" : "black", margin: 2}}>+237 {user.phone}</Text>
-              </View>
-              <View  style={{flexDirection: "column", alignItems: "center"}}>
-              <View style={{width: 30, height: 30, borderRadius: 10, backgroundColor: "#3880ff" }}>
-                <Icon name='create-outline' size={24} style={{ color: COLORS.white, textAlign: "center"}}  />
-              </View>
-              <Text style={{color: isDarkMode ? "white" : "black", margin: 2}}>Modifier</Text>
-              </View>
+            <Card style={[styles.card, { display: "flex", alignItems: "center", justifyContent: "space-around", margin: 22, flexDirection: 'row', backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
+          <Image style={{ width: 70, height: 70, borderRadius: 12 }} source={require("../../assets/images/novic.png")} />
+          <View style={{ flexDirection: "column", justifyContent: "center" }}>
+            <Text style={{ color: isDarkMode ? "white" : "black", marginTop: 6 }}>@_{user.username}</Text>
+            <Text style={{ color: isDarkMode ? "white" : "black", margin: 2 }}>+237 {user.phone}</Text>
+          </View>
+          <TouchableOpacity onPress={() => setModalVisible(true)} style={{ flexDirection: "column", alignItems: "center" }}>
+            <View style={{ width: 30, height: 30, borderRadius: 10, backgroundColor: "#3880ff" }}>
+              <Icon name='create-outline' size={24} style={{ color: COLORS.white, textAlign: "center" }} />
             </View>
-            <View style={[styles.card, { backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
+            <Text style={{ color: isDarkMode ? "white" : "black", margin: 2 }}>Modifier</Text>
+          </TouchableOpacity>
+        </Card>
+            <Card style={[styles.card, { backgroundColor: isDarkMode ? "#001630" : '#efefef' }]}>
               <View style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
                 <Icon name='cloudy-night' size={28} color={isDarkMode ? "white" : "black"} />
@@ -103,7 +130,7 @@ export default function Setting() {
               </View>
               <Switch
                 trackColor={{
-                  true: '#02b875',
+                  true: COLORS.primary,
                   false: 'gray',
                 }}
                 onChange={handleUseDeviceTheme}
@@ -151,9 +178,9 @@ export default function Setting() {
                 thumbColor={'white'}
               />
             </View>
-            </View>
+            </Card>
 
-            <View style={[styles.card, { backgroundColor: isDarkMode ? "#001630" : '#efefef',}]}>
+            <Card style={[styles.card, { backgroundColor: isDarkMode ? "#001630" : '#efefef',}]}>
               <View style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
                 <Icon name='notifications' size={24} color={isDarkMode ? "white" : "black"} />
@@ -175,7 +202,7 @@ export default function Setting() {
             <View style={[styles.hr]} />
 
 
-              <TouchableOpacity onPress={() => {}} style={styles.option}>
+              <TouchableOpacity onPress={() => navigation.navigate("Helps")} style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
                 <Icon name='information' size={28} color={isDarkMode ? "white" : "black"} />
                 <Text style={[styles.text, {color: isDarkMode ? "white" : "black"}]}>
@@ -189,9 +216,9 @@ export default function Setting() {
 
             <View style={[styles.hr]} />
 
-            <TouchableOpacity onPress={() => {}} style={styles.option}>
+            <TouchableOpacity onPress={handleContactSelect} style={styles.option}>
               <View style={{flexDirection: "row", alignItems: "center"}}>
-                <Icon name='heart-outline' size={28} color={isDarkMode ? "white" : "black"}  />
+                <Icon name='paper-plane-outline' size={28} color={isDarkMode ? "white" : "black"}  />
                 <Text style={[styles.text, {color: isDarkMode ? "white" : "black", marginLeft: 6,}]}>
                   {t("Invite_a_contact")}
                 </Text>
@@ -200,8 +227,6 @@ export default function Setting() {
               <Icon name='chevron-forward' size={24} color={isDarkMode ? "white" : "black"} />
             </View>
             </TouchableOpacity>
-
-
             <View style={[styles.hr]} />
 
             <TouchableOpacity onPress={() => navigation.navigate("favorite")} style={styles.option}>
@@ -229,7 +254,37 @@ export default function Setting() {
               <Icon name='chevron-forward' size={24} color={isDarkMode ? "white" : "black"} />
             </View>
             </TouchableOpacity>
+            </Card>
+
+           {/* Modal for editing user info */}
+        <Modal visible={modalVisible} animationType="slide" transparent={true}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Modifier les informations</Text>
+              <TextInput
+                style={styles.input}
+                placeholder="Nom d'utilisateur"
+                value={username}
+                onChangeText={setUsername}
+              />
+              <TextInput
+                style={styles.input}
+                placeholder="Téléphone"
+                value={phone}
+                keyboardType="phone-pad"
+                onChangeText={setPhone}
+              />
+              <View style={styles.modalButtons}>
+                <TouchableOpacity style={[styles.button, styles.cancelButton]} onPress={() => setModalVisible(false)}>
+                  <Text style={styles.buttonText}>Annuler</Text>
+                </TouchableOpacity>
+                <TouchableOpacity style={styles.button} onPress={handleEdit}>
+                  <Text style={styles.buttonText}>Enregistrer</Text>
+                </TouchableOpacity>
+              </View>
             </View>
+          </View>
+        </Modal>
         </ScrollView>
       </Card>
     
@@ -240,7 +295,7 @@ const styles = StyleSheet.create({
   hr: {
     width: '100%',
     height: 1,
-    backgroundColor: 'gray',
+    backgroundColor: COLORS.gray90,
     opacity: 0.1,
   },
   text: {
@@ -260,4 +315,48 @@ const styles = StyleSheet.create({
     margin: 15,
     borderRadius: 8,
   },
-});
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  modalContent: {
+    width: '80%',
+    backgroundColor: '#fff',
+    padding: 20,
+    borderRadius: 10,
+    alignItems: 'center',
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    marginBottom: 20,
+  },
+  input: {
+    width: '100%',
+    height: 40,
+    borderColor: COLORS.gray30,
+    borderWidth: 1,
+    borderRadius: 5,
+    paddingHorizontal: 10,
+    marginBottom: 10,
+  },
+  modalButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    width: '100%',
+  },
+  button: {
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: COLORS.primary,
+  },
+  cancelButton: {
+    backgroundColor: COLORS.gray50,
+  },
+  buttonText: {
+    color: '#fff',
+    fontWeight: 'bold',
+  },
+})

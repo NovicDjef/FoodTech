@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, { useState } from 'react';
 import {
   StyleSheet,
   View,
@@ -15,7 +15,6 @@ import { AppImages } from '../../../../assets';
 import { useTranslation } from 'react-i18next';
 import { COLORS } from '../../../constants';
 import i18n from '../../../utils/locales/i18n';
-import Icon from 'react-native-vector-icons/Ionicons';
 
 interface Props {
   onNextClick: () => void;
@@ -32,56 +31,54 @@ const SplashView: React.FC<Props> = ({ onNextClick, animationController }) => {
   });
 
   const introImageData = Image.resolveAssetSource(AppImages.introduction_image);
-  const { t } = useTranslation()
+  const { t } = useTranslation();
   const [language, setLanguage] = useState(i18n.language);
 
-  const ChangLangue = () => {
-    const newLanguage = language === 'fr' ? 'en' : 'fr'; 
+  const changeLanguage = () => {
+    const newLanguage = language === 'fr' ? 'en' : 'fr';
     i18n.changeLanguage(newLanguage);
-    setLanguage(newLanguage); 
-  }
-  return (
-    <Animated.View
-      style={{ flex: 1, transform: [{ translateY: splashTranslateY }] }}
-    >
-      <ScrollView style={{ flexGrow: 0}} alwaysBounceVertical={false}>
-        <TouchableOpacity onPress={ChangLangue} style={{}}>
+    setLanguage(newLanguage);
+  };
 
-      <View style={{ flexDirection: "row", alignItems: "center", justifyContent: "flex-end", marginHorizontal: 14, top: 22}}>
-        <Text style={{ fontSize: 18, fontWeight: "bold", margin: 4, color: "black" }}>
-          {language === 'fr' ? 'FR' : 'ANG'}
-        </Text>
-        {language === 'fr' ? (
-          <Image style={{width: 33, height: 33,}} source={require("../../../../assets/drapeaux/fr.png")} />
-        ) : (
-          <Image style={{width: 25, height: 25,}} source={require("../../../../assets/drapeaux/ag.png")} />
-        )}
-        </View>
+  return (
+    <Animated.View style={[styles.container, { transform: [{ translateY: splashTranslateY }] }]}>
+      <ScrollView contentContainerStyle={styles.scrollView} alwaysBounceVertical={false}>
+        <TouchableOpacity onPress={changeLanguage} style={styles.languageSwitchContainer}>
+          <View style={styles.languageSwitch}>
+            <Text style={styles.languageText}>
+              {language === 'fr' ? 'FR' : 'ANG'}
+            </Text>
+            {language === 'fr' ? (
+              <Image style={styles.languageImage} source={require("../../../../assets/drapeaux/fr.png")} />
+            ) : (
+              <Image style={styles.languageImage} source={require("../../../../assets/drapeaux/ag.png")} />
+            )}
+          </View>
         </TouchableOpacity>
-      
-          <Image
-            style={{
+        <Image
+          style={[
+            styles.introImage,
+            {
               width: window.width,
-              height: undefined,
               aspectRatio: introImageData
                 ? introImageData.width / introImageData.height
                 : 357 / 470,
-            }}
-            source={AppImages.introduction_image}
-          />
+            },
+          ]}
+          source={AppImages.introduction_image}
+        />
         <Text style={styles.title}>{t("Originality")}</Text>
         <Text style={styles.subtitle}>
           {t("Wellcom_tchop")} {"\n"} {t("Text_decust")} {"\n"} {t("Continent")}
         </Text>
       </ScrollView>
-
       <View style={[styles.footer, { paddingBottom: 8 + insets.bottom }]}>
         <View style={styles.buttonContainer}>
           <MyPressable
             style={styles.button}
             android_ripple={{ color: 'powderblue' }}
             touchOpacity={0.6}
-            onPress={() => onNextClick()}
+            onPress={onNextClick}
           >
             <Text style={styles.buttonText}>{t("Let_begin")}</Text>
           </MyPressable>
@@ -92,6 +89,34 @@ const SplashView: React.FC<Props> = ({ onNextClick, animationController }) => {
 };
 
 const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+  },
+  scrollView: {
+    flexGrow: 0,
+  },
+  languageSwitchContainer: {
+    alignSelf: 'flex-end',
+    marginHorizontal: 14,
+    marginTop: 22,
+  },
+  languageSwitch: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  languageText: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    margin: 4,
+    color: 'black',
+  },
+  languageImage: {
+    width: 33,
+    height: 33,
+  },
+  introImage: {
+    height: undefined,
+  },
   title: {
     color: 'black',
     fontSize: 25,

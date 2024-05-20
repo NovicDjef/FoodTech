@@ -29,6 +29,7 @@
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
 import { useTranslation } from 'react-i18next';
+import baseImage from "../services/urlApp"
     
     export default function ListRestaurants({navigation, title,}) {
       const { t } = useTranslation();
@@ -68,7 +69,7 @@ import { useTranslation } from 'react-i18next';
              style={[StyleSheet.absoluteFillObject]}
            >
              <Image
-            //  source={{uri: `http://172.20.10.4:3000/images/${.image}`}}
+            //  source={{uri: `${baseImage}/${.image}`}}
             source={require("../../assets/images/glacier.jpg")}
               resizeMode="cover"
                style={{
@@ -185,7 +186,7 @@ import { useTranslation } from 'react-i18next';
                       <Image
                         alt=""
                         resizeMode="cover"
-                         source={{uri: `http://172.20.10.4:3000/images/${restaurant.image}`}}                        
+                         source={{uri: `${baseImage}/${restaurant.image}`}}                        
                         style={styles.cardImg}
                       />
     

@@ -11,9 +11,11 @@ import {
 import {IconLabel} from '.';
 import Icon from "react-native-vector-icons/FontAwesome"
 import {SIZES, COLORS, FONTS, icons} from '../constants';
+import baseImage from "../services/urlApp"
+import { useTranslation } from 'react-i18next';
 
  export default function HorizontalCourses({containerStyle, course, onPress,}) {
- 
+  const { t } = useTranslation();
   return (
     <TouchableOpacity
       style={{
@@ -25,12 +27,12 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
       >
       {/* thumbnail */}
       <ImageBackground
-      source={{uri: `http://172.20.10.4:3000/images/${course.image}`}}
+      source={{uri: `${baseImage}/${course.image}`}}
         resizeMode="cover"
         style={{
-          width: 130,
-          height: 130,
-          marginBottom: SIZES.radius,
+          width: 120,
+          height: 110,
+          marginBottom: -8,
         }}
         imageStyle={{
           borderRadius: SIZES.radius,
@@ -39,7 +41,7 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
         <View
          style={{
             position: 'absolute',
-            top: 30,
+            top: 10,
             right: 10,
             width: 30,
             height: 30,
@@ -68,6 +70,7 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
         style={{
          flex: 1,
          marginLeft: SIZES.base,
+         
         }}
 
       >
@@ -76,9 +79,10 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
           style={{
             ...FONTS.h3,
             fontSize: 18,
+            color: COLORS.black
           }}
         >
-      {course.nom}
+      {course.name}
         </Text>
     {/* durée */}
       <View
@@ -88,30 +92,17 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
             marginTop: SIZES.base,
          }}
          >
-        <Text
+        {/* <Text
           style={{
             ...FONTS.body4,
           }}
         >
             Par {course.nom}
+        </Text> */}
+        <Text numberOfLines={3}>
+        {course.description}
         </Text>
-        <IconLabel
-       
-          icon={icons.reminder}
-          label={course.description}
-          containerStyle={{
-            marginLeft: SIZES.base,
-            
-          }}
-          iconStyle={{
-            width: 15,
-            height: 15,
-          }}
-          iconLabel={{
-            ...FONTS.body4,
-          }}
-          
-        />
+    
       </View>
       {/* price */} 
         <View style={{
@@ -130,7 +121,7 @@ import {SIZES, COLORS, FONTS, icons} from '../constants';
                       <Icon key={course.ratings + index} name="star" size={12} color={COLORS.gray30} style={{ marginRight: 4 }} />
                     ))}
                   </View>
-                    <Text style={{color: COLORS.primary}}>{course.ratings} {("Star_ratings")}</Text>
+                    <Text style={{color: COLORS.primary}}>{course.ratings} {t("Star_ratings")}</Text>
                   </View>
                   <View>
                     <Text

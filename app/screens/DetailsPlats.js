@@ -19,7 +19,7 @@ import { useDispatch, useSelector } from 'react-redux';
 import { IconsButton, TextButton } from '../components';
 import { useTranslation } from 'react-i18next';
 import { addToCart } from '../redux/action/cartActions';
-
+import baseImage from "../services/urlApp"
 
 
 export default function DetailsPlats({navigation, item, route }) {
@@ -64,7 +64,7 @@ export default function DetailsPlats({navigation, item, route }) {
              style={[StyleSheet.absoluteFillObject]}
            >
             <Image
-              source={{uri: `http://172.20.10.4:3000/images/${plats.image}`}}
+              source={{uri: `${baseImage}/${plats.image}`}}
               resizeMode="cover"
                 style={{
                   height: '100%',

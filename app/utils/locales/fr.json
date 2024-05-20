@@ -62,7 +62,15 @@
     "Favorite_Restaurant": "Restaurant Favori",
     "Nearest_restaurant" : "Restaurant plus proche",
     "List_restaurant": "Liste des restaurants",
+    "All_restaurant": "Tous les restaurants",
+    "From_you": "de vous",
+    "Distance_not_available": "Distance non disponible",
+    "Has": "À",
+    "Share": "Partager", 
     "Payment": "Paiement",
+    "Your_neighborhood": "votre quartier a ete enregistré",
+    "Enter_Delivery_Address": "Entrer l'Adresse de livraison",
+    "Enter_the_neighborhood_name": "Entrez le nom du quartier",
     "Recommendation": "Recommandations...",
     "Text_Recommandation": "Votre recommandation à été noté",
     "Add_Recommendation": "Ajouter une Recommandations",
@@ -80,6 +88,8 @@
     "Fast_menu": "Menu Rapide",
     "Description_food": "Description Repas",
     "No_data": "Données nos disponible",
-    "Star_ratings": "Notes par étoiles"
+    "Star_ratings": "Notes par étoiles",
+    "Send": "Envoyer",
+    "Submit_complaint": "Soumettez votre doleance"
 
 }

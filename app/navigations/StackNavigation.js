@@ -16,6 +16,7 @@ import PlatCategorie from '../screens/PlatCategorie';
 import ListRestaurants from '../screens/ListRestaurants';
 import Notifications from '../pages/menu/Notifications';
 import FavoriteRepas from '../screens/home/FavoriteRepas';
+import Helps from '../screens/home/helps';
 
 const Stack = createStackNavigator();
 
@@ -42,6 +43,7 @@ export default function StackNavigation() {
         <Stack.Screen name='ListRestaurants' component={ListRestaurants} />
         <Stack.Screen name='Notification' component={Notifications} />
         <Stack.Screen name='favorite' component={FavoriteRepas} />
+        <Stack.Screen name='Helps' component={Helps} />
     </Stack.Navigator>
   )
 }

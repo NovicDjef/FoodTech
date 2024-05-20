@@ -1,4 +1,4 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { StyleSheet, Text, Animated, useWindowDimensions } from 'react-native';
 import { AppImages } from '../../../../assets';
 import { useTranslation } from 'react-i18next';
@@ -12,8 +12,7 @@ const IMAGE_HEIGHT = 350;
 
 const WelcomeView: React.FC<Props> = ({ animationController }) => {
   const window = useWindowDimensions();
-
-  const careRef = useRef<Text | null>(null);
+  const { t } = useTranslation();
 
   const slideAnim = animationController.current.interpolate({
     inputRange: [0, 0.6, 0.8],
@@ -32,8 +31,6 @@ const WelcomeView: React.FC<Props> = ({ animationController }) => {
     outputRange: [imageEndVal, imageEndVal, 0],
   });
 
-  const { t } = useTranslation();
- 
   return (
     <Animated.View
       style={[styles.container, { transform: [{ translateX: slideAnim }] }]}
@@ -44,7 +41,6 @@ const WelcomeView: React.FC<Props> = ({ animationController }) => {
       />
       <Animated.Text
         style={[styles.title, { transform: [{ translateX: welcomeTextAnim }] }]}
-        ref={careRef}
       >
         {t("WELCOME")}
       </Animated.Text>
@@ -66,7 +62,7 @@ const styles = StyleSheet.create({
   image: {
     width: IMAGE_WIDTH,
     height: IMAGE_HEIGHT,
-    top: 12
+    top: 12,
   },
   title: {
     color: 'black',

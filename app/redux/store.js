@@ -1,32 +1,3 @@
- 
-// import { createStore, combineReducers, applyMiddleware } from 'redux';
-// import restaurantReducer from './reducer/restaurantReducer';
-// import platsReducer from './reducer/platsReducer';
-// import cartReducer from './reducer/cartReducer';
-// import locationReducer from './reducer/locationReducer';
-// import userReducer from './reducer/userReducer';
-// import commandeReducer from './reducer/commandeReducer';
-// import livraisonReducer from "./reducer/livraisonReducer"
-// import otpReducer from './reducer/otpReducer';
-// import thunk from 'redux-thunk';
-
-
-// const rootReducer = combineReducers({
-//   restaurantReducer,
-//   platsReducer,
-//   cartReducer,
-//   locationReducer,
-//   userReducer,
-//   commandeReducer,
-//   livraisonReducer,
-//   otpReducer
-
-
-// })
-
-// const store = createStore(rootReducer, applyMiddleware(thunk));
-
-// export default store;
 
 import { configureStore } from '@reduxjs/toolkit';
 import authReducer from './reducer/authReducer';
@@ -41,6 +12,7 @@ import favoriteReducer from './reducer/favoriteReducer';
 import locationReducer from './reducer/locationReducer';
 import villesReducer from './reducer/villesReducer';
 import favorisReducer from './reducer/favorisReducer';
+import menuReducer from './reducer/menuReducer';
 
 const store = configureStore({
   reducer: {
@@ -56,6 +28,7 @@ const store = configureStore({
     location: locationReducer, 
     ville: villesReducer,
     favoris: favorisReducer,
+    menu: menuReducer
   },
 });
 

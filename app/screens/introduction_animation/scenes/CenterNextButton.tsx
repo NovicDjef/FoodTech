@@ -13,6 +13,7 @@ interface DotIndicatorProps {
   index: number;
   selectedIndex: number;
 }
+
 const DotIndicator: React.FC<DotIndicatorProps> = ({
   index,
   selectedIndex,
@@ -53,44 +54,49 @@ const CenterNextButton: React.FC<Props> = ({
 
   const dots = useMemo(() => [0, 1, 2, 3], []);
 
-  useEffect(() => {
-    // I think this condition could be better?
-    animationController.current.addListener(({ value }) => {
-      const isVisible = value >= 0.2 && value <= 0.6;
-      if (
-        (isVisible && currentOpacity.current === 0) ||
-        (!isVisible && currentOpacity.current === 1)
-      ) {
-        Animated.timing(opacity.current, {
-          toValue: isVisible ? 1 : 0,
-          duration: 480,
-          useNativeDriver: true,
-        }).start();
-        currentOpacity.current = isVisible ? 1 : 0;
-      }
+  const handleAnimation = (value: number) => {
+    const isVisible = value >= 0.2 && value <= 0.6;
+    if (isVisible !== currentOpacity.current) {
+      Animated.timing(opacity.current, {
+        toValue: isVisible ? 1 : 0,
+        duration: 480,
+        useNativeDriver: true,
+      }).start();
+      currentOpacity.current = isVisible ? 1 : 0;
+    }
 
-      if (value >= 0.7) {
-        setSelectedIndex(3);
-      } else if (value >= 0.5) {
-        setSelectedIndex(2);
-      } else if (value >= 0.3) {
-        setSelectedIndex(1);
-      } else if (value >= 0.1) {
-        setSelectedIndex(0);
-      }
+    if (value >= 0.7) {
+      setSelectedIndex(3);
+    } else if (value >= 0.5) {
+      setSelectedIndex(2);
+    } else if (value >= 0.3) {
+      setSelectedIndex(1);
+    } else if (value >= 0.1) {
+      setSelectedIndex(0);
+    }
+  };
+
+  useEffect(() => {
+    const listener = animationController.current.addListener(({ value }) => {
+      handleAnimation(value);
     });
+
+    return () => {
+      animationController.current.removeListener(listener);
+    };
   }, [animationController]);
 
   const topViewAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
     outputRange: [96 * 5, 0, 0, 0, 0], // 96 is total height of next button view
   });
+
   const loginTextMoveAnimation = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
     outputRange: [30 * 5, 30 * 5, 30 * 5, 30 * 5, 0], // 96 is total height of next button view
   });
 
-  const { t } =useTranslation();
+  const { t } = useTranslation();
 
   return (
     <Animated.View
@@ -106,7 +112,7 @@ const CenterNextButton: React.FC<Props> = ({
           <DotIndicator
             key={item}
             index={item}
-            {...{ selectedIndex, animationController }}
+            selectedIndex={selectedIndex}
           />
         ))}
       </Animated.View>

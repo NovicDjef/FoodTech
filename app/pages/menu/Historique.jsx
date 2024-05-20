@@ -7,6 +7,7 @@ import { fetchRepas } from '../../redux/action/platsActions';
 import { fetchRestaurants } from '../../redux/action/restaurantActions';
 import FontAwesome from 'react-native-vector-icons/FontAwesome5';
 import { COLORS } from '../../constants';
+import baseImage from "../../services/urlApp"
 
 export default function Historique() {
   const dispatch = useDispatch();
@@ -28,6 +29,7 @@ export default function Historique() {
 
   const onRefresh = () => {
     setRefreshing(true);
+    fetchData();
     setTimeout(() => {
       dispatch(filterCommandesUtilisateur(commandes))
          setRefresh(false)
@@ -58,12 +60,27 @@ export default function Historique() {
       >
         <Text style={styles.title}>Historiques Commandes</Text>
 
-        {commandesUtilisateur ? (
+        {commandesUtilisateur === 0 ? (
+          <View style={styles.emptyMessageContainer}>
+          <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+                  <LottieView
+                      style={{
+                        width: 368,
+                        height: 368
+                      }}
+                      source={require("../../../assets/json/25237-receipt.json")}
+                      autoPlay
+                      loop
+                  />
+                  <Text style={{fontSize: 18}}>Aucune commande passée pour le moment.</Text>
+          </View>
+          </View>
+        ) : (
           commandesUtilisateur.map((commande) => {
             const plat = platsData.find((plat) => plat.id === commande.platsId);
             const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
             const imageplat = plat.image || 'Image plat inconnu';
-            const nomPlat = plat.nom || 'nom plat inconnu';
+            const nomPlat = plat.name || 'nom plat inconnu';
             const prixplat = plat.prix || 'nom plat inconnu';
 
             return (
@@ -77,7 +94,7 @@ export default function Historique() {
                     <Image
                       alt=""
                       resizeMode="cover"
-                      source={{ uri: `http://192.168.1.136:3000/images/${imageplat}` }}
+                      source={{ uri: `${baseImage}/${imageplat}` }}
                       style={styles.cardImg}
                     />
 
@@ -86,7 +103,7 @@ export default function Historique() {
                         {nomPlat}
                       </Text>
                       <Text numberOfLines={1} style={styles.cardRowItemText}>
-                        {/* {restaurant.nom} */}
+                        {/* {restaurant.name} */}
                       </Text>
 
                       <View style={styles.cardRow}>
@@ -119,21 +136,6 @@ export default function Historique() {
               </View>
             );
           })
-        ) : (
-          <View style={styles.emptyMessageContainer}>
-            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
-                    <LottieView
-                        style={{
-                          width: 368,
-                          height: 368
-                        }}
-                        source={require("../../../assets/json/25237-receipt.json")}
-                        autoPlay
-                        loop
-                    />
-                    <Text style={{fontSize: 18}}>Aucune commande passée pour le moment.</Text>
-            </View>
-          </View>
         )}
       </ScrollView>
     </SafeAreaView>

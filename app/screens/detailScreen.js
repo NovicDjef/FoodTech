@@ -22,7 +22,9 @@
   import Icon from "react-native-vector-icons/FontAwesome"
 import { useTranslation } from 'react-i18next';
 import { responsiveFontSize } from 'react-native-responsive-dimensions';
-
+import baseImage from "../services/urlApp"
+import { fetchMenus } from '../redux/action/menuAction';
+import { fetchCategories } from '../redux/action/categorieAction';
 
   const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
@@ -33,17 +35,19 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     const { t } = useTranslation();
     const dispatch = useDispatch();
     const platsData = useSelector((state) => state.plat.repas);
-    const [nearestRestaurants, setNearestRestaurants] = useState(false)
-
+    const menus = useSelector(state => state.menu.menus);
+    const categorie =  useSelector(state => state.categorie.categories)
+    const [selectedMenu, setSelectedMenu] = useState(null);
     useEffect(() => {
       dispatch(fetchRepas());
-    }, []);
-    // Fonction pour filtrer les plats en fonction de l'identifiant du restaurant
-  const getPlatsForRestaurant = (restaurantId) => {
-    return platsData.filter(plat => plat.restaurantId === restaurantId);
-  };
-
-  const platsForRestaurant = getPlatsForRestaurant(restaurant.id);
+      dispatch(fetchMenus());
+      dispatch(fetchCategories());
+    }, [dispatch]);
+    
+    const getPlatsForCategory = (categoryId) => {
+      return platsData.filter((plat) => plat.categoryId === categoryId);
+    };
+  const platsForRestaurant = getPlatsForCategory(categorie.id);
 
   const headerShareValue = useSharedValue(80);
   const filterModalSharedValue1 = useSharedValue(SIZES.height);
@@ -60,6 +64,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     scrollY.value = event.contentOffset.y;
   });
 
+ 
     function renderHeader({item,}) {
 
         const headerFadeAnimatedStyle = useAnimatedStyle(() =>{
@@ -76,7 +81,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
           top: 0,
           left: 0,
           right: 0,
-          height: 250,
+          height: 180,
           overflow: 'hidden',
          }}
         >
@@ -86,7 +91,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
            style={[StyleSheet.absoluteFillObject]}
          >
            <Image
-           source={{uri: `http://172.20.10.4:3000/images/${restaurant.image}`}}
+           source={{uri: `${baseImage}/${restaurant.image}`}}
             resizeMode="cover"
              style={{
                height: '100%',
@@ -116,11 +121,25 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
                 ...FONTS.h1,
               }}
               >
-                {restaurant.nom}
+                {restaurant.name}
               </Text>
+             
             </SharedElement>
+            
           </Animated.View>
-
+          <View style={{ position: "absolute", marginTop: 140, marginLeft: 32, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+            <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(restaurant.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - restaurant.ratings)].map((_, index) => (
+                      <Icon key={restaurant.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.white}}>{restaurant.ratings} {("Star_ratings")}</Text>
+            </View>
+          </View>
   {/* back button */}
 
         <Animated.View
@@ -158,7 +177,7 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
               right: 40,
               bottom: -40,
               width: 100,
-              height:200,
+              height:160,
 
              }}
 
@@ -167,6 +186,32 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
         </Animated.View>
       );
     }
+    function renderMenu() {
+      return (
+        <View style={{ flexDirection: 'row', marginTop: 10, marginBottom: -10 }}>
+          <FlatList
+            data={menus}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={item => `Menu-${item.id}`}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={{
+                  padding: 8,
+                  backgroundColor: selectedMenu === item.id ? COLORS.primary : COLORS.gray10,
+                  borderRadius: SIZES.radius,
+                  marginHorizontal: 10
+                }}
+                onPress={() => setSelectedMenu(item.id)}
+              >
+                <Text style={{ ...FONTS.h3, color: selectedMenu === item.id ? COLORS.white : COLORS.black }}>{item.name}</Text>
+              </TouchableOpacity>
+            )}
+          />
+        </View>
+      );
+    }
+  
 
     function renderResult({item}) {
       const [searchVisible, setSearchVisible] = useState(false);
@@ -175,16 +220,37 @@ import { responsiveFontSize } from 'react-native-responsive-dimensions';
     setSearchVisible(!searchVisible);
   };
   const [searchQuery, setSearchQuery] = useState("")
+
+  const getCategoriesForMenu = (menuId) => {
+    return categorie.filter((categorie) => categorie.menuId === menuId);
+  };
+
+  const getPlatsForMenu = (menuId) => {
+    const categoriesForMenu = getCategoriesForMenu(menuId);
+    let platsForMenu = [];
+    
+    categoriesForMenu.forEach((categorie) => {
+      platsForMenu = [...platsForMenu, ...getPlatsForCategory(categorie.id)];
+    });
+  
+    return platsForMenu;
+  };
+
+  const platsForMenu = selectedMenu ? getPlatsForMenu(selectedMenu) : [];
   const filteredPlats = platsForRestaurant.filter(plat => {
     // Filtrer les agences par nom, prix et lieu
     const lowerCaseQuery = searchQuery.toLowerCase();
-      return  plat.nom.toLowerCase().includes(lowerCaseQuery) ||  // Filtrer par nom
+      return  plat.name.toLowerCase().includes(lowerCaseQuery) ||  // Filtrer par nom
             //plat.prix.some(price => price.toString().includes(lowerCaseQuery)) ||  // Filtrer par prix
              plat.description.toLowerCase().includes(lowerCaseQuery)   // Filtrer par lieu
 });
+
+
 const resetSearch = () => {
   setSearchVisible(!searchVisible);
+  setSearchQuery('');
 };
+
       return (
         <AnimatedFlatList
         ref={flatListRef}
@@ -192,7 +258,7 @@ const resetSearch = () => {
         keyExtractor={item => `Results-${item.id}`}
         contentContainerStyle={{
           paddingHorizontal: SIZES.padding,
-          marginTop: -250,
+          marginTop: -255,
         }}
         showsHorizontalScrollIndicator={false}
         scrollEventThrottle={16}
@@ -204,7 +270,6 @@ const resetSearch = () => {
               flexDirection: 'row',
               alignItems:'center',
               marginTop: 270,
-              marginBottom: SIZES.base,
             }}
 
           >
@@ -239,6 +304,11 @@ const resetSearch = () => {
         </View>
       </View>
         }
+        ListEmptyComponent={
+          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: SIZES.padding }}>
+            <Text style={{ ...FONTS.body3 }}>{selectedMenu ? t("menuVide") : t("Veuillez sélectionner un menu")}</Text>
+          </View>
+        }
         renderItem={({item, index}) => (
           <>
           { platsForRestaurant.length < 0 ? (
@@ -264,7 +334,7 @@ const resetSearch = () => {
                 course={item}
                 containerStyle={{
                   marginVertical: SIZES.padding,
-                  marginTop: index == platsData.length - 1 ? SIZES.padding : 0
+                  marginTop: index == platsForMenu.length - 1 ? SIZES.padding : -10
                 }}
                 onPress={() => {
                   navigation.navigate("DetailsPlats", {
@@ -277,15 +347,15 @@ const resetSearch = () => {
             
           </>
         )}
-        ItemSeparatorComponent={() => (
-          <LineDivider
-             lineStyle={{
-              backgroundColor: COLORS.gray10,
-              marginTop: -35
-             }}
+        // ItemSeparatorComponent={() => (
+        //   <LineDivider
+        //      lineStyle={{
+        //       backgroundColor: COLORS.gray10,
+        //       marginTop: -25
+        //      }}
 
-          />
-        )}
+        //   />
+        // )}
       />
       );
     }
@@ -338,11 +408,11 @@ const resetSearch = () => {
           backgroundColor: COLORS.white,
         }}
       >
-
-
-
         {/* header */}
         {renderHeader({item})}
+
+        {/* Menus */}
+        {renderMenu()}
 
         {/* result */}
        {renderResult({item})}
@@ -369,7 +439,7 @@ const resetSearch = () => {
       alignItems: 'center',
       //justifyContent: "center",
       borderRadius: 10,
-      backgroundColor: COLORS.primary,      
+      backgroundColor: COLORS.primary,
       
     },
     mainbox: {

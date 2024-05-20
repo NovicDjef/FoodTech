@@ -2,6 +2,7 @@ import React from 'react'
 import { createStackNavigator } from '@react-navigation/stack';
 import LoginScreen from '../pages/auth/LoginScreen'
 import OtpScreen from '../pages/auth/OtpScreen'
+import { IntroductionAnimationScreen } from '../screens/introduction_animation';
 // import { IntroductionAnimationScreen } from '../screens/introduction_animation';
 
 
@@ -14,6 +15,7 @@ export default function AuthNavigation() {
         screenOptions={{
           headerShown: false,
         }}>
+          <Stack.Screen name="onBoading" component={IntroductionAnimationScreen} />
         <Stack.Screen name="Login" component={LoginScreen} />
         <Stack.Screen name="otpScreen" component={OtpScreen} />
     </Stack.Navigator>

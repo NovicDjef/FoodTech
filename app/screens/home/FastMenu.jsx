@@ -1,12 +1,12 @@
-import { View, Text, FlatList, ActivityIndicator } from 'react-native'
+import { View, Text, FlatList, ScrollView, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 import LottieView from 'lottie-react-native';
 import { CategoriesPlats } from '../../components'
-import { fetchCategories } from '../../redux/action/categorieAction';
 import { SIZES, COLORS } from '../../constants';
 import Section from './Section';
 import { useTranslation } from 'react-i18next';
+import { fetchRepas } from '../../redux/action/platsActions';
 
 export default function FastMenu() {
 
@@ -14,39 +14,14 @@ export default function FastMenu() {
     const dispatch = useDispatch()
     const plats = useSelector(state => state.plat.repas)
     const loadingPLats = useSelector(state => state.plat.loading)
-
+  
     useEffect(() => {
-        dispatch(fetchCategories());
+        dispatch(fetchRepas());
     },[])
 
-    const renderLoader = () => {
-        return(
-          <View style={{flex: 1, justifyContent: 'center', alignItems: 'center',}}>
-                    {Platform.OS === 'android'
-                        ?
-                        (
-                            <>
-                                <ActivityIndicator size="large" color={COLORS.primary}/>
-                                <Text style={{fontSize: 17}}>Chargement</Text>
-                            </>
-                        ) :
-                        <>
-                            <ActivityIndicator size="large" color={COLORS.primary}/>
-                            <Text style={{fontSize: 17}}>Chargement</Text>
-                        </>
-                    }
-                </View>
-        )
-      }
-
         return (
-          <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-           {loadingPLats ? (
-            <>
-              {renderLoader()}
-            </>
-          ) : (
-            <Section title={t("Fast_menu")}>
+         
+            <Section style={{ flex: 1, justifyContent: 'center', alignItems: 'center', }} title={t("Fast_menu")}>
               { plats.length > 0 ? (
                 <FlatList
               horizontal
@@ -56,7 +31,8 @@ export default function FastMenu() {
               showsHorizontalScrollIndicator={false}
               contentContainerStyle={{
                 marginTop: SIZES.padding,
-                margin: 22,
+                marginHorizontal: 2,
+                
               }}
               renderItem={({item, index}) => (
                 <CategoriesPlats
@@ -68,26 +44,63 @@ export default function FastMenu() {
                         : 0,
                   }}
                   course={item}
+                  loading={loadingPLats}
                 />
               )}
             />
               ) : (
-                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
-                <LottieView
-                  style={{
-                    width: 168,
-                    height: 168,
-                  
-                  }}
-                  source={require('../../../assets/json/noData.json')}
-                  autoPlay
-                  loop
-                />
-              </View>
-              )}
-            
-          </Section>
-          )}
-         </View>
-        );
-      }
+                <ScrollView
+                horizontal
+                showsHorizontalScrollIndicator={false}
+                contentContainerStyle={{
+                  marginTop: SIZES.padding,
+                  //margin: 22
+                }}
+              >
+                  {renderPlaceholders()}
+                  </ScrollView>
+               )
+              }
+            </Section>
+        )}
+      
+
+        const renderPlaceholders = () => {
+          const placeholders = [];
+                  for (let i = 0; i < 5; i++) {
+                    placeholders.push(
+                      <TouchableOpacity
+                      key={i}
+                          style={{
+                            width: 170,
+                            marginRight: -80, 
+                          }} 
+                          >
+                          <Image
+                          source={require("../../../assets/images/notFound.jpg")}
+                            resizeMode="cover"
+                            style={{
+                              width: '50%',
+                              height: 85,
+                              borderRadius: 100,
+                              borderWidth: 1,
+                              borderColor: COLORS.primary,
+                              backgroundColor: COLORS.gray20
+                            }}
+                          />
+                          <Text style={{
+                            fontSize: 16,
+                            fontWeight: "bold",
+                            marginHorizontal: 12,
+                            backgroundColor: COLORS.gray20,
+                            marginTop: 6
+                    
+                          }}>
+                          </Text>
+                        </TouchableOpacity>
+                     
+                    );
+                  }
+                  return placeholders;
+                }
+        

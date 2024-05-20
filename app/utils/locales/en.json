@@ -62,6 +62,10 @@
     "Favorite_Restaurant": "Favorite Restaurant",
     "Nearest_restaurant": "Nearest restaurant",
     "List_restaurant": "Restaurants List",
+    "All_restaurant": "All restaurants",
+    "From_you": "From you",
+    "Distance_not_available": "Distance not available",
+    "Has": "Has",
     "Payment": "Payment",
     "Recommendation": "Recommendations...",
     "Text_Recommandation": "Your recommendation has been noted",
@@ -71,6 +75,10 @@
     "Description_plats": "Description Food",
     "Add_card": "Add to card",
     "Order": "Order",
+    "Share": "Share",
+    "Your_neighborhood": "your neighborhood has been registered",
+    "Enter_Delivery_Address": "Enter Delivery Address",
+    "Enter_the_neighborhood_name": "Enter the neighborhood name",
     "Your_cart_is_empty": "Your cart is empty",
     "Validate_order": "Validate order",
     "Position": "Position",
@@ -80,7 +88,9 @@
     "Fast_menu": "Fast menu",
     "Description_food": "Description Food",
     "No_data": "Data available",
-    "Star_ratings": "Star Ratings"
+    "Star_ratings": "Star Ratings",
+    "Send": "Send",
+    "Submit_complaint": "Submit your complaint"
     
 
   }

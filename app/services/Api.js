@@ -15,24 +15,8 @@ const apiService = axios.create({
   headers: {
     'Content-Type': 'application/json', 
   },
-  Accept: 'application/json',
-  'Content-Type': 'application/json',
-  responseType: 'json',
   withCredentials: true,
 });
-
-// const attachToken = async (config) => {
-//   const token = await AsyncStorage.getItem('authToken');
-//   if (token) {
-//     config.headers['Authorization'] = `Bearer ${token}`;
-//   }
-//   return config;
-// };
-
-// apiService.interceptors.request.use(
-//   async (config) => await attachToken(config),
-//   (error) => Promise.reject(error)
-// );
 
 
 export default apiService;

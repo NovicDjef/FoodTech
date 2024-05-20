@@ -99,7 +99,7 @@ export default function OtpScreen({navigation}) {
               }}>
                 <LottieView
                   style={styles.lottie}
-                  source={require("../../../assets/json/addToFovotite")}
+                  source={require("../../../assets/json/animation_lljmrq2l.json")}
                   autoPlay
                   loop />
             </View>

@@ -24,7 +24,7 @@ import { addCommande } from '../redux/action/commandeActions';
 import { useTranslation } from 'react-i18next';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
 import PushNotification from 'react-native-push-notification';
-
+import baseImage from "../services/urlApp"
 
 
 export default function Panier({ navigation }) {
@@ -36,7 +36,8 @@ export default function Panier({ navigation }) {
   const [refresh, setRefresh] = useState(false)
   const [recommendationText, setRecommendationText] = useState('');
   const [showRecommendation, setShowRecommendation] = useState(false);
-  const [serverResponse, setServerResponse] = useState(null); 
+  const [showPosition, setShowPosition] = useState(false)
+  const [positionText, setPositionText] = useState(""); 
  
   const user = useSelector(state => state.auth.user.user)
   const cart = useSelector(state => state.cart)
@@ -129,10 +130,16 @@ const coordinates = getRestaurantCoordinates(restaurantId);
   const handleSubmit = () => {
     setShowRecommendation(true);
   };
+  const handleSubmitPosition = () => {
+    setShowPosition(true);
+  };
   const handlePressOutside = () => {
     // Masquer l'input lorsqu'on clique en dehors
     setShowRecommendation(true);
   };
+  const handlePressPosition = () => {
+    setShowPosition(true)
+  }
   
  console.error = (error) => {
    if (error.includes("i18next::pluralResolver")) {
@@ -207,7 +214,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                 borderRadius: 10,
                 alignSelf: "flex-end"
               }}
-              source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
+              source={{uri: `${baseImage}/${product.image}`}}
             />
             </View>
         </View>
@@ -312,7 +319,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                   <View style={styles.productView} key={index}>
                     <Image
                       style={styles.productImage}
-                      source={{uri: `http://172.20.10.4:3000/images/${product.image}`}}
+                      source={{uri: `${baseImage}/${product.image}`}}
                     />
                     <View style={styles.productMiddleView}>
                       <Text style={styles.productTitle}>{product.nom}</Text>
@@ -419,7 +426,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                 <Text style={styles.shippingText}>{t("Shipping")} -</Text>
                 <View style={styles.shippingItemsView}>
                 <RadioButton.Group onValueChange={newValue => setShippingMethod(newValue)} value={shippingMethod}>
-                  <TouchableOpacity
+                  {/* <TouchableOpacity
                     style={styles.shippingItem}
                     onPress={() => {
                       setShippingMethod('Normal');
@@ -427,15 +434,15 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                     >
                     <Text style={styles.shippingItemText}>{t("On_spot")} ({t("Free")})</Text>
                     <RadioButton value='Normal' />
-                  </TouchableOpacity>
+                  </TouchableOpacity> */}
                   <TouchableOpacity
                     style={styles.shippingItem}
                     onPress={() => {
-                      setShippingMethod('Express');
+                      setShippingMethod('Normal');
                     }}
                   >
                     <Text style={styles.shippingItemText}>{t("Delivery")} (600 Frs)</Text>
-                    <RadioButton value='Express' />
+                    <RadioButton value='Normal' />
                     
                   </TouchableOpacity>
                   </RadioButton.Group>
@@ -445,7 +452,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                 <Text style={styles.totalText}>{t("Total")} -</Text>
                 {shippingMethod === 'Normal' ? (
                   <Text style={styles.totalPrice}>
-                    {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0)} Frs
+                    {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 600)} Frs
                   </Text>
                 ) : (
                   <Text style={styles.totalPrice}>
@@ -453,8 +460,34 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                   </Text>
                 )}
               </View>
-
+              <Text  style={{top: 12, fontSize: 17}}>{t("Enter_the_neighborhood_name")}</Text> 
               <View style={styles.couponInputView}>
+              {!showPosition && (
+                <><TextInput
+                    value={positionText}
+                    onChangeText={setPositionText}
+                    onSubmitEditing={handleSubmitPosition}
+                    multiline
+                    placeholder={t('Enter_Delivery_Address')}
+                    style={styles.couponInput} />
+                    <TouchableOpacity style={styles.couponButton} onPress={handlePressPosition}>
+                      <Text style={styles.couponButtonText}>{t("Validate")}</Text>
+                    </TouchableOpacity></>
+              )}
+                
+             </View>
+             {showPosition && (
+              <>
+              <View>
+                  <Text style={{top: 12, textAlign: "center"}}>{t("Your_neighborhood")}</Text>
+                </View>
+                <TouchableOpacity onPress={() => setShowPosition(false)}>
+                    <Text style={{ fontSize: 16, top: 16, color: COLORS.primary, textAlign: "center", }}>
+                      {positionText}
+                    </Text>
+                  </TouchableOpacity></>
+                )}
+              {/* <View style={styles.couponInputView}>
                 <TextInput
                   placeholder="Entrer l'Adresse de livraison"
                   style={styles.couponInput}
@@ -473,7 +506,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                     type='font-awesome-5'
                   />
                 </TouchableOpacity>
-              </View>
+              </View> */}
 
               <TouchableOpacity style={styles.checkoutButton} onPress={() => handleShowCommande()}>
                 <Text style={styles.checkoutButtonText}>

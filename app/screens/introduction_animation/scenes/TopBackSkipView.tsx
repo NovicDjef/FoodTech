@@ -4,7 +4,6 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import MyPressable from '../../../components/MyPressable';
 import Config from '../../../constants/Config';
-import { t } from 'i18next';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -19,12 +18,13 @@ const TopBackSkipView: React.FC<Props> = ({
   animationController,
 }) => {
   const { top } = useSafeAreaInsets();
-  const marginTop = Config.isIos ? top : StatusBar.currentHeight;
+  const marginTop = Config.isIos ? top : StatusBar.currentHeight ?? 0;
 
   const headerTranslateY = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
-    outputRange: [-(58 + (marginTop ?? 0)), 0, 0, 0, 0],
+    outputRange: [-(58 + marginTop), 0, 0, 0, 0],
   });
+
   const skipAnim = animationController.current.interpolate({
     inputRange: [0, 0.2, 0.4, 0.6, 0.8],
     outputRange: [0, 0, 0, 0, 80],
@@ -42,7 +42,7 @@ const TopBackSkipView: React.FC<Props> = ({
       <MyPressable
         style={styles.backBtn}
         android_ripple={{ color: 'darkgrey', borderless: true, radius: 28 }}
-        onPress={() => onBackClick()}
+        onPress={onBackClick}
       >
         <Icon name="arrow-back-ios" size={24} color="black" />
       </MyPressable>
@@ -50,11 +50,9 @@ const TopBackSkipView: React.FC<Props> = ({
       <Animated.View style={{ transform: [{ translateX: skipAnim }] }}>
         <MyPressable
           android_ripple={{ color: 'darkgrey', borderless: true, radius: 28 }}
-          onPress={() => onSkipClick()}
+          onPress={onSkipClick}
         >
-          <Text style={{ color: 'black', fontFamily: 'WorkSans-Regular' }}>
-            {t("Skip")}
-          </Text>
+          <Text style={styles.skipText}>{t('Skip')}</Text>
         </MyPressable>
       </Animated.View>
     </Animated.View>
@@ -80,6 +78,10 @@ const styles = StyleSheet.create({
     borderRadius: 30,
     justifyContent: 'center',
     alignItems: 'center',
+  },
+  skipText: {
+    color: 'black',
+    fontFamily: 'WorkSans-Regular',
   },
 });
 

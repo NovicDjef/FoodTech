@@ -5,7 +5,7 @@ import React, { useEffect, useState } from 'react';
 import { Image, TouchableOpacity, View, Text, StyleSheet, Animated, Alert } from 'react-native';
 
 import { IconLabel } from '.'
-import Icon from 'react-native-vector-icons/Feather';
+import Icon from 'react-native-vector-icons/FontAwesome';
 import { SIZES, icons, FONTS, COLORS, } from '../constants';
 import LottieView from 'lottie-react-native';
 // import Toast from 'react-native-toast-message'
@@ -14,50 +14,131 @@ import { toggleFavorite } from '../redux/action/favoriteAction';
 // import SkeletonPlaceholder from "react-native-skeleton-placeholder";
 // import { fetchRestaurants } from '../redux/action/restaurantActions';
 import { RadioButton } from 'react-native-paper';
+import baseImage from "../services/urlApp"
+import { useTranslation } from 'react-i18next';
 
 
-
-export default function RestaurantVertical({containerStyle, course, restaurant}) {
-
+export default function RestaurantVertical({containerStyle, course, restaurant, distances, loading}) {
+  const { t } = useTranslation();
   const favorites = useSelector(state => state.favorite.restaurants);
   const isFavorite = favorites.some((r) => r.id === restaurant.id);
   const dispatch = useDispatch();
-  const handleToggleFavorite = () => {
-    dispatch(toggleFavorite(restaurant));
-  };
+  const [isLoading, setIsLoading] = useState(true);
+ 
 
-  // const showToast = () => {
-  //   Toast.show({
-  //     type: "success",
-  //     text1: "message",
-  //     text2: "conteneu de la notifications",
-  //     autoHide: true,
-  //     visibilityTime: 2500,
-  //     position: "top",
-  //     bottomOffset: 50,
-    
-  //   })
-  // }
-  // if (loading) {
-  //   return (
-  //     <SkeletonPlaceholder>
-  //       <View style={{ flexDirection: "row", alignItems: "center" }}>
-  //         <View style={{ width: 230, height: 150, borderRadius: 10, marginRight: 15 }} />
-  //         <View style={{ flex: 1 }}>
-  //           <View style={{ width: '100%', height: 18, marginBottom: 6, borderRadius: 4 }} />
-  //           <View style={{ width: '70%', height: 18, marginBottom: 6, borderRadius: 4 }} />
-  //           <View style={{ width: '40%', height: 18, marginBottom: 6, borderRadius: 4 }} />
-  //         </View>
-  //       </View>
-  //     </SkeletonPlaceholder>
-  //   );
-  // }
+  useEffect(() => {
+    if (loading) {
+      const timer = setTimeout(() => {
+        setIsLoading(false);
+      }, 5000);
+
+      return () => clearTimeout(timer);
+    } else {
+      setIsLoading(false);
+    }
+  }, [loading]);
+
+
+  if (isLoading) {
+    return (
+        <View style={{
+         border: 2,
+         borderBlockColor: 'red'
+        }}>
+        <View
+           style={{
+             width: 230,
+             right: 22,
+             ...containerStyle,
+             }}>
+           <Image
+              source={require('../../assets/images/notFound.jpg')}
+             resizeMode="cover"
+             style={{
+               width: '100%',
+               height: 150,
+               marginBottom: SIZES.radius,
+               borderRadius: SIZES.radius,
+     
+             }}
+           />     
+             <View
+                 style={{
+                   flexShrink: 1,
+                   paddingHorizontal: SIZES.radius,
+                   flexDirection: 'row',
+                   backgroundColor: COLORS.gray20
+                 }}>
+                 
+                   <Text
+                     style={{
+                       flex: 1,
+                       ...FONTS.h3,
+                       fontSize: 18,
+                       fontWeight:700,
+                       backgroundColor: COLORS.gray20
+                     }}
+                   >
+                   </Text>
+                   <View>
+                   {distances !== undefined ? (
+                   <View style={{flexDirection: "row", justifyContent: 'center', backgroundColor: COLORS.gray20}}>
+                     <Text numberOfLines={1} style={{fontSize: 16, fontWeight: 700, marginRight: 3, backgroundColor: COLORS.gray20}}>
+                     </Text>
+                   <Text style={{backgroundColor: COLORS.gray20}} numberOfLines={1}>
+                     </Text>
+                   </View>
+                   ) : (
+                     <Text style={{backgroundColor: COLORS.gray20}}>
+                     </Text>
+                   )}
+                 </View>
+             </View>
+               <View
+               style={{
+                 flexDirection: 'row',
+                 backgroundColor: COLORS.gray20,
+                 marginTop: 4,
+                 width: 180,
+               }}>
+                  
+                   <View style={{backgroundColor: COLORS.gray20,  }}>
+                   <Text
+                   style={{
+                     fontSize: SIZES.h3,
+                     backgroundColor: COLORS.gray20
+                   }}>
+                     </Text>
+                   </View>
+           </View>
+               <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center", }}>
+                 <View style={{flexDirection: "column", margin: 2,}}>
+                       <View style={{ flexDirection: 'row', backgroundColor: COLORS.gray20, width: 140  }}>
+                         {[...Array(course.ratings)].map((_, index) => (
+                           <Icon key={index} 
+                           size={14} color={COLORS.yellow} style={{ marginLeft: 24, }} />
+                         ))}
+                         {[...Array(5 - course.ratings)].map((_, index) => (
+                           <Icon 
+                           key={course.ratings + index} 
+                           size={14} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                         ))}
+                       </View>
+                         <View style={{backgroundColor: COLORS.gray20, marginTop: 4, width: 90}}>
+                         <Text style={{color: COLORS.primary, }}>
+                           </Text>
+                         </View>
+                 </View>
+               </View>
+           </View>
+         </View>
+    );
+  }
 
 
   return (
    <>
-   
-   <View style={{
+    <View style={{
     border: 2,
     borderBlockColor: 'red'
    }}>
@@ -68,7 +149,7 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
         ...containerStyle,
         }}>
       <Image
-         source={{uri: `http://192.168.1.136:3000/images/${course.image}`}}
+         source={{uri: `${baseImage}/${course.image}`}}
         resizeMode="cover"
         style={{
           width: '100%',
@@ -77,10 +158,7 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
           borderRadius: SIZES.radius,
 
         }}
-      />
-
-      {/* detail section */}
-     
+      />     
         <View
             style={{
               flexShrink: 1,
@@ -95,57 +173,28 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
                   fontWeight:700,
                 }}
               >
-                {course.nom}
+                {course.name}
               </Text>
-              <TouchableOpacity
-                            style={{
-                                marginLeft: -12
-                            }}
-                            // onPress={() =>
-                            //   exists(item)
-                            //     ? handleRemoveFavorite(item)
-                            //     : handleAddFavorite(item)
-                            // }
-                      onPress={handleToggleFavorite}
-                        >
-           {isFavorite ? (
-              <Animated.View style={[styles.heartContainer]}>
-                  <Icon
-                  name='heart'
-                  color='#000' size={35}  />
-              </Animated.View> 
-            ) : (
-            <View style={{marginTop: -30, marginLeft: 20}}>
-                    <LottieView
-                        style={styles.lottie}
-                        source={require("../../assets/json/addToFovotite.json")}
-                        autoPlay
-                        loop
-                    />
-            </View> )}
-                
-                {/* <Animated.View style={[styles.heartContainer]}>
-                  <Icon
-                  name='heart'
-                  color='#000' size={35}  />
-                </Animated.View> */}
-              
-              </TouchableOpacity>
+              <View>
+              {distances !== undefined ? (
+              <View style={{flexDirection: "row", justifyContent: 'center'}}>
+                <Text numberOfLines={1} style={{fontSize: 16, fontWeight: 700, marginRight: 3}}>
+                 {t("Has")} {distances.toFixed(2)} km
+                </Text>
+              <Text numberOfLines={1}>{t("From_you")}</Text>
+              </View>
+              ) : (
+                <Text style={styles.distance}>{t("Distance_not_available")}</Text>
+              )}
+            </View>
         </View>
-         
-          {/* Info section */}
-     
           <View
-      style={{
-        flexDirection: 'row',
-      }}>
-           
-      
+          style={{
+            flexDirection: 'row',
+          }}>
               <IconLabel
                  icon={ icons.userplace }
-                 //label={course.ville}
                  containerStyle={{
-                  
                }}
               />
               <View>
@@ -156,7 +205,8 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
               >{course.adresse}</Text>
               </View>
       </View>
-      <View style={{flexDirection: "column", margin: 2,}}>
+          <View style={{flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+            <View style={{flexDirection: "column", margin: 2,}}>
                   <View style={{ flexDirection: 'row' }}>
                     {[...Array(course.ratings)].map((_, index) => (
                       <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
@@ -166,9 +216,10 @@ export default function RestaurantVertical({containerStyle, course, restaurant})
                     ))}
                   </View>
                     <Text style={{color: COLORS.primary}}>{course.ratings} {("Star_ratings")}</Text>
-                  </View>
+            </View>
+          </View>
+      </View>
     </View>
-   </View>
    </>
   );
 }

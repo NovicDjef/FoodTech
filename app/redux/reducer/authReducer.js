@@ -1,6 +1,5 @@
-
 import { createSlice } from '@reduxjs/toolkit';
-import { authenticateUser, verifyOTP } from '../action/authActions';
+import { authenticateUser, verifyOTP, updateUser } from '../action/authActions';
 
 const initialState = {
   user: null,
@@ -46,6 +45,18 @@ export const authSlice = createSlice({
         state.isAuthenticated = true;
       })
       .addCase(verifyOTP.rejected, (state, action) => {
+        state.loading = false;
+        state.error = action.payload;
+      })
+      .addCase(updateUser.pending, (state) => {
+        state.loading = true;
+      })
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.loading = false;
+        state.user = action.payload;
+        state.error = null;
+      })
+      .addCase(updateUser.rejected, (state, action) => {
         state.loading = false;
         state.error = action.payload;
       });

@@ -1,6 +1,7 @@
 import { View, Text, StatusBar, Image, Dimensions, TouchableOpacity, StyleSheet, Animated, Share } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import Ionic from "react-native-vector-icons/Ionicons"
+import Icon from "react-native-vector-icons/FontAwesome"
 import Feather from "react-native-vector-icons/Feather"
 import { COLORS } from '../constants';
 import AntDesign from "react-native-vector-icons/AntDesign"
@@ -8,48 +9,47 @@ import { addToCart } from '../redux/action/cartActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { ajoutFavoris, suppressionFavoris } from '../redux/reducer/favorisReducer';
 import { sauvegarderFavorisLocalement } from '../redux/action/favorisActions';
+import baseImage from "../services/urlApp"
+import { useTranslation } from 'react-i18next';
 
 export default function Status({route, navigation, repas}) {
     const {item} = route.params;
     const dispatch = useDispatch()
+    const { t } = useTranslation()
     const [count, setCount] = useState(0)
+    const [showCommandButton, setShowCommandButton] = useState(false);
     const cart = useSelector(state => state.cart)
     const plats = useSelector(state => state.plat.repas)
-
     const windowWidth = Dimensions.get("window").width
     const windowHeight = Dimensions.get("window").height
-    const [like, setLike] = useState(true)
-    const [isPaused, setIsPaused] = useState(false);
-    useEffect(() => {
-      if(!isPaused) {
-        let timer = setTimeout(() => {
-            navigation.goBack()
-        }, 5000)
+    const [like, setLike] = useState(false)
+    // const [isPaused, setIsPaused] = useState(false);
+    // useEffect(() => {
+    //   if(!isPaused) {
+    //     let timer = setTimeout(() => {
+    //         navigation.goBack()
+    //     }, 5000)
        
-          Animated.timing(progress, {
-            toValue: 5,
-            duration: 10000,
-            useNativeDriver: false,
+    //       Animated.timing(progress, {
+    //         toValue: 5,
+    //         duration: 10000,
+    //         useNativeDriver: false,
             
-        }).start();
-      }
-       return () => {
-            clearTimeout(timer);
-            Animated.timing(progress).stop();
-        };
+    //     }).start();
+    //   }
+    //    return () => {
+    //         clearTimeout(timer);
+    //         Animated.timing(progress).stop();
+    //     };
         
-    }, [isPaused])
+    // }, [isPaused])
     // const trisPlas = plats.map(item)
-    const [progress, setProgress] = useState(new Animated.Value(0));
-    const ProgressAnmation = progress.interpolate ({
-        inputRange: [0, 5],
-        outputRange: ["0%", "100%"]
-    })
+    // const [progress, setProgress] = useState(new Animated.Value(0));
+    // const ProgressAnmation = progress.interpolate ({
+    //     inputRange: [0, 5],
+    //     outputRange: ["0%", "100%"]
+    // })
 
-
-    const togglePause = () => {
-      setIsPaused(!isPaused);
-  };
 
   const handleAddToCart = () => {
   const platSelectionne = plats.find(plat => plat.id === item.id);
@@ -59,6 +59,7 @@ export default function Status({route, navigation, repas}) {
     return;
   }
   const isProductInCart = cart.items.some(item => item.id === platSelectionne.id);
+  setShowCommandButton(true);
   if (isProductInCart) {
     return;
   }
@@ -110,7 +111,7 @@ export default function Status({route, navigation, repas}) {
         <Animated.View style={{
             height: "100%",
             backgroundColor: "white",
-            width: ProgressAnmation
+           // width: ProgressAnmation
         }}>
 
         </Animated.View>
@@ -130,32 +131,34 @@ export default function Status({route, navigation, repas}) {
                 justifyContent: "center",
                 alignItems: "center"
             }}>
-                <Image source={{uri: `http://172.20.10.4:3000/images/${item.image}`}}
+                <Image source={{uri: `${baseImage}/${item.image}`}}
                     style={{
                         borderRadius: 100,
                         backgroundColor: "orange",
                         resizeMode: "cover",
-                        width: "92%",
-                        height: "92%"
+                        width: "94%",
+                        height: "94%",
+                        top: -12
                     }}/>
+                  
             </View>
             <View style={{
             justifyContent: "space-between",
             flexDirection: 'row',
             width: "100%"
         }}>
-            <Text style={{color: "white", fontSize: 15, paddingLeft: 10}}>
-                {item.name}
+            <Text style={{color: "white", fontSize: 22, paddingLeft: 10, top: -8}}>
+                {item.nom}
             </Text>
             <TouchableOpacity onPress={() => navigation.goBack()}>
                 <Ionic 
                     name="close" 
-                    style={{fontSize: 20, color: "white", opacity: 0.6 }} />
+                    style={{fontSize: 30, color: "white", opacity: 0.6, top: -12 }} />
             </TouchableOpacity>
         </View>
        </View>
       </View>
-      <Image onPress={togglePause} source={{uri: `http://192.168.1.136:3000/images/${item.image}`}} style={{
+      <Image source={{uri: `${baseImage}/${item.image}`}} style={{
         position: "absolute",
         width: "100%",
         height: 470
@@ -164,28 +167,24 @@ export default function Status({route, navigation, repas}) {
           //position: "absolute ",
           width: windowWidth,
           zIndex: 1,
-          top: 160,
+          top: 150,
           padding: 10
         }}>
             <View style={{}}>
                 <TouchableOpacity style={{width: 150,}}>
-                  <View style={{width: 100, flexDirection: 'row', alignItems: "center"}}>
-                    <View 
-                        style={{
-                          width: 32, 
-                          height: 32, 
-                          borderRadius: 100, 
-                          backgroundColor: "white", 
-                          margin: 10
-                        }}>
-                        <Image source={{uri: `http://192.168.1.136:3000/images/${item.image}`}} style={{
-                          width: "100%",
-                          height: "100%",
-                          resizeMode: "cover",
-                          borderRadius: 100,
-                        }} />
-                    </View>
-                    <Text style={{color: "white", fontSize: 16}}> {item.name}</Text>
+                  <View style={{}}>
+                    <Text style={{color: "white", fontSize: 26, marginHorizontal: 8}}> {item.nom}</Text>
+                  </View>
+                  <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(item.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={16} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - item.ratings)].map((_, index) => (
+                      <Icon key={item.ratings + index} name="star" size={16} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.primary}}>{item.ratings} {t("Star_ratings")}</Text>
                   </View>
                 </TouchableOpacity>
                 <Text style={{color: "white", fontSize: 14, marginHorizontal: 10}} numberOfLines={4}>{item.description}</Text>
@@ -197,69 +196,74 @@ export default function Status({route, navigation, repas}) {
         </View>
         <View style={{
           position: "absolute",
-          top: 380,
+          top: 340,
           right: 0,
           alignItems: "center",
           flexDirection: 'column'
           }}>
-            <TouchableOpacity 
-            onPress={() => {setLike(!like)}}
-            style={{padding: 10}}>
-              <AntDesign 
-              name={like ? "heart" : "hearto"} 
-              style={{color: like ? 'red' : "white", fontSize: 25}}
-            />
-            </TouchableOpacity>
-            
             <TouchableOpacity
             onPress={handleShare}
             style={{padding: 10}}>
               <Ionic 
               name="paper-plane-outline" 
-              style={{color: "white", fontSize: 25}}
+              style={{color: "white", fontSize: 30}}
             />
+            <Text style={{color: COLORS.white}}>{t("Share")}</Text>
             </TouchableOpacity> 
+            <TouchableOpacity 
+            onPress={() => {setLike(!like)}}
+            style={{padding: 10}}>
+              <AntDesign 
+              name={like ? "heart" : "hearto"} 
+              style={{color: like ? 'red' : "white", fontSize: 30}}
+            />
+            </TouchableOpacity>
+            
+            
             {/*   */}
-            {/* <View style={{
-              width: 30, 
-              height: 30,
-              borderRadius:10,
-              borderWidth: 2,
-              borderColor: "white"}}>
-              <Image source={item.postProfile} style={{width: "100%", height: "100%", borderRadius: 8, resizeMode: "cover"}}/>
-            </View> */}
         </View>
-      <View style={{
-        position: "absolute",
-        bottom: 0,
-        left: 0,
-        flexDirection: "row",
-        justifyContent: "space-around",
-        alignItems: "center",
-        marginVertical: 25,
-        width: "100%"
-      }}>
-       
-        <TouchableOpacity style={{
+        <View style={{
+          position: "absolute",
+          bottom: 0,
+          left: 0,
+          flexDirection: "row",
+          justifyContent: "space-around",
+          alignItems: "center",
+          marginVertical: 25,
+          width: "100%"
+        }}>
+        
+        {showCommandButton ? (
+          <TouchableOpacity style={{
             backgroundColor: COLORS.primary,
-            // marginHorizontal: 22,
             padding: 12,
             borderRadius: 12,
             flexDirection: "row"
-            
-        }}
-        onPress={handleAddToCommande} 
-        >
-            <Text style={{color: COLORS.white, fontSize: 22}}>Commandez maintenant</Text> 
-            <Ionic name="cart" style={{color: COLORS.white,  fontSize: 28, marginLeft: 12}} />
-        </TouchableOpacity>
-        <TouchableOpacity  onPress={handleAddToCart}>
-          <Ionic name="cart" style={{color: COLORS.white,  fontSize: 28, marginLeft: 12}} />
-        </TouchableOpacity>
-        <View style={styles.countAdd}>
-                    <Text style={{color: COLORS.white, fontSize: 18, fontWeight: "bold"}}>{count}</Text>
-                </View>
-      </View>
+          }}
+            onPress={handleAddToCommande}
+          >
+            <Text style={{ color: COLORS.white, fontSize: 22 }}>{t("Order")}</Text>
+            <Ionic name="cart" style={{ color: COLORS.white, fontSize: 28, marginLeft: 12 }} />
+          </TouchableOpacity>
+        ) : (
+          <><TouchableOpacity style={{
+              backgroundColor: COLORS.primary,
+              padding: 12,
+              borderRadius: 12,
+              flexDirection: "row"
+            }}
+              onPress={handleAddToCart}
+            >
+              <Text style={{ color: COLORS.white, fontSize: 22 }}>{t("Add_card")}</Text>
+              <Ionic name="cart" style={{ color: COLORS.white, fontSize: 28, marginLeft: 12 }} />
+            </TouchableOpacity>
+              <View style={styles.countAdd}>
+                <Text style={{ color: COLORS.white, fontSize: 18, fontWeight: "bold" }}>{count}</Text>
+              </View>
+            </>
+        )}
+        
+        </View>
     </View>
   )
 }

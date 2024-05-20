@@ -38,6 +38,7 @@ import FastMenu from './home/FastMenu';
 import Restaurants from './home/Restaurants';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
 import { fetchRepas } from '../redux/action/platsActions';
+import { fetchSlides } from '../redux/action/slideAction';
 
 
 
@@ -55,8 +56,9 @@ function Home() {
   const RefreshMe = () => {
     setRefresh(true)
     setTimeout(() => {
+      dispatch(fetchSlides())
+      dispatch(fetchRepas())
      dispatch(fetchRestaurants())
-     dispatch(fetchRepas())
         setRefresh(false)
     }, 3000)
   }

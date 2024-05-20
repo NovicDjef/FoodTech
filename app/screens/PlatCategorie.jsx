@@ -28,6 +28,7 @@ import { SharedElement } from 'react-navigation-shared-element';
 import { useDispatch, useSelector } from 'react-redux';
 import { fetchRepas } from '../redux/action/platsActions';
 import { useTranslation } from 'react-i18next';
+import baseImage from "../services/urlApp"
 
 export default function PlatCategorie({navigation, route}) {
   const { t } = useTranslation();
@@ -78,7 +79,7 @@ export default function PlatCategorie({navigation, route}) {
          style={[StyleSheet.absoluteFillObject]}
        >
          <Image
-         source={{uri: `http://172.20.10.4:3000/images/${category.image}`}}
+         source={{uri: `${baseImage}/${category.image}`}}
           resizeMode="cover"
            style={{
              height: '100%',
@@ -191,7 +192,7 @@ export default function PlatCategorie({navigation, route}) {
                   <Image
                     alt=""
                     resizeMode="cover"
-                    source={{uri: `http://172.20.10.4:3000/images/${plat.image}`}}
+                    source={{uri: `${baseImage}/${plat.image}`}}
                     style={styles.cardImg}
                   />
 

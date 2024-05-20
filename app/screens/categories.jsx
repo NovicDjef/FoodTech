@@ -1,7 +1,7 @@
 import React, {useEffect, useRef, useState} from 'react'
 import { useNavigation } from '@react-navigation/native';
-import {View, Text, Image, FlatList, RefreshControl, ScrollView} from 'react-native';
-
+import {View, Text, Image, FlatList, RefreshControl, ScrollView, TouchableOpacity} from 'react-native';
+import { SharedElement } from 'react-navigation-shared-element';
 import {TextButton, CategoriesCard} from '../components';
 import {COLORS, FONTS, SIZES, icons, dummyData} from '../constants';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +14,7 @@ const Categories = () => {
   const dispatch = useDispatch()
   const scrollViewRef = useRef();
   const categories = useSelector(state => state.categorie.categories)
+  const loadingRestaurant = useSelector(state => state.categorie.loading)
 
    useEffect(() => {
     dispatch(fetchCategories());
@@ -91,7 +92,8 @@ const Categories = () => {
              >
                 Toutes les Categories
              </Text>
-            <FlatList
+             {categories.length > 0 ? (
+              <FlatList
                data={categories}
                numColumns={2}
                scrollEnabled={false}
@@ -112,11 +114,27 @@ const Categories = () => {
                         ? SIZES.radius : SIZES.padding,
                        }}
                        onPress={() => navigation.navigate
-                        ("PlatCategorie", { category: item})}
+                        ("PlatCategorie", 
+                        { category: item}
+                      )}
                     />
                 )}
             />
-            
+             ) : (
+             
+             <ScrollView
+                horizontal={false} 
+                contentContainerStyle={{
+                  marginTop: SIZES.padding,
+                  flexDirection: "row",
+                  flexWrap: "wrap",
+                  margin: 6, 
+                }}
+              >
+                  {renderPlaceholders()}
+                  </ScrollView>
+               )
+              }
            </View>
         );
     }
@@ -157,5 +175,70 @@ const Categories = () => {
 
   )
 }
-
+const renderPlaceholders = () => {
+  const placeholders = [];
+          for (let i = 0; i < 5; i++) {
+            placeholders.push(
+             
+                 <TouchableOpacity
+                 key={i}
+                  style={{
+                    height: 140,
+                    width: 160,
+                    margin: 6
+                    
+                  }}
+                  //onPress={onPress}
+                  >
+        <SharedElement
+          //id={`${sharedElementPrefix}-CategoryCard-${category?.id}`}
+          //style={[StyleSheet.basoluteFillObject]}
+          
+        >
+        <Image 
+        source={require("../../assets/images/notFound.jpg")}
+        resizeMode="cover"
+        style={{
+          width: "100%",
+          height: "100%",
+          borderRadius: SIZES.radius,
+  
+        }}
+        
+        />
+        </SharedElement>
+  
+       {/* title */}
+    <View 
+    style={{
+       position: "absolute",
+       bottom: 50,
+       left: 5,
+       backgroundColor: COLORS.gray20
+    }}>
+      <SharedElement
+      //id={`${sharedElementPrefix}-CategoryCard-title-${category?.id}`}
+      //style={[StyleSheet.basoluteFillObject]}
+      >
+      <Text
+        style={{
+          position: "absolute",
+          color: COLORS.white,
+          ...FONTS.h2,
+          bottom: 10,
+          left: 16,
+          backgroundColor: COLORS.gray20
+      }}
+      >
+        {/* {category?.name} */}
+      </Text>
+      </SharedElement>
+    </View>
+  
+  
+              </TouchableOpacity>             
+            );
+          }
+          return placeholders;
+        }
 export default Categories
