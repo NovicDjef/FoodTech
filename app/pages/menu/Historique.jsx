@@ -79,9 +79,10 @@ export default function Historique() {
           commandesUtilisateur.map((commande) => {
             const plat = platsData.find((plat) => plat.id === commande.platsId);
             const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
+            const nomRestaurant = restaurant.name || 'name restaurant inconnu';
             const imageplat = plat.image || 'Image plat inconnu';
             const nomPlat = plat.name || 'nom plat inconnu';
-            const prixplat = plat.prix || 'nom plat inconnu';
+            const prixplat = plat.prix || 'prix plat inconnu';
 
             return (
               <View key={commande.id} style={styles.cardWrapper}>
@@ -103,7 +104,7 @@ export default function Historique() {
                         {nomPlat}
                       </Text>
                       <Text numberOfLines={1} style={styles.cardRowItemText}>
-                        {/* {restaurant.name} */}
+                        {nomRestaurant}
                       </Text>
 
                       <View style={styles.cardRow}>

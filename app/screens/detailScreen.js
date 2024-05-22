@@ -8,10 +8,10 @@
     withDelay,
     useSharedValue,
     useAnimatedStyle,
-    //runOnJS,
     useAnimatedScrollHandler,
     interpolate,
-    // Extrapolate,
+    Extrapolate,
+    runOnJS,
   } from 'react-native-reanimated';
   import { fetchRepas } from '../redux/action/platsActions';
   import LottieView from 'lottie-react-native';
@@ -28,62 +28,161 @@ import { fetchCategories } from '../redux/action/categorieAction';
 
   const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
-  const HEADER_HEIGHT = 250;
+  const HEADER_HEIGHT = 180;
 
   const RestaurantDetail = ({navigation, item, sharedElementPrefix, category, route }) => {
     const { restaurant } = route.params;
     const { t } = useTranslation();
+    const flatListRef = useRef();
+    const scrollY = useSharedValue(0);
     const dispatch = useDispatch();
     const platsData = useSelector((state) => state.plat.repas);
     const menus = useSelector(state => state.menu.menus);
-    const categorie =  useSelector(state => state.categorie.categories)
+    const categories =  useSelector(state => state.categorie.categories)
     const [selectedMenu, setSelectedMenu] = useState(null);
+    const [searchVisible, setSearchVisible] = useState(false)
+    const [searchQuery, setSearchQuery] = useState("");
+
     useEffect(() => {
       dispatch(fetchRepas());
       dispatch(fetchMenus());
       dispatch(fetchCategories());
     }, [dispatch]);
     
-    const getPlatsForCategory = (categoryId) => {
-      return platsData.filter((plat) => plat.categoryId === categoryId);
-    };
-  const platsForRestaurant = getPlatsForCategory(categorie.id);
+    useEffect(() => {
+      // Sélectionner le premier menu par défaut si available
+      if (menus.length > 0) {
+        const firstMenu = menus.find(menu => menu.restaurantId === restaurant.id);
+        if (firstMenu) {
+          setSelectedMenu(firstMenu.id);
+        }
+      }
+    }, [menus, restaurant.id]);
 
+  const getPlatsForCategoryAndMenu = (categoryId, restaurantId, menuId) => {
+    const plats = platsData.filter((plat) => {
+      const match = plat.categorieId === categoryId || plat.menuId === menuId;
+      return match;
+  });
+  return plats;
+}
+  const getCategoriesForMenu = (menuId) => {
+    const result = categories.filter((category) => category.menuId === menuId);
+    return result;
+  };
+
+  const getPlatsForMenu = (menuId, restaurantId) => {
+    const categoriesForMenu = getCategoriesForMenu(menuId);
+        let platsForMenu = [];
+        categoriesForMenu.forEach((category) => {
+            const platsForCategory = getPlatsForCategoryAndMenu(category.id, restaurantId, menuId);
+            platsForMenu = [...platsForMenu, ...platsForCategory];
+        });
+        return platsForMenu;
+  };
+
+  const platsForMenu = selectedMenu ? getPlatsForMenu(selectedMenu, restaurant.id) : [];
+
+
+  const filteredPlats = platsForMenu.filter((plat) => {
+      const lowerCaseQuery = searchQuery.toLowerCase();
+      return (
+          plat.name.toLowerCase().includes(lowerCaseQuery) ||
+          plat.description.toLowerCase().includes(lowerCaseQuery)
+      );
+  });
+
+  const toggleSearch = () => {
+    setSearchVisible(!searchVisible);
+  };
+
+  const resetSearch = () => {
+    setSearchVisible(!searchVisible);
+    setSearchQuery('');
+  };
+
+  function BackHandler() {
+    navigation.goBack();
+  }
   const headerShareValue = useSharedValue(80);
   const filterModalSharedValue1 = useSharedValue(SIZES.height);
   const filterModalSharedValue2 = useSharedValue(SIZES.height);
-
 
     function BackHandler() {
       navigation.goBack();
     }
 
-  const flatListRef = useRef();
-  const scrollY = useSharedValue(0);
   const onScroll = useAnimatedScrollHandler((event) => {
     scrollY.value = event.contentOffset.y;
   });
-
  
     function renderHeader({item,}) {
-
+      const inputRange =  [0, HEADER_HEIGHT -40]
+      headerShareValue.value = withDelay(500, 
+        withTiming(0, {
+          duration: 500
+        })
+      )
         const headerFadeAnimatedStyle = useAnimatedStyle(() =>{
           return {
             opacity: interpolate(headerShareValue.value,
               [80, 0], [0, 1])
           }
         })
+
+        const headerTranslateAnimation = useAnimatedStyle(() => {
+          return {
+            transform: [
+              {
+                translateY: headerShareValue.value
+              }
+            ]
+          }
+        })
+
+        const headerHieghtAnimatedStyle = useAnimatedStyle(() => {
+          return {
+            height: interpolate(scrollY.value, inputRange,
+            [HEADER_HEIGHT, 100], Extrapolate.CLAMP)
+          }
+        })
+      
+        const headerHideOnscrollAnimationStyle = useAnimatedStyle(() => {
+          return {
+            opacity : interpolate(scrollY.value, [80, 0],
+            [0, 1], Extrapolate.CLAMP),
+            transform: [
+              {
+                translateY: interpolate(scrollY.value,
+                inputRange, [0, 200], Extrapolate.CLAMP)
+              }
+            ]
+          }
+        })
+
+        const headerShowOnScrollAnimatedStyle = useAnimatedStyle(() => {
+          return {
+            opacity: interpolate(scrollY.value, [80, 0],
+            [1, 0], Extrapolate.CLAMP), 
+            transform: [
+              {
+                translateY: interpolate(scrollY.value,
+                inputRange, [50, 130], Extrapolate.CLAMP)
+              }
+            ]
+          }
+        })
       
       return (
         <Animated.View
-         style={{
+         style={[{
           position: 'relative',
           top: 0,
           left: 0,
           right: 0,
           height: 180,
           overflow: 'hidden',
-         }}
+         }, headerHieghtAnimatedStyle]}
         >
 
             <SharedElement
@@ -103,12 +202,44 @@ import { fetchCategories } from '../redux/action/categorieAction';
          </SharedElement>
 
           {/* titre */}
+             <Animated.View style={[{
+              position: "absolute",
+              top: -100,
+              left: 0,
+              right: 0
+             }, headerShowOnScrollAnimatedStyle]}>
+              <Text style={{
+                textAlign: "center",
+                color: COLORS.white,
+                ...FONTS.h1,
+                fontWeight: "bold"
+              }}>
+                {restaurant.name}
+              </Text>
+              <View style={{display: "flex", justifyContent: "center", alignItems: "center", top: 22}}>
+              <View style={{ position: "absolute", marginTop: 140, marginLeft: 32, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(restaurant.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - restaurant.ratings)].map((_, index) => (
+                      <Icon key={restaurant.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.white}}>{restaurant.ratings} {t("Star_ratings")}</Text>
+                </View>
+              </View>
+              </View>
+             </Animated.View>
+
+
           <Animated.View
-          style={{
+          style={[{
             position: 'absolute',
             bottom: 70,
             left: 30,
-          }}
+          }, headerHideOnscrollAnimationStyle]}
           >
             <SharedElement
              id={`${sharedElementPrefix}-CategoryCard-title-${category?.id}`}
@@ -117,8 +248,9 @@ import { fetchCategories } from '../redux/action/categorieAction';
               <Text
               style={{
                 position: 'absolute',
-                color: COLORS.primary,
+                color: COLORS.white,
                 ...FONTS.h1,
+                fontWeight: "bold"
               }}
               >
                 {restaurant.name}
@@ -137,13 +269,13 @@ import { fetchCategories } from '../redux/action/categorieAction';
                       <Icon key={restaurant.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
                     ))}
                   </View>
-                    <Text style={{color: COLORS.white}}>{restaurant.ratings} {("Star_ratings")}</Text>
+                    <Text style={{color: COLORS.white}}>{restaurant.ratings} {t("Star_ratings")}</Text>
             </View>
           </View>
   {/* back button */}
 
         <Animated.View
-          //style={headerFadeAnimatedStyle}
+          style={headerFadeAnimatedStyle}
         >
            <IconsButton
              icon={icons.back}
@@ -162,7 +294,29 @@ import { fetchCategories } from '../redux/action/categorieAction';
               backgroundColor: COLORS.white,
 
              }}
-           onPress={() =>{BackHandler();}}
+           onPress={() =>{
+            
+            // if(scrollY.value > 0 && scrollY.value <= 200 ) {
+            //   flatListRef.current?.scrollToOffset({
+            //     offset: 0,
+            //     Animated: true
+            //   })
+              
+            // } else {
+            //   BackHandler()
+            // }
+              
+            
+            setTimeout(() => {
+              headerShareValue.value = 
+              withTiming(80, {
+                duration: 500
+              }, () => {
+                runOnJS(BackHandler)();
+              })
+            }, 100)
+            
+            ;}}
 
            />
           </Animated.View>
@@ -172,17 +326,38 @@ import { fetchCategories } from '../redux/action/categorieAction';
            <Animated.Image
              source={images.mobile_image}
              resizeMode="contain"
-             style={{
+             style={[{
               position: 'absolute',
               right: 40,
               bottom: -40,
               width: 100,
               height:160,
 
-             }}
+             }, headerFadeAnimatedStyle,
+             headerTranslateAnimation,
+             headerHideOnscrollAnimationStyle]}
 
             />
-
+              <Animated.View style={[{ 
+               position: 'absolute',
+               right: 30,
+               bottom: -60,
+               width: 100,
+               height: 160,}, 
+                headerFadeAnimatedStyle,
+                headerTranslateAnimation,
+                headerHideOnscrollAnimationStyle]}>
+              <LottieView
+                  style={[{
+                    width: 68,
+                    height: 78
+                  }]}
+                  source={require("../../assets/json/animation_lljmrq2l.json")}
+                  autoPlay
+                  loop
+              />
+          </Animated.View>
+          
         </Animated.View>
       );
     }
@@ -190,7 +365,7 @@ import { fetchCategories } from '../redux/action/categorieAction';
       return (
         <View style={{ flexDirection: 'row', marginTop: 10, marginBottom: -10 }}>
           <FlatList
-            data={menus}
+            data={menus.filter(menu => menu.restaurantId === restaurant.id)}
             horizontal
             showsHorizontalScrollIndicator={false}
             keyExtractor={item => `Menu-${item.id}`}
@@ -211,46 +386,9 @@ import { fetchCategories } from '../redux/action/categorieAction';
         </View>
       );
     }
-  
 
     function renderResult({item}) {
-      const [searchVisible, setSearchVisible] = useState(false);
-
-  const toggleSearch = () => {
-    setSearchVisible(!searchVisible);
-  };
-  const [searchQuery, setSearchQuery] = useState("")
-
-  const getCategoriesForMenu = (menuId) => {
-    return categorie.filter((categorie) => categorie.menuId === menuId);
-  };
-
-  const getPlatsForMenu = (menuId) => {
-    const categoriesForMenu = getCategoriesForMenu(menuId);
-    let platsForMenu = [];
-    
-    categoriesForMenu.forEach((categorie) => {
-      platsForMenu = [...platsForMenu, ...getPlatsForCategory(categorie.id)];
-    });
-  
-    return platsForMenu;
-  };
-
-  const platsForMenu = selectedMenu ? getPlatsForMenu(selectedMenu) : [];
-  const filteredPlats = platsForRestaurant.filter(plat => {
-    // Filtrer les agences par nom, prix et lieu
-    const lowerCaseQuery = searchQuery.toLowerCase();
-      return  plat.name.toLowerCase().includes(lowerCaseQuery) ||  // Filtrer par nom
-            //plat.prix.some(price => price.toString().includes(lowerCaseQuery)) ||  // Filtrer par prix
-             plat.description.toLowerCase().includes(lowerCaseQuery)   // Filtrer par lieu
-});
-
-
-const resetSearch = () => {
-  setSearchVisible(!searchVisible);
-  setSearchQuery('');
-};
-
+      
       return (
         <AnimatedFlatList
         ref={flatListRef}
@@ -270,8 +408,9 @@ const resetSearch = () => {
               flexDirection: 'row',
               alignItems:'center',
               marginTop: 270,
+              marginBottom: 22
+              
             }}
-
           >
             {/* result */}
             <Text
@@ -280,7 +419,7 @@ const resetSearch = () => {
                 ...FONTS.body3,
               }}
             >
-             {platsForRestaurant.length} {t("Result")}
+             {platsForMenu.length} {t("Result")}
 
             </Text>
 
@@ -305,13 +444,29 @@ const resetSearch = () => {
       </View>
         }
         ListEmptyComponent={
-          <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: SIZES.padding }}>
-            <Text style={{ ...FONTS.body3 }}>{selectedMenu ? t("menuVide") : t("Veuillez sélectionner un menu")}</Text>
+          <>
+          {selectedMenu > 0 ? (
+          <View style={{flex: 1, marginTop: -62}}>
+          <View style={{justifyContent: "center", alignItems: 'center'}}>
+              <LottieView
+                  style={{
+                    width: 248,
+                    height: 248
+                  }}
+                  source={require("../../assets/json/629-empty-box.json")}
+                  autoPlay
+                  loop
+              />
+               <Text style={styles.text}>{t("menuVide")}</Text>
           </View>
+      </View>) : (
+        <Text style={styles.text}> {t("Veuillez sélectionner un menu")}</Text>
+        )}
+          </>
         }
         renderItem={({item, index}) => (
           <>
-          { platsForRestaurant.length < 0 ? (
+          { platsForMenu.length < 0 ? (
             <View style={{ justifyContent: 'center', alignItems: 'center'}}>
             <LottieView
               style={{
@@ -334,7 +489,7 @@ const resetSearch = () => {
                 course={item}
                 containerStyle={{
                   marginVertical: SIZES.padding,
-                  marginTop: index == platsForMenu.length - 1 ? SIZES.padding : -10
+                  marginTop: index === platsForMenu.length - 1 ? SIZES.padding : -10
                 }}
                 onPress={() => {
                   navigation.navigate("DetailsPlats", {
@@ -428,18 +583,29 @@ const resetSearch = () => {
      </View>
     );
   };
-
+  RestaurantDetail.sharedElements = (route, otherRoute, showing) => {
+    if (otherRoute.name === "MainLayout") {
+      const { restaurant } = route.params;
+      return [
+        {
+          id: `restaurant-${restaurant.id}`,
+        },
+      ];
+    }
+  };
 
   const styles = StyleSheet.create({
     container: {
-      position: 'relative',
+      position: 'aboluste',
       flexDirection: "row-reverse",
       width: 40,
       height: 40,
+      top: -2,
       alignItems: 'center',
       //justifyContent: "center",
       borderRadius: 10,
       backgroundColor: COLORS.primary,
+      marginTop: 8
       
     },
     mainbox: {

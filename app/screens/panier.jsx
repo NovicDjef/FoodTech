@@ -11,6 +11,7 @@ import {
   ScrollView,
   RefreshControl,
 } from 'react-native';
+import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
 import { COLORS } from '../constants'
 import { RadioButton } from 'react-native-paper';
@@ -147,6 +148,24 @@ const coordinates = getRestaurantCoordinates(restaurantId);
    }
    console.error(error);
  };
+ const validationCommande = () => {
+  return(
+    <View style={{flex: 1}}>
+        <View style={{justifyContent: "center", alignItems: 'center', marginTop: 260}}>
+            <LottieView
+                style={{
+                  width: 248,
+                  height: 248
+                }}
+                source={require("../../assets/json/success.json")}
+                autoPlay
+                loop
+            />
+             <Text style={{fontSize: 17, fontWeight: "bold"}}> Soyez Les Bienvenue</Text>
+        </View>
+    </View>
+  )
+ }
  const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
  const shippingCost = shippingMethod === 'Normal' ? 0 : 600;
  const totalCommande = totalPrice + shippingCost;

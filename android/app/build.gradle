@@ -118,8 +118,7 @@ dependencies {
     implementation("com.facebook.react:react-android")
 
     implementation project(':react-native-vector-icons') 
-    // implementation project(':react-native-i18n')
-    //implementation project(':lottie-react-native')
+
 
     implementation project(':react-native-splash-screen')
     implementation project(':react-native-push-notification')

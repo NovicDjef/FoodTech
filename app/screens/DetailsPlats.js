@@ -1,17 +1,17 @@
 import { View, Text, Image, StyleSheet, FlatList, TouchableOpacity } from 'react-native';
 import React, { useRef, useEffect, useState } from 'react';
 import
-   Animated, {
-  withTiming,
-  withDelay,
-  useSharedValue,
-  useAnimatedStyle,
-  //runOnJS,
-  useAnimatedScrollHandler,
-  interpolate,
-  red,
-  // Extrapolate,
+Animated, {
+withTiming,
+withDelay,
+useSharedValue,
+useAnimatedStyle,
+useAnimatedScrollHandler,
+interpolate,
+Extrapolate,
+runOnJS,
 } from 'react-native-reanimated';
+import LottieView from 'lottie-react-native';
 import { COLORS, FONTS, SIZES, icons, images} from '../constants';
 import Icon from "react-native-vector-icons/FontAwesome"
 import { SharedElement } from 'react-navigation-shared-element';
@@ -21,16 +21,18 @@ import { useTranslation } from 'react-i18next';
 import { addToCart } from '../redux/action/cartActions';
 import baseImage from "../services/urlApp"
 
+const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
+const HEADER_HEIGHT = 250;
 export default function DetailsPlats({navigation, item, route }) {
     const { plats } = route.params
+    const flatListRef = useRef();
+    const scrollY = useSharedValue(0);
     const [count, setCount] = useState(0)
     const user = useSelector((state) => state.auth.user)
     const cart = useSelector(state => state.cart)
     const { t } = useTranslation()
-    function BackHandler() {
-      navigation.goBack();
-    }
+
     const dispatch = useDispatch();
 
   const handleAddToCart = () => {
@@ -47,20 +49,86 @@ export default function DetailsPlats({navigation, item, route }) {
   const handleAddToCommande = () => { 
       navigation.navigate('panier')
   }
+  const headerShareValue = useSharedValue(80);
+  const filterModalSharedValue1 = useSharedValue(SIZES.height);
+  const filterModalSharedValue2 = useSharedValue(SIZES.height);
 
+    function BackHandler() {
+      navigation.goBack();
+    }
+
+  const onScroll = useAnimatedScrollHandler((event) => {
+    scrollY.value = event.contentOffset.y;
+  });
+ 
     function renderHeader({item,}) {
+      const inputRange =  [0, HEADER_HEIGHT -40]
+      headerShareValue.value = withDelay(500, 
+        withTiming(0, {
+          duration: 500
+        })
+      )
+        const headerFadeAnimatedStyle = useAnimatedStyle(() =>{
+          return {
+            opacity: interpolate(headerShareValue.value,
+              [80, 0], [0, 1])
+          }
+        })
+
+        const headerTranslateAnimation = useAnimatedStyle(() => {
+          return {
+            transform: [
+              {
+                translateY: headerShareValue.value
+              }
+            ]
+          }
+        })
+
+        const headerHieghtAnimatedStyle = useAnimatedStyle(() => {
+          return {
+            height: interpolate(scrollY.value, inputRange,
+            [HEADER_HEIGHT, 100], Extrapolate.CLAMP)
+          }
+        })
+      
+        const headerHideOnscrollAnimationStyle = useAnimatedStyle(() => {
+          return {
+            opacity : interpolate(scrollY.value, [80, 0],
+            [0, 1], Extrapolate.CLAMP),
+            transform: [
+              {
+                translateY: interpolate(scrollY.value,
+                inputRange, [0, 200], Extrapolate.CLAMP)
+              }
+            ]
+          }
+        })
+
+        const headerShowOnScrollAnimatedStyle = useAnimatedStyle(() => {
+          return {
+            opacity: interpolate(scrollY.value, [80, 0],
+            [1, 0], Extrapolate.CLAMP), 
+            transform: [
+              {
+                translateY: interpolate(scrollY.value,
+                inputRange, [50, 130], Extrapolate.CLAMP)
+              }
+            ]
+          }
+        })
         return (
           <Animated.View
-           style={{
+           style={[{
             position: 'relative',
             top: 0,
             left: 0,
             right: 0,
             height: 250,
             overflow: 'hidden',
-           }}>
+           }, headerHieghtAnimatedStyle]}>
               <SharedElement
-              //id={`${sharedElementPrefix}-CategoryCard-Bg-${restaurant?.id}`}
+              //id={`${sharedElementPrefix}-CategoryCard-Bg-${plats?.id}`}
              style={[StyleSheet.absoluteFillObject]}
            >
             <Image
@@ -76,33 +144,80 @@ export default function DetailsPlats({navigation, item, route }) {
            </SharedElement>
   
             {/* titre */}
-            <Animated.View
-            style={{
-              position: 'absolute',
-              bottom: 70,
-              left: 30,
-            }}
+
+            <Animated.View style={[{
+              position: "absolute",
+              top: -100,
+              left: 0,
+              right: 0
+             }, headerShowOnScrollAnimatedStyle]}>
+              <Text style={{
+                textAlign: "center",
+                color: COLORS.white,
+                ...FONTS.h1,
+                fontWeight: "bold"
+              }}>
+                {plats.name}
+              </Text>
+              <View style={{display: "flex", justifyContent: "center", alignItems: "center", top: 22}}>
+              <View style={{ position: "absolute", marginTop: 140, marginLeft: 32, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+                <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(plats.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - plats.ratings)].map((_, index) => (
+                      <Icon key={plats.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.white}}>{plats.ratings} {t("Star_ratings")}</Text>
+                </View>
+              </View>
+              </View>
+             </Animated.View>
+
+             <Animated.View
+          style={[{
+            position: 'absolute',
+            bottom: 90,
+            left: 30,
+          }, headerHideOnscrollAnimationStyle]}
+          >
+            <SharedElement
+             //id={`${sharedElementPrefix}-CategoryCard-title-${category?.id}`}
+            style={[StyleSheet.absoluteFillObject]}
             >
-              <SharedElement
-               //id={`${sharedElementPrefix}-CategoryCard-title-${category?.id}`}
-              style={[StyleSheet.absoluteFillObject]}
+              <Text
+              style={{
+                position: 'absolute',
+                color: COLORS.white,
+                ...FONTS.h1,
+                fontWeight: "bold"
+              }}
               >
-                <Text
-                style={{
-                  position: 'absolute',
-                  color: COLORS.primary,
-                  ...FONTS.h1,
-                }}
-                >
-                  {plats.nom}
-                </Text>
-              </SharedElement>
-            </Animated.View>
-  
+                {plats.name}
+              </Text>
+             
+            </SharedElement>
+            
+          </Animated.View>
+          <View style={{ position: "absolute", marginTop: 200, marginLeft: 32, flexDirection: "row", justifyContent: "space-between", alignItems: "center"}}>
+            <View style={{flexDirection: "column", margin: 2,}}>
+                  <View style={{ flexDirection: 'row' }}>
+                    {[...Array(plats.ratings)].map((_, index) => (
+                      <Icon key={index} name="star" size={18} color={COLORS.yellow} style={{ marginRight: 4 }} />
+                    ))}
+                    {[...Array(5 - plats.ratings)].map((_, index) => (
+                      <Icon key={plats.ratings + index} name="star" size={18} color={COLORS.gray30} style={{ marginRight: 4 }} />
+                    ))}
+                  </View>
+                    <Text style={{color: COLORS.white}}>{plats.ratings} {t("Star_ratings")}</Text>
+            </View>
+          </View>
     {/* back button */}
   
           <Animated.View
-            //style={headerFadeAnimatedStyle}
+            style={headerFadeAnimatedStyle}
           >
              <IconsButton
                icon={icons.back}
@@ -121,7 +236,17 @@ export default function DetailsPlats({navigation, item, route }) {
                 backgroundColor: COLORS.white,
   
                }}
-             onPress={() =>{BackHandler();}}
+             onPress={() =>{
+              setTimeout(() => {
+                headerShareValue.value = 
+                withTiming(80, {
+                  duration: 500
+                }, () => {
+                  runOnJS(BackHandler)();
+                })
+              }, 100)
+              
+            }}
   
              />
             </Animated.View>
@@ -131,16 +256,37 @@ export default function DetailsPlats({navigation, item, route }) {
              <Animated.Image
                source={images.mobile_image}
                resizeMode="contain"
-               style={{
+               style={[{
                 position: 'absolute',
                 right: 40,
                 bottom: -40,
                 width: 100,
                 height:200,
   
-               }}
+               }, headerFadeAnimatedStyle,
+               headerTranslateAnimation,
+               headerHideOnscrollAnimationStyle]}
   
               />
+                <Animated.View style={[{ 
+               position: 'absolute',
+               right: 40,
+               bottom: -40,
+               width: 100,
+               height: 160,}, 
+                headerFadeAnimatedStyle,
+                headerTranslateAnimation,
+                headerHideOnscrollAnimationStyle]}>
+              <LottieView
+                  style={[{
+                    width: 88,
+                    height: 96
+                  }]}
+                  source={require("../../assets/json/animation_lljmrq2l.json")}
+                  autoPlay
+                  loop
+              />
+          </Animated.View>
   
           </Animated.View>
         );
@@ -180,7 +326,7 @@ export default function DetailsPlats({navigation, item, route }) {
             <View>
               <View style={{marginHorizontal: 12,}}>
                 <Text style={{margin: 12, fontWeight: "bold", fontSize: 22}}>
-                  {plats.nom}
+                  {plats.name}
                 </Text>
                 <View style={{}}>
                   <Text style={{fontSize: 20, fontWeight: "bold"}}>
