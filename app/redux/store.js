@@ -13,6 +13,7 @@ import locationReducer from './reducer/locationReducer';
 import villesReducer from './reducer/villesReducer';
 import favorisReducer from './reducer/favorisReducer';
 import menuReducer from './reducer/menuReducer';
+import payementReducer from './reducer/payementReducer';
 
 const store = configureStore({
   reducer: {
@@ -28,7 +29,8 @@ const store = configureStore({
     location: locationReducer, 
     ville: villesReducer,
     favoris: favorisReducer,
-    menu: menuReducer
+    menu: menuReducer,
+    payement : payementReducer
   },
 });
 

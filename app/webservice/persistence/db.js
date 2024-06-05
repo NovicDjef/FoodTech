@@ -1,4 +1,4 @@
-const dbname="foodtech"
+const dbname="koursier"
 //const dbmarker="ilinksmarkers"
 var datastore =require('react-native-local-mongodb');
 const items = {};

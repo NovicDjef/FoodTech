@@ -12,6 +12,7 @@
     "Text_life": "Everything you want comes to you thanks to our always available service. Life becomes simpler with Tchop Tchop",
     "Text_welcom": "There is nothing simpler, easy to handle and quite intuitive",
     "search": "Search...",
+    "Loading": "Loading",
     "filter": "Filter",
     "see_all": "See all",
     "PHONE_NUMBER": "Phone Number",
@@ -91,7 +92,20 @@
     "Star_ratings": "Star Ratings",
     "Send": "Send",
     "Submit_complaint": "Submit your complaint",
-    "menuVide": "This menu is empty, please choose another menu"
+    "menuVide": "This menu is empty, please choose another menu",
+    "Your_Name": "Your Name",
+    "Your_phone" : "Your Phone Number",
+    "Delivey_adress": "Delivery Adresse",
+    "Food_name": "Food Name",
+    "Desc_Food": "Description Food",
+    "Img_food": "Food Image",
+    "Recommandation": "My recommandation",
+    "Price_Food": "Price food",
+    "Quantity": "Quantity",
+    "Delivery_price": "Delivery Price",
+    "Net_payable": "Net payable",
+    "Cancel": "Cancel",
+    "Recu": "Verification of order data"
     
 
   }

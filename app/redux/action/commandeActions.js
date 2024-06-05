@@ -1,4 +1,4 @@
-import { addSomeCommande, getSomeCommande } from "../../services/routeApi"; // Mettez à jour pour correspondre à votre service d'API
+import { addSomeCommande, getSomeCommande } from "../../services/routeApi";
 import { 
   fetchCommandesRequest, 
   fetchCommandesSucces, 
@@ -8,6 +8,7 @@ import {
   addCommandeFailure
 } from "../reducer/commandeReducer";
 
+// Fetch commandes
 export const fetchcommandes = () => {
   return async (dispatch) => {
     dispatch(fetchCommandesRequest());
@@ -22,12 +23,15 @@ export const fetchcommandes = () => {
   };
 };
 
-export const addCommande = (cart) => { 
+// Add commande
+export const addCommande = (payement) => { 
   return async (dispatch) => {
     dispatch(addCommandeRequest());
     try {
-      const response = await addSomeCommande(cart);
+      const response = await addSomeCommande(payement);
+      console.log("Réponse :", response);
       dispatch(addCommandeSucces(response.data));
+      console.log("Réponse :", response);
       return response; 
     } catch (error) {
       dispatch(addCommandeFailure(error.message));

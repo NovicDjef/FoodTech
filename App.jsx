@@ -22,11 +22,15 @@ export default function App() {
     if (enabled) {
       console.log('Authorization status:', authStatus);
     }
+    
   }
+  
   const getToken = async () => {
     const token = await messaging().getToken()
     console.log("Token :", token)
+    
   }
+  
  
   useEffect(() => {
     setTimeout(() => {

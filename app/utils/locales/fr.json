@@ -11,6 +11,7 @@
     "life_simplify": "vie simplifier",
     "Text_life": "Tous ce que vous desirez vien a vous grace a notre service toujours disponibre. La vie devient plus simple avec Tchop Tchop",
     "search": "Rechercher...",
+    "Loading": "Chargement",
     "filter": "Filtrer",
     "see_all": "Tous voir",
     "PHONE_NUMBER": "Numero Téléphone",
@@ -91,6 +92,19 @@
     "Star_ratings": "Notes par étoiles",
     "Send": "Envoyer",
     "Submit_complaint": "Soumettez votre doleance",
-    "menuVide": "Ce menu est vide veillez choisir un autre menu SVP"
+    "menuVide": "Ce menu est vide veillez choisir un autre menu SVP",
+    "Your_Name": "Votre Nom",
+    "Your_phone" : "Votre numero Telephone",
+    "Delivey_adress" :"Adresse de livraison",
+    "Food_name": "Nom du plat",
+    "Desc_Food": "Description d repas",
+    "Img_food": "Image Repas",
+    "Recommandation": "Ma recommandation",
+    "Price_Food": "Prix du Repas",
+    "Quantity": "Quantité",
+    "Delivery_price": "Prix livraison",
+    "Net_payable": "Net à payer",
+    "Cancel": "Annuler",
+    "Recu": "Verifications des données de la commande"
 
 }

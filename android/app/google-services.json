@@ -1,15 +1,15 @@
 {
   "project_info": {
     "project_number": "772270828979",
-    "project_id": "foodtech-320d5",
-    "storage_bucket": "foodtech-320d5.appspot.com"
+    "project_id": "koursier-320d5",
+    "storage_bucket": "koursier-320d5.appspot.com"
   },
   "client": [
     {
       "client_info": {
         "mobilesdk_app_id": "1:772270828979:android:9c872c0e96acab0bd86fc6",
         "android_client_info": {
-          "package_name": "com.foodtech"
+          "package_name": "com.koursier"
         }
       },
       "oauth_client": [

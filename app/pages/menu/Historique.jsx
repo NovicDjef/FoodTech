@@ -29,10 +29,10 @@ export default function Historique() {
 
   const onRefresh = () => {
     setRefreshing(true);
-    fetchData();
     setTimeout(() => {
-      dispatch(filterCommandesUtilisateur(commandes))
-         setRefresh(false)
+      fetchData();
+     // dispatch(filterCommandesUtilisateur(commandes))
+     setRefreshing(false)
      }, 3000)
     
   };
@@ -46,11 +46,25 @@ export default function Historique() {
       // Ajouter les commandes filtrées à la liste finale
       commandesUtilisateur = commandesUtilisateur.concat(commandesFiltrees);
     });
+    
     return commandesUtilisateur;
+    
   };
+
+  const commandesUtilisateur = filterCommandesUtilisateur(commandes, userId);
+
+// Ajouter le nom du restaurant à chaque plat commandé
+const platsAvecNomRestaurant = commandesUtilisateur.map(commande => {
+  const plat = platsData.find(plat => plat.id === commande.platsId);
+  const restaurant = restaurants.find(resto => resto.id === commande.restaurantId);
+  if (plat && restaurant) {
+    return { ...plat, nomRestaurant: restaurant.name };
+  } else {
+    return null; // Ignorez les plats sans restaurant correspondant
+  }
+}).filter(plat => plat !== null); // Filtrer les plats sans restaurant correspondant
+
   
-  // Filtrer les commandes de l'utilisateur
-  const commandesUtilisateur = filterCommandesUtilisateur(commandes);
   
   return (
     <SafeAreaView style={{ backgroundColor: '#fff', flex: 1 }}>
@@ -60,7 +74,7 @@ export default function Historique() {
       >
         <Text style={styles.title}>Historiques Commandes</Text>
 
-        {commandesUtilisateur === 0 ? (
+        {platsAvecNomRestaurant === 0 ? (
           <View style={styles.emptyMessageContainer}>
           <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
                   <LottieView
@@ -78,11 +92,35 @@ export default function Historique() {
         ) : (
           commandesUtilisateur.map((commande) => {
             const plat = platsData.find((plat) => plat.id === commande.platsId);
-            const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
-            const nomRestaurant = restaurant.name || 'name restaurant inconnu';
+            // const restaurant = restaurants.find((resto) => resto.id === plat.restaurantId);
+            const commandesUtilisateur = filterCommandesUtilisateur(commandes, userId);
+
+            // const nomRestaurant = restaurant.name || 'name restaurant inconnu';
             const imageplat = plat.image || 'Image plat inconnu';
             const nomPlat = plat.name || 'nom plat inconnu';
             const prixplat = plat.prix || 'prix plat inconnu';
+            //const heureCommende = plat.createdAt || "Heure Inconnu"
+            const isoDate = commande.createdAt;
+            const date = new Date(isoDate);
+
+// Extraire les composants de la date
+const day = date.getUTCDate(); 
+const month = date.getUTCMonth() + 1; 
+const year = date.getUTCFullYear(); 
+const hours = date.getUTCHours(); 
+const minutes = date.getUTCMinutes();
+
+// Ajouter un zéro devant les jours et mois inférieurs à 10
+const formattedDay = day < 10 ? `0${day}` : day;
+const formattedMonth = month < 10 ? `0${month}` : month;
+const formattedHours = hours < 10 ? `0${hours}` : hours;
+const formattedMinutes = minutes < 10 ? `0${minutes}` : minutes;
+const nomRestaurant = restaurants.name || 'Nom du restaurant inconnu';
+
+
+// Formater la date et l'heure en jour/mois/année heure:minute
+const heureCommende = `${formattedDay}/${formattedMonth}/${year} à ${formattedHours}:${formattedMinutes}`;
+
 
             return (
               <View key={commande.id} style={styles.cardWrapper}>
@@ -90,7 +128,7 @@ export default function Historique() {
                   onPress={() => {
                     // handle onPress
                   }}
-                >
+                > 
                   <View style={styles.card}>
                     <Image
                       alt=""
@@ -100,9 +138,14 @@ export default function Historique() {
                     />
 
                     <View style={styles.cardBody}>
-                      <Text numberOfLines={1} style={styles.cardTitle}>
-                        {nomPlat}
-                      </Text>
+                      <View style={{display: "flex",  flexDirection: 'row', alignItems: "center", justifyContent: "space-between"}}>
+                          <Text numberOfLines={1} style={styles.cardTitle}>
+                            {nomPlat}
+                          </Text>
+                          <Text>
+                            {heureCommende}
+                          </Text>
+                      </View>
                       <Text numberOfLines={1} style={styles.cardRowItemText}>
                         {nomRestaurant}
                       </Text>
@@ -174,7 +217,6 @@ const styles = StyleSheet.create({
     flexShrink: 1,
     flexBasis: 0,
     paddingVertical: 4,
-    alignItems: 'flex-start',
     justifyContent: 'space-between',
   },
   cardTitle: {

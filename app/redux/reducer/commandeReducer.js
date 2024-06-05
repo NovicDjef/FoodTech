@@ -16,7 +16,7 @@ const commandeslice = createSlice({
     },
     fetchCommandesSucces(state, action) {
       state.loading = false;
-      state.commandes.push(action.payload);
+      state.commandes = action.payload; // Remplacer les commandes existantes
       state.error = null;
     },
     fetchCommandesFailure(state, action) {
@@ -29,7 +29,7 @@ const commandeslice = createSlice({
     },
     addCommandeSucces(state, action) {
       state.loading = false;
-      state.commandes.push(action.payload); // Ajoute la nouvelle commande au tableau des commandes
+      state.commandes.push(action.payload); // Ajouter la nouvelle commande
       state.error = null;
     },
     addCommandeFailure(state, action) {

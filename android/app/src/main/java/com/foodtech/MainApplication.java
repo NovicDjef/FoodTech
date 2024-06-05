@@ -1,4 +1,4 @@
-package com.foodtech;
+package com.koursier;
 
 import android.app.Application;
 import com.facebook.react.PackageList;

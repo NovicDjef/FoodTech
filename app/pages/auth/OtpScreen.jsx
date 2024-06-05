@@ -53,7 +53,7 @@ export default function OtpScreen({navigation}) {
           setLoading(true);
           try {
             const response  = await dispatch(verifyOTP(otpCode));
-            if (response && response.data && response.data.message) {
+            if (response && response.data) {
               showAlert("Succès", response.data.message);
             } else {
               showAlert("Erreur", "Désolé, mais le code que vous avez entré est incorrect. veillez entrer le code recu par SMS.");

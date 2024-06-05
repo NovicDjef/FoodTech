@@ -25,6 +25,10 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 
 const HEADER_HEIGHT = 250;
 export default function DetailsPlats({navigation, item, route }) {
+
+  
+
+
     const { plats } = route.params
     const flatListRef = useRef();
     const scrollY = useSharedValue(0);
@@ -43,7 +47,6 @@ export default function DetailsPlats({navigation, item, route }) {
     }
     dispatch(addToCart(plats));
     setCount(count + 1)
-    console.log("erere :", isProductInCart)
   }
  
   const handleAddToCommande = () => { 

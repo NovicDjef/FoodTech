@@ -50,8 +50,8 @@ import apiService from "./Api";
     
   // }));
   
-  export const addSomeCommande = (commande, userId) => {
-      return apiService.post('/commande', { commande : commande, userId: userId})
+  export const addSomePayement = (paymentData) => {
+      return apiService.post('/payement', paymentData)
   }
 
   // export const addSomeCommande = (cart) => {

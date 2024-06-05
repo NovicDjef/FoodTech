@@ -18,13 +18,18 @@ export const authenticateUser = createAsyncThunk(
 
 export const verifyOTP = createAsyncThunk(
   'auth/verifyOTP',
-  async (otpData, { rejectWithValue }) => {
+  async (otpCode, { rejectWithValue }) => {
     try {
       // Faites votre logique de vérification OTP ici
-      const response = await fetchSomeValidateOTP(otpData);
+      const response = await fetchSomeValidateOTP(otpCode);
       return response.data;
     } catch (error) {
-      return rejectWithValue(error.response.data);
+      if (error.response) {
+        return rejectWithValue(error.response.data);
+      } else {
+        // Gérer d'autres types d'erreurs ici si nécessaire
+        return rejectWithValue({ message: 'Une erreur s\'est produite lors de la vérification de l\'OTP.' });
+      }
     }
   }
 );

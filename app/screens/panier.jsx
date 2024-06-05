@@ -10,6 +10,7 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
+  Button, Modal,
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
@@ -17,8 +18,6 @@ import { COLORS } from '../constants'
 import { RadioButton } from 'react-native-paper';
 import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateCartItemQuantity } from '../redux/action/cartActions';
-import { getchGeolocations, sendLocation } from '../redux/action/locationActions';
-// import Geolocation from '@react-native-community/geolocation';
 import DarkMode from '../utils/darkmode.context';
 import Dialog from "react-native-dialog";
 import { addCommande } from '../redux/action/commandeActions';
@@ -26,9 +25,31 @@ import { useTranslation } from 'react-i18next';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
 import PushNotification from 'react-native-push-notification';
 import baseImage from "../services/urlApp"
+import PaymentWebView from '../services/PaymentWebView';
+import { addPayment } from '../redux/action/payementAction';
 
 
 export default function Panier({ navigation }) {
+
+  useEffect(() => {
+
+    // Configure PushNotification
+    PushNotification.configure({
+      onNotification: function (notification) {
+        console.log("LOCAL NOTIFICATION ==>", notification);
+      },
+    });
+
+    // Create a channel for Android
+    PushNotification.createChannel(
+      {
+        channelId: "default-channel-id", // (required)
+        channelName: "Default channel", // (required)
+      },
+      (created) => console.log(`CreateChannel returned '${created}'`)
+    );
+  }, []);
+
   const { t } = useTranslation()
   const dispatch = useDispatch();
   const [shippingMethod, setShippingMethod] = useState('Normal');
@@ -64,6 +85,11 @@ const coordinates = getRestaurantCoordinates(restaurantId);
 // console.warn("Coordonnées du restaurant :", coordinates);
 
 
+
+
+
+const [showModal, setShowModal] = useState(false);
+const [paymentUrl, setPaymentUrl] = useState('');
   useEffect(() => {
     StatusBar.setBarStyle('light-content', true);
   }, []);
@@ -96,33 +122,139 @@ const coordinates = getRestaurantCoordinates(restaurantId);
     }
   };
 
-  const handleCommande = async () => {
-    try {
-      const commander = cart.items.map(item => ({
-        quantity: item.quantity,
-        platsId: item.id,
-        recommandation: recommendationText,
-        restaurantId: restaurantId,
-        prix: totalCommande,
-        userId: userId,
-      }));
-      const response = await dispatch(addCommande(commander));
-    
-    if (response && response.data && response.data.message) {
-      showAlert("Succès", response.data.message);
-    } else {
-      showAlert("Erreur", "Désolé, votre commande a échoué. Veuillez réessayer plus tard.");
-    }
-  } catch (error) {
-    showAlert("Erreur", "Une erreur s'est produite lors du traitement de votre commande.");
-  } finally {
-      setShowModalDetailRecu(false);
-    }
-  };
+
+  // const handleCommande = async () => {
+  //   try {
+  //     console.debug("commnder")
+   // const commandeDetails = commander.map(item => 
+      //   `Plat: ${item.platsId}, Quantité: ${item.quantity}`
+      // ).join('\n');
+      // PushNotification.localNotification({
+      //   channelId: "default-channel-id",
+      //   title: `${user.username} ta Commande a réussie`,
+      //   message: `Votre commande a été passée avec succès ${user.username} !\nDétails:\n${commandeDetails}`,
+      // });
+  //   } catch(error) {
+  //     showAlert("Erreur", "Une erreur s'est produite lors du traitement de votre commande.");
+  //   }
+  // }
+  function generateUniqueReference() {
+    return 'ref_' + new Date().getTime();
+  }
+  const uniqueReference = generateUniqueReference();
+  console.log(uniqueReference);
+
   
-  const showAlert = (title, message) => {
-    Alert.alert(title, message, [{ text: 'OK', onPress: () => handleOKPress() }]);
+  const handleCommande = async () => {
+    const paymentData = {
+      amount: totalCommande,
+      mode_payement: "cm.orange",
+      currency: "XAF",
+      userId: userId,
+      commandeId: 1,
+      phone: "656019261",
+    };
+    try {
+      const response = await dispatch(addPayment(paymentData));      
+      if (response.authorization_url) {
+        console.log("Navigating to Payment with URL:", response.authorization_url);
+        navigation.navigate('Payment', { paymentUrl: response.authorization_url });
+      } else {
+        console.error("URL de paiement manquante dans la réponse :", response);
+      }
+    } catch (error) {
+      console.error("Erreur dans handleCommande :", error);
+    }
   };
+  const showAlert = (title, message) => {
+    Alert.alert(title, message);
+  };
+
+  // const handleCommande = async () => {
+  //   try {
+  //     const paymentData = {
+  //       amount: 100,
+  //       mode_payement: "cm.orange",
+  //       currency: "XAF",
+  //       userId: 5,
+  //       commandeId: 1,
+  //       phone: "656019261",
+  //       email: "customer@email.com",
+  //       description: "Payment description"
+  //     };
+  //      uniqueReference
+
+  //     console.log("commandes :", paymentData, uniqueReference) 
+  //    dispatch(addPayment(paymentData));
+
+  
+  // } catch (error) {
+  //   showAlert("Erreur", "Une erreur s'est produite lors du traitement de votre commande.");
+  // } finally {
+  //     setShowModalDetailRecu(false);
+  //   }
+  // };
+  
+  // const showAlert = (title, message) => {
+  //   Alert.alert(title, message, [{ text: 'OK', onPress: () => handleOKPress() }]);
+  // };
+
+   // const commandeDetails = commander.map(item => 
+        //   `Plat: ${item.platsId}, Quantité: ${item.quantity}`
+        // ).join('\n');
+  
+        // PushNotification.localNotification({
+        //   channelId: "default-channel-id",
+        //   title: `${user.username} ta Commande a réussie`,
+        //   message: `Votre commande a été passée avec succès ${user.username} !\nDétails:\n${commandeDetails}`,
+        // });
+
+  //       const handleCommande = async () => {
+  //         try {
+  //           const commande = cart.items.map(item => ({
+  //             quantity: item.quantity,
+  //             platsId: item.id,
+  //             recommandation: recommendationText,
+  //             restaurantId: restaurantId,
+  //             prix: totalCommande,
+  //             userId: userId,
+  //             position: positionText
+  //           }));
+  //           console.log("commandes :", commande);
+          
+  //           const response = aw dispatch(addCommande(commande));
+  //           console.log("responses :", response);
+  //           if (response && response.data && response.data.message) {
+  //             showAlert("Succès", response.data.message);
+          
+  //             // Redirection vers la WebView avec l'URL de paiement
+  //             if (response.data.payment_url) {
+  //               navigation.navigate('PaymentWebView', { paymentUrl: response.data.payment_url });
+  //             } else {
+  //               showAlert("Erreur", "L'URL de paiement n'a pas été reçue. Veuillez réessayer plus tard.");
+  //             }
+          
+  //           } else {
+  //             showAlert("Erreur", "Désolé, votre commande a échoué. Veuillez réessayer plus tard.");
+  //           }
+  //         } catch (error) {
+  //           console.error("Error during order:", error);
+  //           showAlert("Erreur", "Une erreur s'est produite lors du traitement de votre commande.");
+  //         } finally {
+  //           setShowModalDetailRecu(false);
+  //         }
+  //       };
+  
+  // const showAlert = (title, message) => {
+  //   Alert.alert(
+  //     title,
+  //     message,
+  //     [
+  //       { text: "OK" }
+  //     ],
+  //     { cancelable: false }
+  //   );
+  // };
 
   const handleOKPress = () => {
     navigation.goBack();
@@ -167,20 +299,20 @@ const coordinates = getRestaurantCoordinates(restaurantId);
   )
  }
  const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
- const shippingCost = shippingMethod === 'Normal' ? 0 : 600;
+ const shippingCost = shippingMethod === 'Normal' ? 600 : 0;
  const totalCommande = totalPrice + shippingCost;
 
   const ConfirmInfo = ({totalCommande}) => {
     const { isDarkMode } = useContext(DarkMode)
     return(
       <Dialog.Container useNativeDriver={true} visible={showModalDetailRecu}>
-        <Dialog.Title isDarkMode={isDarkMode}>Recu</Dialog.Title>
+        <Dialog.Title isDarkMode={isDarkMode}>{t("Recu")}</Dialog.Title>
           <ScrollView >
           {cart.items.map((product, index) => (
             <View style={{margin: 18 }} key={index}>
                <View style={{flexDirection: 'row', marginTop: 10}}>
                 <View style={{flex: 1}}>
-                    <Text isDarkMode={isDarkMode}>Votre nom</Text>
+                    <Text isDarkMode={isDarkMode}>{t("Your_Name")}</Text>
                 </View>
                 <View style={{flex: 1, alignItems: 'flex-end'}}>
                   <Text isDarkMode={isDarkMode}>{user.username}</Text>
@@ -188,7 +320,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
               </View>
               <View style={{flexDirection: 'row', marginTop: 10}}>
                 <View style={{flex: 1}}>
-                    <Text isDarkMode={isDarkMode}>Votre numero</Text>
+                    <Text isDarkMode={isDarkMode}>{t("Your_phone")}</Text>
                 </View>
                 <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text isDarkMode={isDarkMode}>{user.phone}</Text>
@@ -197,24 +329,24 @@ const coordinates = getRestaurantCoordinates(restaurantId);
               </View>
               <View style={{flexDirection: 'row', marginTop: 10}}>
                 <View style={{flex: 1}}>
-                  <Text isDarkMode={isDarkMode}>Adresse de livraison</Text>
+                  <Text isDarkMode={isDarkMode}>{t("Delivey_adress")}</Text>
                 </View>
                 <View style={{flex: 1, alignItems: 'flex-end'}}>
-                  <Text isDarkMode={isDarkMode}>{adresse}</Text>
+                  <Text isDarkMode={isDarkMode}>{positionText}</Text>
                 </View>
               </View>
               
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Nom du plat</Text>
+                <Text isDarkMode={isDarkMode}>{t("Food_name")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
-                <Text isDarkMode={isDarkMode}>{product.nom}</Text>
+                <Text isDarkMode={isDarkMode}>{product.name}</Text>
             </View>
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Description du plats</Text>
+                <Text isDarkMode={isDarkMode}>{t("Desc_Food")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
@@ -223,7 +355,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Image plat</Text>
+                <Text isDarkMode={isDarkMode}>{t("Img_food")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
             <Image
@@ -239,7 +371,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Ma recommandation</Text>
+                <Text isDarkMode={isDarkMode}>{t("Recommandation")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
@@ -248,7 +380,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Prix du plat</Text>
+                <Text isDarkMode={isDarkMode}>{t("Price_Food")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
@@ -257,7 +389,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Quantité</Text>
+                <Text isDarkMode={isDarkMode}>{t("Quantity")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
@@ -266,16 +398,16 @@ const coordinates = getRestaurantCoordinates(restaurantId);
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Prix livraison</Text>
+                <Text isDarkMode={isDarkMode}>{t("Delivery_price")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text
-                    isDarkMode={isDarkMode}>600 Frs</Text>
+                    isDarkMode={isDarkMode}>{shippingCost} Frs</Text>
             </View>
         </View>
         <View style={{flexDirection: 'row', marginTop: 10}}>
             <View style={{flex: 1}}>
-                <Text isDarkMode={isDarkMode}>Net a payer</Text>
+                <Text isDarkMode={isDarkMode}>{t("Net_payable")}</Text>
             </View>
             <View style={{flex: 1, alignItems: 'flex-end'}}>
                 <Text>{totalCommande} Frs</Text>
@@ -289,7 +421,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
 
       <View style={{display: "flex", justifyContent: "space-between", alignItems: 'center', flexDirection: "row", marginHorizontal: 12}}>
         <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
-          <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>Annuler</Text> 
+          <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>{t("Cancel")}</Text> 
         </TouchableOpacity>
         <Dialog.Button bold={true} label={"Valider"} onPress={handleCommande}/>
       </View>
@@ -333,7 +465,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
           {cart.items.length > 0 ? (
             <View>
               {cart.items
-                .sort((a, b) => a.nom > b.nom)
+                .sort((a, b) => a.name > b.name)
                 .map((product, index) => (
                   <View style={styles.productView} key={index}>
                     <Image
@@ -341,7 +473,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                       source={{uri: `${baseImage}/${product.image}`}}
                     />
                     <View style={styles.productMiddleView}>
-                      <Text style={styles.productTitle}>{product.nom}</Text>
+                      <Text style={styles.productTitle}>{product.name}</Text>
                       <Text numberOfLines={2} style={styles.productCompanyTitle}>
                         {product.description}
                       </Text>
@@ -367,7 +499,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                             const newQuantity = product.quantity - 1;
                             if (newQuantity < 1) {
                               return Alert.alert(
-                                `Voulez vous vraiment supprimer ${product.nom} du panier ?`, '', 
+                                `Voulez vous vraiment supprimer ${product.name} du panier ?`, '', 
                                 [
                                   { text: 'Annuler', style: 'cancel' },
                                   {
@@ -542,6 +674,7 @@ const coordinates = getRestaurantCoordinates(restaurantId);
 
           <View style={{ height: 100 }}></View>
           <ConfirmInfo showModalDetailRecu={showModalDetailRecu} setShowModalDetailRecu={setShowModalDetailRecu} totalCommande={totalCommande} />
+          
         </ScrollView>
       </View>
     </View>
