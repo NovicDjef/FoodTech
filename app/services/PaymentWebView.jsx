@@ -3,18 +3,21 @@ import { WebView } from 'react-native-webview';
 import { View, ActivityIndicator, Text, Alert, StyleSheet, Dimensions } from 'react-native';
 import { useTranslation } from 'react-i18next';
 import { useRoute } from '@react-navigation/native';
-import { fetchcommandes } from '../redux/action/commandeActions';
+import { addCommande } from '../redux/action/commandeActions';
 import { useDispatch, useSelector } from 'react-redux';
 import { COLORS } from '../constants';
 
 const PaymentWebView = ({navigation}) => {
-    const userId = useSelector(state => state.auth.user.user)
     const { t } = useTranslation();
   const route = useRoute();
-  const { paymentUrl } = route.params;
+  const { paymentUrl, commandeData } = route.params;
   const webViewRef = useRef(null);
- //const dispatch =  useDispatch();
+  const dispatch =  useDispatch();
 
+  useEffect(() => {
+    console.debug("commandes Payement.... :",commandeData )
+    dispatch(addCommande(commandeData))
+  },[])
   const handleMessage = (event) => {
     //message = JSON.parse(message);
     // let status = message['status'];
@@ -31,8 +34,14 @@ const PaymentWebView = ({navigation}) => {
     //         navigation.goBack()
        
     // }
-    if (message === 'payment_success') {
+
+
+  console.debug("commandes Payement.... :",commandeData )
+    if (message === 'payment_success') {    
+
           const message = event.nativeEvent.data;
+          dispatch(addCommande(commandeData))
+          console.debug("commandes arrive dans payment :",commandeData )
           if (message === 'payment_success') {
             Alert.alert('Payment Success', 'Your payment was successful!', [
               {
@@ -45,26 +54,25 @@ const PaymentWebView = ({navigation}) => {
   };
 
 
+
 return (
-    <View style={styles.contain}>
-        <WebView
-            source={{ uri: paymentUrl }}
-            ref={webViewRef}
-            // javaScriptEnabled
-            // domStorageEnabled
-            onMessage={handleMessage}
-            style={styles.webview}
-            renderLoading={() => (
-                <View style={{flex: 1, justifyContent: 'center', alignItems: 'center', marginTop: -42}}>
-                    <>
-                        <ActivityIndicator size="large" color={COLORS.primary}/>
-                        <Text>{t("Loading")}</Text>
-                    </>
-                </View>
-        )}
-        startInLoadingStat={true}
-        />
-    </View>
+  <View style={styles.contain}>
+  <WebView
+    style={styles.webview}
+    source={{ uri: paymentUrl }}
+    ref={webViewRef}
+    renderLoading={() => (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="large" color={COLORS.primary} />
+        <Text style={{ fontSize: 18 }}>{t("Loading")}</Text>
+      </View>
+    )}
+    startInLoadingState={true}
+    javaScriptEnabled={true}
+    domStorageEnabled={true}
+    onMessage={handleMessage}
+  />
+</View>
   );
 };
 
@@ -79,6 +87,11 @@ const styles = StyleSheet.create({
     webview: {
         height: Dimensions.get('window').height,
         width: Dimensions.get('window').width,
+    },
+    loadingContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
     },
 });
 

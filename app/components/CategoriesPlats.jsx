@@ -8,13 +8,16 @@ import { fetchCategories } from '../redux/action/categorieAction';
 import { fetchRestaurants } from '../redux/action/restaurantActions';
 import baseImage from "../services/urlApp"
 import { COLORS } from '../constants';
+import restaurantData from '../constants/data';
 
 export default function CategoriesPlats({course, loading}) {
+  const restaurant = useSelector((state) => state.restaurant.restaurants);
   const navigation = useNavigation();
   const [isLoading, setIsLoading] = useState(true);
  
 
   useEffect(() => {
+    console.log('eeeee :', restaurant)
     if (loading) {
       const timer = setTimeout(() => {
         setIsLoading(false);
@@ -73,6 +76,7 @@ export default function CategoriesPlats({course, loading}) {
       }} 
       onPress={() => navigation.navigate("Status", {
         item: course,
+        restaurant: restaurant
     })}>
       <Image
       source={{uri: `${baseImage}/${course.image}`}}

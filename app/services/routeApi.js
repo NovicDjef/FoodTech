@@ -54,9 +54,9 @@ import apiService from "./Api";
       return apiService.post('/payement', paymentData)
   }
 
-  // export const addSomeCommande = (cart) => {
-  //   return apiService.post("/commande", {cart: cart})
-  // }
+  export const addSomeCommande = (commandeData) => {
+    return apiService.post("/commande", {commandeData: commandeData})
+  }
 
   export const fetchSomeAdressLivraison = (adresse) => {
     console.debug("Adresse de livraion: ", adresse);

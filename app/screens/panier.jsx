@@ -10,7 +10,7 @@ import {
   Alert,
   ScrollView,
   RefreshControl,
-  Button, Modal,
+  ActivityIndicator
 } from 'react-native';
 import LottieView from 'lottie-react-native';
 import { Icon } from 'react-native-elements';
@@ -20,17 +20,16 @@ import { useSelector, useDispatch } from 'react-redux';
 import { removeFromCart, updateCartItemQuantity } from '../redux/action/cartActions';
 import DarkMode from '../utils/darkmode.context';
 import Dialog from "react-native-dialog";
-import { addCommande } from '../redux/action/commandeActions';
 import { useTranslation } from 'react-i18next';
-import { fetchRestaurants } from '../redux/action/restaurantActions';
 import PushNotification from 'react-native-push-notification';
 import baseImage from "../services/urlApp"
-import PaymentWebView from '../services/PaymentWebView';
 import { addPayment } from '../redux/action/payementAction';
+import RenderLoader from './loader/RenderLoader';
 
 
-export default function Panier({ navigation }) {
+export default function Panier({ navigation, route }) {
 
+ 
   useEffect(() => {
 
     // Configure PushNotification
@@ -49,7 +48,7 @@ export default function Panier({ navigation }) {
       (created) => console.log(`CreateChannel returned '${created}'`)
     );
   }, []);
-
+  const {restaurant} = route.params 
   const { t } = useTranslation()
   const dispatch = useDispatch();
   const [shippingMethod, setShippingMethod] = useState('Normal');
@@ -60,12 +59,15 @@ export default function Panier({ navigation }) {
   const [showRecommendation, setShowRecommendation] = useState(false);
   const [showPosition, setShowPosition] = useState(false)
   const [positionText, setPositionText] = useState(""); 
- 
+  const [loading, setLoading] = useState(false);
+
   const user = useSelector(state => state.auth.user.user)
   const cart = useSelector(state => state.cart)
   const restaurants = useSelector(state => state.restaurant.restaurants)
+  const loadingPayment = useSelector(state => state.payement.loading)
   const locations = useSelector(state => state.location.geolocation)
   const userId = useSelector(state => state.auth.user.user.id)
+
   const getRestaurantCoordinates = (restaurantId) => {
     const restaurant = restaurants.find(resto => resto.geolocalisationId === restaurantId);
     if (restaurant) {
@@ -79,17 +81,11 @@ export default function Panier({ navigation }) {
       return 'Restaurant non trouvé';
     }
   };
-  
-  const restaurantId = 1; // ID du restaurant
+  const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
+  const shippingCost = shippingMethod === 'Normal' ? 500 : 0;
+  const totalCommande = totalPrice + shippingCost;
+  const restaurantId = restaurant.id; // ID du restaurant
 const coordinates = getRestaurantCoordinates(restaurantId);
-// console.warn("Coordonnées du restaurant :", coordinates);
-
-
-
-
-
-const [showModal, setShowModal] = useState(false);
-const [paymentUrl, setPaymentUrl] = useState('');
   useEffect(() => {
     StatusBar.setBarStyle('light-content', true);
   }, []);
@@ -118,7 +114,7 @@ const [paymentUrl, setPaymentUrl] = useState('');
     if (shippingMethod === 'Normal') {
       return totalPrice;
     } else if (shippingMethod === 'Express') {
-      return totalPrice + 600;
+      return totalPrice + 500;
     }
   };
 
@@ -144,7 +140,16 @@ const [paymentUrl, setPaymentUrl] = useState('');
   const uniqueReference = generateUniqueReference();
   console.log(uniqueReference);
 
-  
+  const commandeData = cart.items.map(item => ({
+    quantity: item.quantity,
+    platsId: item.id,
+    recommandation: recommendationText,
+    restaurantId: restaurantId,
+    prix: item.prix * item.quantity + shippingCost,
+    userId: userId,
+    position: positionText
+  }));
+
   const handleCommande = async () => {
     const paymentData = {
       amount: totalCommande,
@@ -155,10 +160,11 @@ const [paymentUrl, setPaymentUrl] = useState('');
       phone: "656019261",
     };
     try {
+      setLoading(true) 
       const response = await dispatch(addPayment(paymentData));      
       if (response.authorization_url) {
         console.log("Navigating to Payment with URL:", response.authorization_url);
-        navigation.navigate('Payment', { paymentUrl: response.authorization_url });
+        navigation.navigate('Payment', { paymentUrl: response.authorization_url, commandeData: commandeData });
       } else {
         console.error("URL de paiement manquante dans la réponse :", response);
       }
@@ -298,9 +304,6 @@ const [paymentUrl, setPaymentUrl] = useState('');
     </View>
   )
  }
- const totalPrice = cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 0);
- const shippingCost = shippingMethod === 'Normal' ? 600 : 0;
- const totalCommande = totalPrice + shippingCost;
 
   const ConfirmInfo = ({totalCommande}) => {
     const { isDarkMode } = useContext(DarkMode)
@@ -423,14 +426,21 @@ const [paymentUrl, setPaymentUrl] = useState('');
         <TouchableOpacity onPress={() => {setShowModalDetailRecu(false)}} style={{flexDirection: 'row'}}>
           <Text style={{color: isDarkMode ? "white" : "black", fontWeight: "bold"}}>{t("Cancel")}</Text> 
         </TouchableOpacity>
-        <Dialog.Button bold={true} label={"Valider"} onPress={handleCommande}/>
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+      {!loading && !loadingPayment ? (
+        <Dialog.Button bold={true} label={"Valider"} onPress={handleCommande} />
+      ) : (
+        <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color={COLORS.primary} />
+        </View>
+      )}
       </View>
+    </View>
       
           </ScrollView>
       </Dialog.Container>
     ) 
   }
-
 
   return (
     <View style={styles.container}>
@@ -592,7 +602,7 @@ const [paymentUrl, setPaymentUrl] = useState('');
                       setShippingMethod('Normal');
                     }}
                   >
-                    <Text style={styles.shippingItemText}>{t("Delivery")} (600 Frs)</Text>
+                    <Text style={styles.shippingItemText}>{t("Delivery")} (500 Frs)</Text>
                     <RadioButton value='Normal' />
                     
                   </TouchableOpacity>
@@ -603,7 +613,7 @@ const [paymentUrl, setPaymentUrl] = useState('');
                 <Text style={styles.totalText}>{t("Total")} -</Text>
                 {shippingMethod === 'Normal' ? (
                   <Text style={styles.totalPrice}>
-                    {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 600)} Frs
+                    {cart.items.reduce((acc, val) => val.prix * val.quantity + acc, 500)} Frs
                   </Text>
                 ) : (
                   <Text style={styles.totalPrice}>

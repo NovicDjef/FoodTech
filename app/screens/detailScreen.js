@@ -59,7 +59,7 @@ import { fetchCategories } from '../redux/action/categorieAction';
       }
     }, [menus, restaurant.id]);
 
-  const getPlatsForCategoryAndMenu = (categoryId, restaurantId, menuId) => {
+  const getPlatsForCategoryAndMenu = (categoryId, menuId) => {
     const plats = platsData.filter((plat) => {
       const match = plat.categorieId === categoryId || plat.menuId === menuId;
       return match;
@@ -494,6 +494,7 @@ import { fetchCategories } from '../redux/action/categorieAction';
                 onPress={() => {
                   navigation.navigate("DetailsPlats", {
                     plats: item,
+                    restaurant: restaurant
                   })}}
                  />
             </TouchableOpacity>

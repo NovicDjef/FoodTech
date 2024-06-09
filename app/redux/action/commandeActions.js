@@ -24,11 +24,11 @@ export const fetchcommandes = () => {
 };
 
 // Add commande
-export const addCommande = (payement) => { 
+export const addCommande = (commandeData) => { 
   return async (dispatch) => {
     dispatch(addCommandeRequest());
     try {
-      const response = await addSomeCommande(payement);
+      const response = await addSomeCommande(commandeData);
       console.log("Réponse :", response);
       dispatch(addCommandeSucces(response.data));
       console.log("Réponse :", response);

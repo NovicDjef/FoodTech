@@ -26,19 +26,14 @@ const AnimatedFlatList = Animated.createAnimatedComponent(FlatList);
 const HEADER_HEIGHT = 250;
 export default function DetailsPlats({navigation, item, route }) {
 
-  
-
-
-    const { plats } = route.params
+    const { plats, restaurant } = route.params
     const flatListRef = useRef();
     const scrollY = useSharedValue(0);
     const [count, setCount] = useState(0)
     const user = useSelector((state) => state.auth.user)
     const cart = useSelector(state => state.cart)
     const { t } = useTranslation()
-
     const dispatch = useDispatch();
-
   const handleAddToCart = () => {
     const isProductInCart = cart.items.some(item => item.id === plats.id);
 
@@ -47,10 +42,11 @@ export default function DetailsPlats({navigation, item, route }) {
     }
     dispatch(addToCart(plats));
     setCount(count + 1)
+    console.log("count :", count)
   }
  
   const handleAddToCommande = () => { 
-      navigation.navigate('panier')
+      navigation.navigate('panier', {restaurant: restaurant})
   }
   const headerShareValue = useSharedValue(80);
   const filterModalSharedValue1 = useSharedValue(SIZES.height);

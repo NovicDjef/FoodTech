@@ -13,7 +13,7 @@ import baseImage from "../services/urlApp"
 import { useTranslation } from 'react-i18next';
 
 export default function Status({route, navigation, repas}) {
-    const {item} = route.params;
+    const {item, restaurant} = route.params;
     const dispatch = useDispatch()
     const { t } = useTranslation()
     const [count, setCount] = useState(0)
@@ -70,7 +70,7 @@ export default function Status({route, navigation, repas}) {
 
 
   const handleAddToCommande = () => { 
-    navigation.navigate('panier')
+    navigation.navigate('panier', {restaurant: restaurant})
 }
 
 
