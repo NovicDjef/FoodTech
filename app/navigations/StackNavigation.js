@@ -18,6 +18,7 @@ import Notifications from '../pages/menu/Notifications';
 import FavoriteRepas from '../screens/home/FavoriteRepas';
 import Helps from '../screens/home/helps';
 import PaymentWebView from '../services/PaymentWebView';
+import ChoixCommde from '../screens/ChoixCommde';
 
 const Stack = createStackNavigator();
 
@@ -29,7 +30,7 @@ export default function StackNavigation() {
           headerShown: false,
         }}
       >
-        <Stack.Screen name="TabMenu" component={TabMenu} />
+        {/* <Stack.Screen name="TabMenu" component={TabMenu} />
         <Stack.Screen name="FavoriteList" component={FavoriteList} />
         <Stack.Screen name="restaurantDetail" component={RestaurantDetail} />
         <Stack.Screen name="categories" component={Categories} />
@@ -45,7 +46,8 @@ export default function StackNavigation() {
         <Stack.Screen name='Notification' component={Notifications} />
         <Stack.Screen name='favorite' component={FavoriteRepas} />
         <Stack.Screen name='Payment' component={PaymentWebView} />
-        <Stack.Screen name='Helps' component={Helps} />
+        <Stack.Screen name='Helps' component={Helps} /> */}
+        <Stack.Screen name='choix' component={ChoixCommde} />
     </Stack.Navigator>
   )
 }

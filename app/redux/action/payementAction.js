@@ -1,8 +1,12 @@
-import { addSomePayement } from "../../services/routeApi";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { addSomePayement, getSomePayement } from "../../services/routeApi";
 import { 
   addPaymentRequest,
   addPaymentSuccess,
-  addPaymentFailure
+  addPaymentFailure,
+  fetchPaymentsRequest,
+  fetchPaymentsSuccess,
+  fetchPaymentsFailure,
 } from "../reducer/payementReducer";
 
 export const addPayment = (paymentData) => { 
@@ -19,3 +23,19 @@ export const addPayment = (paymentData) => {
     }
   };
 };
+
+export const fetchPaymentStatus = async () => {
+  return async (dispatch) => {
+    dispatch(fetchPaymentsRequest());
+    try {
+      const response = await getSomePayement(reference); 
+      dispatch(fetchPaymentsSuccess(response.data));
+      console.debug("response avant  ", response)
+      return response;
+    } catch (error) {
+      dispatch(fetchPaymentsFailure(error.message));
+      throw error
+    }
+  };
+  };
+ 

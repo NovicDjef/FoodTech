@@ -35,6 +35,10 @@ import apiService from "./Api";
   export const getchSomeVille = () => {
     return apiService.get("/villes")
   }
+  export const getSomePayement = () => {
+    return apiService.get(`/notchpay/${reference}`)
+   
+}
   
   // resquete POST :
   

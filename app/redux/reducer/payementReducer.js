@@ -22,6 +22,19 @@ const paymentSlice = createSlice({
     addPaymentFailure(state, action) {
       state.loading = false;
       state.error = action.payload;
+    },
+    fetchPaymentsRequest(state) {
+      state.loading = true;
+      state.error = null;
+    },
+    fetchPaymentsSuccess(state, action) {
+      state.loading = false;
+      state.payments = action.payload;
+      state.error = null;
+    },
+    fetchPaymentsFailure(state, action) {
+      state.loading = false;
+      state.error = action.payload;
     }
   }
 });
@@ -29,7 +42,10 @@ const paymentSlice = createSlice({
 export const { 
   addPaymentRequest,
   addPaymentSuccess,
-  addPaymentFailure
+  addPaymentFailure,
+  fetchPaymentsRequest,
+  fetchPaymentsSuccess,
+  fetchPaymentsFailure
 } = paymentSlice.actions;
 
 export default paymentSlice.reducer;

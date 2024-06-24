@@ -160,10 +160,10 @@ const coordinates = getRestaurantCoordinates(restaurantId);
       phone: "656019261",
     };
     try {
-      setLoading(true) 
-      const response = await dispatch(addPayment(paymentData));      
+      const response = await dispatch(addPayment(paymentData));   
+      setLoading(true)    
       if (response.authorization_url) {
-        console.log("Navigating to Payment with URL:", response.authorization_url);
+        console.log("Navigating to Payment with URL:", response);
         navigation.navigate('Payment', { paymentUrl: response.authorization_url, commandeData: commandeData });
       } else {
         console.error("URL de paiement manquante dans la réponse :", response);
@@ -366,7 +366,8 @@ const coordinates = getRestaurantCoordinates(restaurantId);
                 width: 35,
                 height: 35,
                 borderRadius: 10,
-                alignSelf: "flex-end"
+                alignSelf: "flex-end",
+                borderRadius: 8
               }}
               source={{uri: `${baseImage}/${product.image}`}}
             />
